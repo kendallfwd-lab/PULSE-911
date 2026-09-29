@@ -1,0 +1,1602 @@
+{
+  "users": [
+    {
+      "id": "usr-citizen-demo",
+      "email": "citizen@pulse.demo",
+      "password": "Pulse911!",
+      "role": "citizen",
+      "profileComplete": true,
+      "profile": {
+        "fullName": "Ana Morales",
+        "document": "DEMO-CR-001",
+        "birthDate": "1997-04-18",
+        "phone": "+506 7000-0001",
+        "province": "Puntarenas",
+        "canton": "Puntarenas",
+        "district": "El Roble",
+        "address": "Dirección ficticia para demostración",
+        "bloodType": "O+",
+        "allergies": "Penicilina",
+        "medications": "Ninguno declarado",
+        "conditions": "Ninguna condición crítica declarada",
+        "mobility": "Sin requerimientos especiales",
+        "notes": "Datos completamente ficticios.",
+        "consents": {
+          "location": true,
+          "medical": true,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": [
+          {
+            "id": "ct-1",
+            "name": "Carlos Morales",
+            "relation": "Hermano",
+            "phone": "+506 7000-0002",
+            "email": "carlos@example.test",
+            "priority": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "usr-admin-demo",
+      "email": "admin@pulse.demo",
+      "password": "Pulse911!",
+      "role": "admin",
+      "profileComplete": true,
+      "profile": {
+        "fullName": "Operador Demo",
+        "operatorCode": "OP-DEMO-01"
+      }
+    },
+    {
+      "id": "usr-dispatch-demo",
+      "email": "dispatcher@pulse.demo",
+      "password": "Pulse911!",
+      "role": "admin",
+      "profileComplete": true,
+      "profile": {
+        "fullName": "Dispatcher Demo",
+        "operatorCode": "OP-DEMO-01"
+      }
+    }
+  ],
+  "incidents": [
+    {
+      "id": "inc-482",
+      "code": "P-2026-000482",
+      "citizenId": "usr-citizen-demo",
+      "category": "traffic_accident",
+      "title": "Accidente vehicular",
+      "description": "Colisión entre dos vehículos. Hay una persona con dolor en un brazo.",
+      "priority": "P1",
+      "status": "validated",
+      "createdAt": "2026-09-24T14:42:00-06:00",
+      "location": {
+        "label": "El Roble, Puntarenas",
+        "lat": 9.976,
+        "lng": -84.748,
+        "x": 42,
+        "y": 66,
+        "reference": "Referencia urbana de demostración"
+      },
+      "details": {
+        "vehicles": 2,
+        "people": 3,
+        "injured": "Sí",
+        "trapped": "No",
+        "fire": "No",
+        "smoke": "No",
+        "fuelLeak": "Sí",
+        "roadBlocked": "Parcial",
+        "heavyVehicle": "No",
+        "weather": "Lluvia ligera"
+      },
+      "canTalk": true,
+      "publicVisibility": true,
+      "assignedUnit": null,
+      "eta": null,
+      "timeline": [
+        {
+          "id": "tl-1",
+          "status": "received",
+          "label": "Reporte recibido",
+          "at": "2026-09-24T14:42:00-06:00"
+        },
+        {
+          "id": "tl-2",
+          "status": "validated",
+          "label": "Caso validado",
+          "at": "2026-09-24T14:43:00-06:00"
+        },
+        {
+          "id": "tl-3",
+          "status": "dispatched",
+          "label": "AMB-014 despachada",
+          "at": "2026-09-24T14:45:00-06:00"
+        }
+      ],
+      "image": "/assets/user-content/rescate-colision.webp",
+      "assignedUnits": [],
+      "riskScore": 88
+    },
+    {
+      "id": "inc-505",
+      "code": "P-2026-000505",
+      "citizenId": "usr-citizen-demo",
+      "category": "flood",
+      "title": "Calle inundada",
+      "description": "Acumulación de agua sobre la vía. La circulación es peligrosa y se recomienda evitar el sector.",
+      "priority": "P2",
+      "status": "validated",
+      "createdAt": "2026-09-25T09:18:00-06:00",
+      "location": {
+        "label": "Barrio El Carmen, Puntarenas",
+        "lat": 9.979,
+        "lng": -84.743,
+        "x": 31,
+        "y": 41,
+        "reference": "Referencia urbana de demostración"
+      },
+      "details": {
+        "waterHeight": "35 cm",
+        "homes": 4,
+        "trapped": "No confirmado",
+        "strongCurrent": "No",
+        "roadBlocked": "Sí",
+        "waterLevel": "Moderado",
+        "vehiclesAtRisk": "Sí",
+        "currentStrong": "No"
+      },
+      "canTalk": true,
+      "publicVisibility": true,
+      "assignedUnit": null,
+      "eta": null,
+      "image": "/assets/user-content/calle-inundada.webp",
+      "timeline": [
+        {
+          "id": "tl-f1",
+          "status": "received",
+          "label": "Reporte ciudadano recibido",
+          "at": "2026-09-25T09:18:00-06:00"
+        },
+        {
+          "id": "tl-f2",
+          "status": "validated",
+          "label": "Zona validada como riesgo vial por acumulación de agua",
+          "at": "2026-09-25T09:22:00-06:00"
+        }
+      ],
+      "assignedUnits": [],
+      "riskScore": 62
+    },
+    {
+      "id": "inc-471",
+      "code": "P-2026-000471",
+      "citizenId": "usr-citizen-demo",
+      "category": "road_hazard",
+      "title": "Riesgo vial",
+      "description": "Árbol caído bloqueando parcialmente la vía.",
+      "priority": "P3",
+      "status": "resolved",
+      "createdAt": "2026-09-22T08:10:00-06:00",
+      "location": {
+        "label": "Barranca, Puntarenas",
+        "lat": 9.991,
+        "lng": -84.724,
+        "x": 55,
+        "y": 58,
+        "reference": "Referencia urbana de demostración"
+      },
+      "details": {
+        "roadBlocked": "Parcial",
+        "hazard": "Árbol y cableado sobre la vía",
+        "visibility": "Reducida"
+      },
+      "canTalk": true,
+      "publicVisibility": true,
+      "assignedUnit": "RES-004",
+      "eta": 0,
+      "timeline": [
+        {
+          "id": "tl-4",
+          "status": "received",
+          "label": "Reporte recibido",
+          "at": "2026-09-22T08:10:00-06:00"
+        },
+        {
+          "id": "tl-5",
+          "status": "resolved",
+          "label": "Vía liberada",
+          "at": "2026-09-22T09:05:00-06:00"
+        }
+      ],
+      "image": "/assets/user-content/arbol-caido.png",
+      "assignedUnits": [
+        "RES-004"
+      ],
+      "riskScore": 38
+    },
+    {
+      "id": "inc-499",
+      "code": "P-2026-000499",
+      "citizenId": "usr-demo-guest",
+      "category": "fire",
+      "title": "Incendio estructural",
+      "description": "Humo visible en una bodega ficticia. Reporte de simulación.",
+      "priority": "P1",
+      "status": "validated",
+      "createdAt": "2026-09-24T15:06:00-06:00",
+      "location": {
+        "label": "San José, zona demo",
+        "lat": 9.93,
+        "lng": -84.08,
+        "x": 70,
+        "y": 40,
+        "reference": "Referencia urbana de demostración"
+      },
+      "details": {
+        "structure": "Bodega comercial",
+        "peopleInside": "Desconocido",
+        "smoke": "Sí",
+        "propagation": "Posible",
+        "gas": "No confirmado",
+        "hazmat": "No",
+        "floors": 2
+      },
+      "canTalk": true,
+      "publicVisibility": true,
+      "assignedUnit": null,
+      "eta": null,
+      "timeline": [
+        {
+          "id": "tl-6",
+          "status": "received",
+          "label": "Reporte recibido",
+          "at": "2026-09-24T15:06:00-06:00"
+        },
+        {
+          "id": "tl-7",
+          "status": "validated",
+          "label": "Validado por operador",
+          "at": "2026-09-24T15:07:00-06:00"
+        }
+      ],
+      "image": "/assets/generated/incidents/incendio-estructural.webp",
+      "assignedUnits": [],
+      "riskScore": 88
+    },
+    {
+      "id": "inc-611",
+      "code": "P-2026-000611",
+      "citizenId": "usr-citizen-demo",
+      "category": "fire",
+      "subcategory": "structure_fire",
+      "title": "Incendio estructural en comercio",
+      "description": "Llamas visibles en una bodega comercial. Humo denso y tránsito regulado en el sector.",
+      "priority": "P1",
+      "status": "validated",
+      "createdAt": "2026-09-25T10:12:00-06:00",
+      "location": {
+        "label": "Av. Central, Puntarenas (demo)",
+        "lat": 9.9794,
+        "lng": -84.7521,
+        "reference": "Frente a plaza comercial ficticia"
+      },
+      "details": {
+        "structure": "Bodega comercial",
+        "peopleInside": "Posible",
+        "smoke": "Denso",
+        "propagation": "Moderada",
+        "gas": "No confirmado",
+        "hazmat": "No",
+        "floors": 2
+      },
+      "canTalk": true,
+      "publicVisibility": true,
+      "assignedUnit": null,
+      "assignedUnits": [],
+      "eta": null,
+      "image": "/assets/user-content/incendio-comercio.webp",
+      "riskScore": 91,
+      "timeline": [
+        {
+          "id": "tl-611a",
+          "status": "received",
+          "label": "Reporte recibido",
+          "at": "2026-09-25T10:12:00-06:00"
+        },
+        {
+          "id": "tl-611b",
+          "status": "validated",
+          "label": "Incendio validado por operador",
+          "at": "2026-09-25T10:14:00-06:00"
+        }
+      ]
+    },
+    {
+      "id": "inc-612",
+      "code": "P-2026-000612",
+      "citizenId": "usr-citizen-demo",
+      "category": "medical",
+      "subcategory": "fall",
+      "title": "Emergencia médica en vía pública",
+      "description": "Persona adulta con dolor intenso tras una caída. Permanece consciente y acompañada.",
+      "priority": "P1",
+      "status": "received",
+      "createdAt": "2026-09-25T11:03:00-06:00",
+      "location": {
+        "label": "Paseo de los Turistas (demo)",
+        "lat": 9.9735,
+        "lng": -84.7544,
+        "reference": "Cerca de zona peatonal ficticia"
+      },
+      "details": {
+        "conscious": "Sí",
+        "breathing": "Sí",
+        "age": 54,
+        "bleeding": "No",
+        "canSpeak": "Sí"
+      },
+      "canTalk": true,
+      "publicVisibility": false,
+      "assignedUnit": null,
+      "assignedUnits": [],
+      "eta": null,
+      "image": "/assets/user-content/asistencia-en-escena.webp",
+      "riskScore": 82,
+      "timeline": [
+        {
+          "id": "tl-612a",
+          "status": "received",
+          "label": "Reporte recibido",
+          "at": "2026-09-25T11:03:00-06:00"
+        }
+      ]
+    },
+    {
+      "id": "inc-613",
+      "code": "P-2026-000613",
+      "citizenId": "usr-citizen-demo",
+      "category": "traffic_accident",
+      "subcategory": "motorcycle_collision",
+      "title": "Colisión motocicleta / automóvil",
+      "description": "Choque en intersección con una persona en el suelo y bloqueo parcial del carril.",
+      "priority": "P1",
+      "status": "validated",
+      "createdAt": "2026-09-25T11:18:00-06:00",
+      "location": {
+        "label": "Intersección Norte, Puntarenas (demo)",
+        "lat": 9.9842,
+        "lng": -84.7442,
+        "reference": "Cruce semaforizado ficticio"
+      },
+      "details": {
+        "vehicles": 2,
+        "people": 5,
+        "injured": 1,
+        "trapped": 0,
+        "fire": "No",
+        "smoke": "No",
+        "fuelLeak": "No",
+        "roadBlocked": "Parcial",
+        "heavyVehicle": "No",
+        "weather": "Lluvia ligera"
+      },
+      "canTalk": true,
+      "publicVisibility": true,
+      "assignedUnit": null,
+      "assignedUnits": [],
+      "eta": null,
+      "image": "/assets/user-content/colision-motocicleta.webp",
+      "riskScore": 87,
+      "timeline": [
+        {
+          "id": "tl-613a",
+          "status": "received",
+          "label": "Reporte ciudadano recibido",
+          "at": "2026-09-25T11:18:00-06:00"
+        },
+        {
+          "id": "tl-613b",
+          "status": "validated",
+          "label": "Operador confirmó ubicación y prioridad",
+          "at": "2026-09-25T11:20:00-06:00"
+        }
+      ]
+    },
+    {
+      "id": "inc-614",
+      "code": "P-2026-000614",
+      "citizenId": "usr-citizen-demo",
+      "category": "security",
+      "subcategory": "suspicious_activity",
+      "title": "Actividad sospechosa reportada",
+      "description": "Reporte preventivo de comportamiento inusual cerca de un estacionamiento.",
+      "priority": "P2",
+      "status": "validated",
+      "createdAt": "2026-09-25T09:48:00-06:00",
+      "location": {
+        "label": "Sector Este, Puntarenas (demo)",
+        "lat": 9.9709,
+        "lng": -84.7418,
+        "reference": "Estacionamiento ficticio"
+      },
+      "details": {
+        "people": 2,
+        "weapon": "No confirmado",
+        "safeDistance": "Sí"
+      },
+      "canTalk": true,
+      "publicVisibility": false,
+      "assignedUnit": null,
+      "assignedUnits": [],
+      "eta": null,
+      "image": "/assets/generated/incidents/riesgo-vial.webp",
+      "riskScore": 54,
+      "timeline": [
+        {
+          "id": "tl-614a",
+          "status": "received",
+          "label": "Reporte recibido",
+          "at": "2026-09-25T09:48:00-06:00"
+        },
+        {
+          "id": "tl-614b",
+          "status": "validated",
+          "label": "Caso clasificado para vigilancia preventiva",
+          "at": "2026-09-25T09:52:00-06:00"
+        }
+      ]
+    }
+  ],
+  "units": [
+    {
+      "id": "AMB-014",
+      "type": "Ambulancia",
+      "status": "available",
+      "capabilities": [
+        "medical",
+        "traffic_accident"
+      ],
+      "distanceKm": 2.2,
+      "eta": 4,
+      "crew": 2,
+      "location": {
+        "lat": 9.97,
+        "lng": -84.76
+      },
+      "base": {
+        "lat": 9.97,
+        "lng": -84.76
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "AMB-008",
+      "type": "Ambulancia",
+      "status": "available",
+      "capabilities": [
+        "medical",
+        "traffic_accident"
+      ],
+      "distanceKm": 3.3,
+      "eta": 6,
+      "crew": 2,
+      "location": {
+        "lat": 9.9815,
+        "lng": -84.759
+      },
+      "base": {
+        "lat": 9.9815,
+        "lng": -84.759
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "AMB-021",
+      "type": "Ambulancia",
+      "status": "available",
+      "capabilities": [
+        "medical",
+        "traffic_accident"
+      ],
+      "distanceKm": 4.4,
+      "eta": 8,
+      "crew": 2,
+      "location": {
+        "lat": 9.987,
+        "lng": -84.746
+      },
+      "base": {
+        "lat": 9.987,
+        "lng": -84.746
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "FIRE-021",
+      "type": "Bomberos",
+      "status": "available",
+      "capabilities": [
+        "fire",
+        "rescue",
+        "traffic_accident"
+      ],
+      "distanceKm": 2.8,
+      "eta": 5,
+      "crew": 5,
+      "location": {
+        "lat": 9.982,
+        "lng": -84.74
+      },
+      "base": {
+        "lat": 9.982,
+        "lng": -84.74
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "FIRE-009",
+      "type": "Bomberos",
+      "status": "available",
+      "capabilities": [
+        "fire",
+        "rescue"
+      ],
+      "distanceKm": 3.9,
+      "eta": 7,
+      "crew": 4,
+      "location": {
+        "lat": 9.968,
+        "lng": -84.744
+      },
+      "base": {
+        "lat": 9.968,
+        "lng": -84.744
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "PAT-032",
+      "type": "Patrulla",
+      "status": "available",
+      "capabilities": [
+        "security",
+        "traffic_accident",
+        "road_hazard"
+      ],
+      "distanceKm": 1.7,
+      "eta": 3,
+      "crew": 2,
+      "location": {
+        "lat": 9.974,
+        "lng": -84.744
+      },
+      "base": {
+        "lat": 9.974,
+        "lng": -84.744
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "PAT-018",
+      "type": "Patrulla",
+      "status": "available",
+      "capabilities": [
+        "security",
+        "traffic_accident"
+      ],
+      "distanceKm": 2.8,
+      "eta": 5,
+      "crew": 2,
+      "location": {
+        "lat": 9.986,
+        "lng": -84.754
+      },
+      "base": {
+        "lat": 9.986,
+        "lng": -84.754
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "RES-004",
+      "type": "Rescate",
+      "status": "available",
+      "capabilities": [
+        "rescue",
+        "road_hazard",
+        "flood",
+        "traffic_accident"
+      ],
+      "distanceKm": 3.9,
+      "eta": 7,
+      "crew": 4,
+      "location": {
+        "lat": 9.978,
+        "lng": -84.764
+      },
+      "base": {
+        "lat": 9.978,
+        "lng": -84.764
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "RES-011",
+      "type": "Rescate",
+      "status": "available",
+      "capabilities": [
+        "rescue",
+        "fire",
+        "traffic_accident"
+      ],
+      "distanceKm": 3.3,
+      "eta": 6,
+      "crew": 4,
+      "location": {
+        "lat": 9.9665,
+        "lng": -84.751
+      },
+      "base": {
+        "lat": 9.9665,
+        "lng": -84.751
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "TOW-007",
+      "type": "Grúa",
+      "status": "available",
+      "capabilities": [
+        "road_hazard",
+        "traffic_accident"
+      ],
+      "distanceKm": 5.0,
+      "eta": 9,
+      "crew": 1,
+      "location": {
+        "lat": 9.989,
+        "lng": -84.741
+      },
+      "base": {
+        "lat": 9.989,
+        "lng": -84.741
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "TOW-012",
+      "type": "Grúa",
+      "status": "available",
+      "capabilities": [
+        "road_hazard",
+        "traffic_accident"
+      ],
+      "distanceKm": 5.5,
+      "eta": 10,
+      "crew": 1,
+      "location": {
+        "lat": 9.969,
+        "lng": -84.736
+      },
+      "base": {
+        "lat": 9.969,
+        "lng": -84.736
+      },
+      "assignedIncident": null
+    },
+    {
+      "id": "EMS-003",
+      "type": "Respuesta médica",
+      "status": "available",
+      "capabilities": [
+        "medical"
+      ],
+      "distanceKm": 3.9,
+      "eta": 7,
+      "crew": 2,
+      "location": {
+        "lat": 9.9805,
+        "lng": -84.735
+      },
+      "base": {
+        "lat": 9.9805,
+        "lng": -84.735
+      },
+      "assignedIncident": null
+    }
+  ],
+  "alerts": [
+    {
+      "id": "alert-1",
+      "title": "Paso regulado por incidente vial",
+      "type": "road_hazard",
+      "severity": "warning",
+      "description": "Circulación limitada por atención de un incidente simulado.",
+      "area": "El Roble — sector demo",
+      "instructions": "Reduzca la velocidad y use rutas alternas.",
+      "issuedAt": "2026-09-25T09:50:00-06:00",
+      "expiresAt": "2026-09-25T18:00:00-06:00",
+      "active": true,
+      "status": "active",
+      "radiusM": 450,
+      "location": {
+        "lat": 9.976,
+        "lng": -84.748
+      }
+    },
+    {
+      "id": "alert-2",
+      "title": "Lluvia intensa — demostración",
+      "type": "weather",
+      "severity": "info",
+      "description": "Aviso simulado por acumulación de agua en varios sectores.",
+      "area": "Puntarenas — zona demo",
+      "instructions": "Evite zonas inundables y siga actualizaciones.",
+      "issuedAt": "2026-09-25T10:10:00-06:00",
+      "expiresAt": "2026-09-25T20:00:00-06:00",
+      "active": true,
+      "status": "active",
+      "radiusM": 900,
+      "location": {
+        "lat": 9.983,
+        "lng": -84.753
+      }
+    },
+    {
+      "id": "alert-3",
+      "title": "Cierre preventivo por incendio",
+      "type": "fire",
+      "severity": "warning",
+      "description": "Perímetro preventivo alrededor de un incendio estructural de simulación.",
+      "area": "Av. Central — sector demo",
+      "instructions": "No ingresar al perímetro señalado.",
+      "issuedAt": "2026-09-25T10:20:00-06:00",
+      "expiresAt": "2026-09-25T16:00:00-06:00",
+      "active": true,
+      "status": "active",
+      "radiusM": 280,
+      "location": {
+        "lat": 9.9794,
+        "lng": -84.7521
+      }
+    },
+    {
+      "id": "alert-4",
+      "title": "Intersección con alta recurrencia",
+      "type": "traffic_accident",
+      "severity": "warning",
+      "description": "Zona con concentración histórica simulada de colisiones.",
+      "area": "Intersección Norte",
+      "instructions": "Disminuya velocidad y mantenga distancia.",
+      "issuedAt": "2026-09-25T08:00:00-06:00",
+      "expiresAt": "2026-09-26T08:00:00-06:00",
+      "active": true,
+      "status": "active",
+      "radiusM": 320,
+      "location": {
+        "lat": 9.9842,
+        "lng": -84.7442
+      }
+    }
+  ],
+  "resources": [
+    {
+      "id": "res-1",
+      "kind": "physical",
+      "title": "Primeros pasos después de un accidente",
+      "summary": "Lista breve para documentar el incidente, revisar necesidades inmediatas y organizar el seguimiento.",
+      "tag": "Recuperación",
+      "image": "/assets/user-content/primeros-auxilios.webp",
+      "duration": "12 min",
+      "level": "Básico"
+    },
+    {
+      "id": "res-2",
+      "kind": "wellbeing",
+      "title": "Bienestar después de una emergencia",
+      "summary": "Orientación general para reconocer reacciones de estrés, apoyarse en la red cercana y buscar ayuda profesional cuando sea necesario.",
+      "tag": "Bienestar",
+      "image": "/assets/generated/courses/apoyo-psicologico.webp",
+      "duration": "18 min",
+      "level": "Básico"
+    },
+    {
+      "id": "res-3",
+      "kind": "prevention",
+      "title": "Plan familiar de comunicación",
+      "summary": "Organiza contactos, puntos de encuentro y datos importantes antes de una situación de emergencia.",
+      "tag": "Preparación",
+      "image": "/assets/generated/courses/plan-familiar.webp",
+      "duration": "15 min",
+      "level": "Familiar"
+    },
+    {
+      "id": "res-4",
+      "kind": "prevention",
+      "title": "RCP básico: reconocer y responder",
+      "summary": "Curso demostrativo para aprender la secuencia general de respuesta y la importancia de pedir ayuda rápidamente.",
+      "tag": "Preparación",
+      "image": "/assets/generated/courses/rcp-basico.webp",
+      "duration": "25 min",
+      "level": "Introductorio"
+    },
+    {
+      "id": "res-5",
+      "kind": "physical",
+      "title": "Seguridad después de una colisión",
+      "summary": "Qué información reunir, cómo mantener una zona segura y qué datos aportar al reporte mientras llega la ayuda.",
+      "tag": "Recuperación",
+      "image": "/assets/generated/incidents/accidente-vehicular.webp",
+      "duration": "10 min",
+      "level": "Básico"
+    },
+    {
+      "id": "res-6",
+      "kind": "wellbeing",
+      "title": "Primeros auxilios psicológicos",
+      "summary": "Principios de acompañamiento, escucha y apoyo después de un evento potencialmente traumático.",
+      "tag": "Bienestar",
+      "image": "/assets/presentation/wellbeing-preview.jpg",
+      "duration": "20 min",
+      "level": "Introductorio"
+    }
+  ],
+  "courses": [
+    {
+      "id": "course-1",
+      "kind": "prevention",
+      "title": "Preparación del hogar",
+      "summary": "Arma un plan, identifica contactos y prepara suministros esenciales para tu hogar.",
+      "image": "/assets/generated/courses/primeros-auxilios-preparacion.webp",
+      "duration": "30 min",
+      "lessons": [
+        "Identificar riesgos del hogar",
+        "Crear contactos y puntos de encuentro",
+        "Preparar un kit básico",
+        "Revisar el plan cada seis meses"
+      ]
+    },
+    {
+      "id": "course-2",
+      "kind": "prevention",
+      "title": "RCP y respuesta inicial",
+      "summary": "Reconoce una emergencia, activa ayuda y practica la secuencia general de RCP en un entorno educativo.",
+      "image": "/assets/user-content/practica-rcp.webp",
+      "duration": "35 min",
+      "lessons": [
+        "Seguridad de la escena",
+        "Evaluación inicial",
+        "Activación de ayuda",
+        "Secuencia general de RCP"
+      ]
+    },
+    {
+      "id": "course-3",
+      "kind": "wellbeing",
+      "title": "Apoyo emocional después de un accidente",
+      "summary": "Herramientas para escuchar, acompañar y reconocer cuándo conviene buscar ayuda profesional.",
+      "image": "/assets/user-content/apoyo-emocional.webp",
+      "duration": "28 min",
+      "lessons": [
+        "Reacciones comunes después de un accidente",
+        "Escucha y apoyo cercano",
+        "Señales para buscar ayuda",
+        "Red de apoyo y seguimiento"
+      ]
+    },
+    {
+      "id": "course-4",
+      "kind": "prevention",
+      "title": "Plan familiar ante emergencias",
+      "summary": "Define roles, rutas, puntos de reunión y una estrategia simple de comunicación familiar.",
+      "image": "/assets/user-content/plan-familiar.webp",
+      "duration": "24 min",
+      "lessons": [
+        "Roles familiares",
+        "Rutas de salida",
+        "Puntos de reunión",
+        "Comunicación y reunificación"
+      ]
+    }
+  ],
+  "riskZones": [
+    {
+      "id": "risk-1",
+      "title": "Intersección con colisiones frecuentes",
+      "area": "El Roble — corredor demo",
+      "severity": "critical",
+      "category": "traffic_accident",
+      "reports": 12,
+      "radiusM": 220,
+      "location": {
+        "lat": 9.976,
+        "lng": -84.748
+      },
+      "description": "Concentración ficticia de accidentes en los últimos 30 días.",
+      "image": "/assets/generated/incidents/accidente-vehicular.webp"
+    },
+    {
+      "id": "risk-2",
+      "title": "Sector con anegamiento frecuente",
+      "area": "Barrio El Carmen — zona demo",
+      "severity": "high",
+      "category": "flood",
+      "reports": 8,
+      "radiusM": 300,
+      "location": {
+        "lat": 9.979,
+        "lng": -84.743
+      },
+      "description": "Acumulación recurrente de agua durante lluvias intensas.",
+      "image": "/assets/generated/incidents/inundacion.webp"
+    },
+    {
+      "id": "risk-3",
+      "title": "Acera y calzada deterioradas",
+      "area": "Barranca — sector demo",
+      "severity": "medium",
+      "category": "road_hazard",
+      "reports": 6,
+      "radiusM": 160,
+      "location": {
+        "lat": 9.99,
+        "lng": -84.758
+      },
+      "description": "Deterioro vial simulado reportado por la comunidad.",
+      "image": "/assets/generated/incidents/riesgo-vial.webp"
+    },
+    {
+      "id": "risk-4",
+      "title": "Curva con visibilidad limitada",
+      "area": "Corredor oeste — demo",
+      "severity": "high",
+      "category": "traffic_accident",
+      "reports": 9,
+      "radiusM": 190,
+      "location": {
+        "lat": 9.968,
+        "lng": -84.759
+      },
+      "description": "Punto preventivo por baja visibilidad y colisiones históricas simuladas.",
+      "image": "/assets/generated/incidents/accidente-vehicular.webp"
+    },
+    {
+      "id": "risk-5",
+      "title": "Cruce peatonal de alta exposición",
+      "area": "Centro — demo",
+      "severity": "medium",
+      "category": "road_hazard",
+      "reports": 5,
+      "radiusM": 140,
+      "location": {
+        "lat": 9.9745,
+        "lng": -84.7415
+      },
+      "description": "Alta interacción entre peatones y vehículos en la simulación.",
+      "image": "/assets/generated/incidents/riesgo-vial.webp"
+    }
+  ],
+  "hospitals": [
+    {
+      "id": "HOSP-1",
+      "name": "Hospital Regional Demo",
+      "location": {
+        "lat": 9.9797,
+        "lng": -84.7582
+      },
+      "status": "available",
+      "capacity": 18
+    },
+    {
+      "id": "HOSP-2",
+      "name": "Clínica Central Demo",
+      "location": {
+        "lat": 9.9688,
+        "lng": -84.747
+      },
+      "status": "available",
+      "capacity": 8
+    },
+    {
+      "id": "HOSP-3",
+      "name": "Centro Médico Norte Demo",
+      "location": {
+        "lat": 9.9888,
+        "lng": -84.7495
+      },
+      "status": "high_demand",
+      "capacity": 3
+    }
+  ],
+  "historicalIncidents": [
+    {
+      "id": "hist-001",
+      "lat": 9.978450344849813,
+      "lng": -84.74192252173773,
+      "type": "medical",
+      "date": "2026-09-01",
+      "severity": "high",
+      "responseMinutes": 3,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-002",
+      "lat": 9.985892432552514,
+      "lng": -84.74274250824627,
+      "type": "medical",
+      "date": "2026-09-02",
+      "severity": "high",
+      "responseMinutes": 4,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-003",
+      "lat": 9.97625676631838,
+      "lng": -84.74595403756479,
+      "type": "traffic_accident",
+      "date": "2026-09-03",
+      "severity": "high",
+      "responseMinutes": 5,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-004",
+      "lat": 9.974988697046356,
+      "lng": -84.7499336278587,
+      "type": "road_hazard",
+      "date": "2026-09-04",
+      "severity": "medium",
+      "responseMinutes": 6,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-005",
+      "lat": 9.984135958559312,
+      "lng": -84.74519845565169,
+      "type": "road_hazard",
+      "date": "2026-09-05",
+      "severity": "high",
+      "responseMinutes": 7,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-006",
+      "lat": 9.979842342528125,
+      "lng": -84.74342776669238,
+      "type": "medical",
+      "date": "2026-09-06",
+      "severity": "critical",
+      "responseMinutes": 8,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-007",
+      "lat": 9.986348981120068,
+      "lng": -84.74200587392077,
+      "type": "medical",
+      "date": "2026-09-07",
+      "severity": "critical",
+      "responseMinutes": 9,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-008",
+      "lat": 9.974845860070737,
+      "lng": -84.74627830990555,
+      "type": "traffic_accident",
+      "date": "2026-09-08",
+      "severity": "critical",
+      "responseMinutes": 10,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-009",
+      "lat": 9.966242976785086,
+      "lng": -84.75954449437987,
+      "type": "traffic_accident",
+      "date": "2026-09-09",
+      "severity": "critical",
+      "responseMinutes": 3,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-010",
+      "lat": 9.966467556897342,
+      "lng": -84.7594533836207,
+      "type": "traffic_accident",
+      "date": "2026-09-10",
+      "severity": "critical",
+      "responseMinutes": 4,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-011",
+      "lat": 9.965856751023601,
+      "lng": -84.75944690508881,
+      "type": "medical",
+      "date": "2026-09-11",
+      "severity": "critical",
+      "responseMinutes": 5,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-012",
+      "lat": 9.967396959050898,
+      "lng": -84.75773635098483,
+      "type": "traffic_accident",
+      "date": "2026-09-12",
+      "severity": "medium",
+      "responseMinutes": 6,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-013",
+      "lat": 9.986355268756297,
+      "lng": -84.74275364485479,
+      "type": "traffic_accident",
+      "date": "2026-09-13",
+      "severity": "critical",
+      "responseMinutes": 7,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-014",
+      "lat": 9.976700553687921,
+      "lng": -84.7437284340699,
+      "type": "traffic_accident",
+      "date": "2026-09-14",
+      "severity": "medium",
+      "responseMinutes": 8,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-015",
+      "lat": 9.965571213946847,
+      "lng": -84.76104809873262,
+      "type": "road_hazard",
+      "date": "2026-09-15",
+      "severity": "critical",
+      "responseMinutes": 9,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-016",
+      "lat": 9.979163798006397,
+      "lng": -84.74073756161393,
+      "type": "traffic_accident",
+      "date": "2026-09-16",
+      "severity": "high",
+      "responseMinutes": 10,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-017",
+      "lat": 9.985350183869437,
+      "lng": -84.74232520808961,
+      "type": "road_hazard",
+      "date": "2026-09-17",
+      "severity": "medium",
+      "responseMinutes": 3,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-018",
+      "lat": 9.983564536938328,
+      "lng": -84.74244905023909,
+      "type": "road_hazard",
+      "date": "2026-09-18",
+      "severity": "medium",
+      "responseMinutes": 4,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-019",
+      "lat": 9.967392778205836,
+      "lng": -84.75790147237981,
+      "type": "traffic_accident",
+      "date": "2026-09-19",
+      "severity": "medium",
+      "responseMinutes": 5,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-020",
+      "lat": 9.967601467996369,
+      "lng": -84.75950535856309,
+      "type": "traffic_accident",
+      "date": "2026-09-20",
+      "severity": "medium",
+      "responseMinutes": 6,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-021",
+      "lat": 9.976372824896796,
+      "lng": -84.74837548256978,
+      "type": "road_hazard",
+      "date": "2026-09-21",
+      "severity": "high",
+      "responseMinutes": 7,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-022",
+      "lat": 9.969871101307524,
+      "lng": -84.75800369695479,
+      "type": "traffic_accident",
+      "date": "2026-09-22",
+      "severity": "critical",
+      "responseMinutes": 8,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-023",
+      "lat": 9.978406967417566,
+      "lng": -84.74363488797955,
+      "type": "traffic_accident",
+      "date": "2026-09-23",
+      "severity": "critical",
+      "responseMinutes": 9,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-024",
+      "lat": 9.966567475198152,
+      "lng": -84.75796813742949,
+      "type": "traffic_accident",
+      "date": "2026-09-24",
+      "severity": "high",
+      "responseMinutes": 10,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-025",
+      "lat": 9.977951283874246,
+      "lng": -84.74245466476984,
+      "type": "traffic_accident",
+      "date": "2026-09-01",
+      "severity": "medium",
+      "responseMinutes": 3,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-026",
+      "lat": 9.976853760974285,
+      "lng": -84.74314192870942,
+      "type": "medical",
+      "date": "2026-09-02",
+      "severity": "critical",
+      "responseMinutes": 4,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-027",
+      "lat": 9.977002821988723,
+      "lng": -84.75023235150279,
+      "type": "road_hazard",
+      "date": "2026-09-03",
+      "severity": "critical",
+      "responseMinutes": 5,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-028",
+      "lat": 9.977703968757156,
+      "lng": -84.74781087862692,
+      "type": "traffic_accident",
+      "date": "2026-09-04",
+      "severity": "high",
+      "responseMinutes": 6,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-029",
+      "lat": 9.967053792439124,
+      "lng": -84.75919472268004,
+      "type": "medical",
+      "date": "2026-09-05",
+      "severity": "medium",
+      "responseMinutes": 7,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-030",
+      "lat": 9.97992684631875,
+      "lng": -84.74161427516766,
+      "type": "road_hazard",
+      "date": "2026-09-06",
+      "severity": "high",
+      "responseMinutes": 8,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-031",
+      "lat": 9.985231488430795,
+      "lng": -84.74321511798709,
+      "type": "traffic_accident",
+      "date": "2026-09-07",
+      "severity": "medium",
+      "responseMinutes": 9,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-032",
+      "lat": 9.977776670838798,
+      "lng": -84.74660276260015,
+      "type": "traffic_accident",
+      "date": "2026-09-08",
+      "severity": "high",
+      "responseMinutes": 10,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-033",
+      "lat": 9.978647772711387,
+      "lng": -84.74358299742818,
+      "type": "traffic_accident",
+      "date": "2026-09-09",
+      "severity": "medium",
+      "responseMinutes": 3,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-034",
+      "lat": 9.975288631285192,
+      "lng": -84.74976343289046,
+      "type": "medical",
+      "date": "2026-09-10",
+      "severity": "high",
+      "responseMinutes": 4,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-035",
+      "lat": 9.984017599084709,
+      "lng": -84.74165523404206,
+      "type": "medical",
+      "date": "2026-09-11",
+      "severity": "medium",
+      "responseMinutes": 5,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-036",
+      "lat": 9.981961779579317,
+      "lng": -84.74612715403227,
+      "type": "medical",
+      "date": "2026-09-12",
+      "severity": "medium",
+      "responseMinutes": 6,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-037",
+      "lat": 9.977696165145169,
+      "lng": -84.7447805308156,
+      "type": "medical",
+      "date": "2026-09-13",
+      "severity": "critical",
+      "responseMinutes": 7,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-038",
+      "lat": 9.975178118745035,
+      "lng": -84.74688197909386,
+      "type": "traffic_accident",
+      "date": "2026-09-14",
+      "severity": "medium",
+      "responseMinutes": 8,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-039",
+      "lat": 9.97418042992797,
+      "lng": -84.74588257599824,
+      "type": "medical",
+      "date": "2026-09-15",
+      "severity": "medium",
+      "responseMinutes": 9,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-040",
+      "lat": 9.976599136449368,
+      "lng": -84.74511681996368,
+      "type": "traffic_accident",
+      "date": "2026-09-16",
+      "severity": "critical",
+      "responseMinutes": 10,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-041",
+      "lat": 9.966463974019193,
+      "lng": -84.75809281336254,
+      "type": "road_hazard",
+      "date": "2026-09-17",
+      "severity": "high",
+      "responseMinutes": 3,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-042",
+      "lat": 9.983587822430064,
+      "lng": -84.7422415481884,
+      "type": "traffic_accident",
+      "date": "2026-09-18",
+      "severity": "medium",
+      "responseMinutes": 4,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-043",
+      "lat": 9.981307148792409,
+      "lng": -84.74138097652238,
+      "type": "medical",
+      "date": "2026-09-19",
+      "severity": "medium",
+      "responseMinutes": 5,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-044",
+      "lat": 9.985643925771917,
+      "lng": -84.74446373983812,
+      "type": "traffic_accident",
+      "date": "2026-09-20",
+      "severity": "critical",
+      "responseMinutes": 6,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-045",
+      "lat": 9.980270147606443,
+      "lng": -84.74342155849216,
+      "type": "road_hazard",
+      "date": "2026-09-21",
+      "severity": "high",
+      "responseMinutes": 7,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-046",
+      "lat": 9.98265739531835,
+      "lng": -84.74354376947007,
+      "type": "traffic_accident",
+      "date": "2026-09-22",
+      "severity": "critical",
+      "responseMinutes": 8,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-047",
+      "lat": 9.981141859558981,
+      "lng": -84.74233790156849,
+      "type": "traffic_accident",
+      "date": "2026-09-23",
+      "severity": "critical",
+      "responseMinutes": 9,
+      "zone": "Sector demo"
+    },
+    {
+      "id": "hist-048",
+      "lat": 9.983952965384866,
+      "lng": -84.74204916047908,
+      "type": "traffic_accident",
+      "date": "2026-09-24",
+      "severity": "medium",
+      "responseMinutes": 10,
+      "zone": "Sector demo"
+    }
+  ],
+  "activityLogs": [
+    {
+      "id": "act-seed-1",
+      "type": "system",
+      "label": "Centro de mando iniciado en modo simulación",
+      "at": "2026-09-25T08:00:00-06:00"
+    },
+    {
+      "id": "act-seed-2",
+      "type": "risk",
+      "label": "Mapa de riesgo actualizado con datos locales",
+      "at": "2026-09-25T08:15:00-06:00"
+    }
+  ],
+  "publications": [
+    {
+      "id": "pub-demo-1",
+      "authorId": "usr-citizen-demo",
+      "status": "verified",
+      "createdAt": "2026-09-25T10:15:00-06:00",
+      "title": "Intersección con visibilidad reducida",
+      "category": "road_hazard",
+      "severity": "high",
+      "description": "Vehículos estacionados reducen la visibilidad al incorporarse a la vía principal.",
+      "location": {
+        "label": "El Roble, sector demo",
+        "lat": 9.9768,
+        "lng": -84.7492
+      },
+      "details": {
+        "roadBlocked": "No"
+      },
+      "image": "/assets/generated/incidents/accidente-vehicular.webp"
+    },
+    {
+      "id": "pub-demo-2",
+      "authorId": "usr-citizen-demo",
+      "status": "pending",
+      "createdAt": "2026-09-25T11:20:00-06:00",
+      "title": "Acumulación de agua en vía",
+      "category": "flood",
+      "severity": "medium",
+      "description": "Se observa acumulación de agua y circulación lenta.",
+      "location": {
+        "label": "Corredor costero demo",
+        "lat": 9.979,
+        "lng": -84.745
+      },
+      "details": {
+        "waterHeight": "20 cm"
+      },
+      "image": "/assets/generated/incidents/inundacion.webp"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "ntf-demo-1",
+      "type": "system",
+      "title": "Centro de mando activo",
+      "message": "La simulación está lista para recibir y coordinar incidentes.",
+      "read": false,
+      "at": "2026-09-25T08:00:00-06:00"
+    }
+  ],
+  "courseProgress": {},
+  "auditLogs": [
+    {
+      "id": "audit-seed-1",
+      "type": "audit",
+      "label": "Centro de mando iniciado en modo simulación",
+      "at": "2026-09-25T08:00:00-06:00"
+    }
+  ],
+  "scenarios": [
+    {
+      "id": "scenario-multi-crash",
+      "name": "Accidente vehicular múltiple",
+      "description": "Dos vehículos, persona atrapada, vía parcialmente bloqueada y necesidad de ambulancia + rescate.",
+      "type": "traffic_accident"
+    },
+    {
+      "id": "scenario-fire",
+      "name": "Incendio estructural",
+      "description": "Incendio en estructura de dos pisos con humo visible y posible evacuación.",
+      "type": "fire"
+    },
+    {
+      "id": "scenario-medical",
+      "name": "Emergencia médica crítica",
+      "description": "Persona inconsciente con necesidad de respuesta médica inmediata.",
+      "type": "medical"
+    },
+    {
+      "id": "scenario-flood",
+      "name": "Inundación urbana",
+      "description": "Vía con acumulación de agua, vehículos afectados y riesgo de corriente.",
+      "type": "flood"
+    },
+    {
+      "id": "scenario-mass",
+      "name": "Incidente masivo",
+      "description": "Evento con múltiples reportes coincidentes y necesidad de coordinación multirecurso.",
+      "type": "mass"
+    }
+  ]
+}
