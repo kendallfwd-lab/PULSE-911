@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AlertTriangle, BellRing, MapPin, Siren, Trash2 } from 'lucide-react'
+import { AlertTriangle, BellRing, MapPin, Navigation, Siren, Trash2 } from 'lucide-react'
 import GeoMap from '../../components/GeoMap'
 import { usePulse } from '../../context/PulseContext'
+import { useLiveLocation } from '../../context/LiveLocationContext'
 
 const STORAGE_KEY = 'pulse911-citizen-map-points'
 
@@ -16,6 +17,7 @@ function readStoredPoints(){
 
 export default function UnifiedSafetyMapPage(){
   const {db}=usePulse()
+  const {location,status:locationStatus,error:locationError,start:startLocation,stop:stopLocation,isActive:locationActive}=useLiveLocation()
   const [pointType,setPointType]=useState(null)
   const [userPoints,setUserPoints]=useState(readStoredPoints)
   const [notice,setNotice]=useState('Elige un tipo de punto y después haz clic en el mapa.')
@@ -73,6 +75,11 @@ export default function UnifiedSafetyMapPage(){
 
     <div className="unified-map-workspace">
       <aside className="map-point-tools" aria-label="Herramientas para colocar puntos">
+        <div className={`live-location-panel ${locationActive?'active':''}`}>
+          <div><Navigation size={19}/><span><strong>Mi ubicación en vivo</strong><small>{locationStatus==='requesting'?'Buscando señal GPS…':locationActive&&location?`Precisión aproximada: ${Math.round(location.accuracy||0)} m`:'Solo se activa con tu permiso'}</small></span></div>
+          <button type="button" onClick={locationActive?stopLocation:startLocation}>{locationActive?'Detener':'Activar ubicación'}</button>
+          {locationError&&<p role="alert">{locationError}</p>}
+        </div>
         <div className="map-point-tools-title"><MapPin size={20}/><div><strong>Colocar un punto</strong><span>Selecciona el tipo</span></div></div>
         <button type="button" className={`point-type-button accident ${pointType==='accident'?'active':''}`} aria-pressed={pointType==='accident'} onClick={()=>chooseType('accident')}><Siren size={22}/><span><strong>Accidente</strong><small>Punto rojo</small></span></button>
         <button type="button" className={`point-type-button danger ${pointType==='danger'?'active':''}`} aria-pressed={pointType==='danger'} onClick={()=>chooseType('danger')}><AlertTriangle size={22}/><span><strong>Lugar peligroso</strong><small>Punto amarillo</small></span></button>
@@ -90,6 +97,9 @@ export default function UnifiedSafetyMapPage(){
           riskZones={[...(db.riskZones||[]),...placedRisks]}
           hospitals={db.hospitals||[]}
           historicalIncidents={db.historicalIncidents||[]}
+          userLocation={location}
+          focusLocations={location?[location]:[]}
+          focusKey={location?'live-location-ready':''}
           onMapClick={placePoint}
           initialZoom={14}
         />

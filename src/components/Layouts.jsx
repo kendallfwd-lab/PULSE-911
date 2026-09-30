@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Activity, Ambulance as AmbulanceIcon, BarChart3, Bell, BellRing, BookOpen, Bookmark, Building2 as HospitalIcon, CircleUserRound, ClipboardList, FileText as FileAuditIcon, Gauge, HeartPulse, Home, LogOut, MapPinned, Menu, PanelLeftClose, PanelLeftOpen, Play as PlayIcon, Radio, Radar, Search, Settings, Shield, ShieldAlert, ShieldCheck, Siren, UsersRound } from 'lucide-react'
+import { Activity, Ambulance as AmbulanceIcon, BarChart3, Bell, BellRing, BookOpen, Bookmark, Building2 as HospitalIcon, CircleUserRound, ClipboardList, FileText as FileAuditIcon, Gauge, HeartPulse, Home, LogOut, MapPinned, Menu, Navigation, PanelLeftClose, PanelLeftOpen, Play as PlayIcon, Radio, Radar, Search, Settings, Shield, ShieldAlert, ShieldCheck, Siren, UsersRound } from 'lucide-react'
 import { SimulationBanner } from './Common'
 import { usePulse } from '../context/PulseContext'
+import { useLiveLocation } from '../context/LiveLocationContext'
 
 const citizenLinks = [
   ['/app', Home, 'Publicaciones'], ['/app/map', MapPinned, 'Mapa situacional'],
@@ -40,6 +41,7 @@ function CitizenRightRail(){
 
 export function CitizenLayout() {
   const { currentUser, logout } = usePulse(); const navigate=useNavigate(); const [search,setSearch]=useState(''); const [menu,setMenu]=useState(false)
+  const {status:locationStatus,start:startLocation,stop:stopLocation,isActive:locationActive}=useLiveLocation()
   const submit=(e)=>{e.preventDefault();navigate(`/app/incidents${search.trim()?`?q=${encodeURIComponent(search.trim())}`:''}`)}
   return <div className="citizen-shell civic-shell">
     <SimulationBanner />
@@ -47,7 +49,7 @@ export function CitizenLayout() {
       <div className="civic-topbar-inner">
         <NavLink to="/app" className="civic-wordmark"><i/><strong>PULSE 911</strong><span>CANAL METROPOLITANO ACTIVO</span></NavLink>
         <form className="civic-search" role="search" onSubmit={submit}><Search size={16}/><input aria-label="Buscar incidentes, códigos o ubicaciones" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar incidentes, códigos o ubicaciones..."/></form>
-        <div className="civic-top-actions"><NavLink className="broadcast-btn" to="/app/report"><Radio size={15}/>Reportar</NavLink><button className="profile-mini" type="button" aria-expanded={menu} aria-haspopup="menu" aria-controls="profile-menu" onClick={()=>setMenu(v=>!v)}><div className="avatar-mini"><Initials name={currentUser?.profile?.fullName}/></div><span>{currentUser?.profile?.fullName?.split(' ')[0] || 'Citizen'}</span></button>{menu&&<div className="profile-popover" id="profile-menu" role="menu"><NavLink role="menuitem" to="/app/profile"><CircleUserRound size={15}/>Mi perfil</NavLink><button role="menuitem" onClick={()=>{logout();navigate('/')}}><LogOut size={15}/>Cerrar sesión</button></div>}</div>
+        <div className="civic-top-actions"><button className={`live-location-toggle ${locationActive?'active':''}`} type="button" onClick={locationActive?stopLocation:startLocation} aria-pressed={locationActive} title={locationActive?'Detener ubicación en tiempo real':'Activar ubicación en tiempo real'}><Navigation size={15}/><span>{locationStatus==='requesting'?'Buscando…':locationActive?'Ubicación activa':'Mi ubicación'}</span></button><NavLink className="broadcast-btn" to="/app/report"><Radio size={15}/>Reportar</NavLink><button className="profile-mini" type="button" aria-expanded={menu} aria-haspopup="menu" aria-controls="profile-menu" onClick={()=>setMenu(v=>!v)}><div className="avatar-mini"><Initials name={currentUser?.profile?.fullName}/></div><span>{currentUser?.profile?.fullName?.split(' ')[0] || 'Citizen'}</span></button>{menu&&<div className="profile-popover" id="profile-menu" role="menu"><NavLink role="menuitem" to="/app/profile"><CircleUserRound size={15}/>Mi perfil</NavLink><button role="menuitem" onClick={()=>{logout();navigate('/')}}><LogOut size={15}/>Cerrar sesión</button></div>}</div>
       </div>
     </header>
     <div className="civic-cockpit">

@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { ErrorBoundary } from './components/ErrorBoundary'
 import { PulseProvider } from './context/PulseContext'
+import { LiveLocationProvider } from './context/LiveLocationContext'
 import './styles.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
@@ -11,7 +12,9 @@ ReactDOM.createRoot(document.getElementById('root')).render(
     <BrowserRouter>
       <ErrorBoundary>
         <PulseProvider>
-          <App />
+          <LiveLocationProvider>
+            <App />
+          </LiveLocationProvider>
         </PulseProvider>
       </ErrorBoundary>
     </BrowserRouter>

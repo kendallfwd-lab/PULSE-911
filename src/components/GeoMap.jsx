@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Building2, Crosshair, Flame, Layers3, MapPinned, Maximize2, Minimize2, Waves, ZoomIn, ZoomOut } from 'lucide-react'
+import { AlertTriangle, Building2, Crosshair, Flame, Layers3, MapPinned, Maximize2, Minimize2, Navigation, Waves, ZoomIn, ZoomOut } from 'lucide-react'
 import { DEMO_MAP_CENTER } from '../config/demoGeography'
 import { getUnitVisual } from './UnitTypeIcon'
 
@@ -44,7 +44,7 @@ export default function GeoMap({
   onMapClick, onMoveRiskZone, onMoveAlert,
   draggableRiskId=null, draggableAlertId=null,
   initialCenter=DEFAULT_CENTER, initialZoom=14,
-  compact=false, showControls=true, className='', focusLocations=[], focusKey=''
+  compact=false, showControls=true, className='', focusLocations=[], focusKey='', userLocation=null
 }){
   const wrapRef=useRef(null)
   const dragRef=useRef(null)
@@ -259,11 +259,22 @@ export default function GeoMap({
       return <button key={unit.id} className={`geo-marker unit service-${tone} ${unit.status} ${selectedId===unit.id?'selected':''}`} style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();if(onSelectUnit)onSelectUnit(unit);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} type="button" title={`${unit.id} · ${label} · ${unit.type}`}><Icon size={15}/><span>{unit.id}</span></button>
     })}
 
+    {userLocation?.lat!=null&&userLocation?.lng!=null&&(()=>{
+      const p=toScreen(userLocation)
+      const r=radiusPx(userLocation.lat,Math.max(8,Math.min(userLocation.accuracy||20,180)),zoom)
+      return <div className="geo-user-location" style={{left:p.x,top:p.y}} title={`Tu ubicación · precisión aproximada ${Math.round(userLocation.accuracy||0)} m`}>
+        <span className="geo-user-accuracy" style={{width:r*2,height:r*2}}/>
+        <span className="geo-user-marker"><Navigation size={15}/></span>
+        <strong>Estás aquí</strong>
+      </div>
+    })()}
+
     {showControls&&!compact&&<>
       <div className="geo-map-tools left" onPointerDown={e=>e.stopPropagation()}>
         <button type="button" aria-label="Acercar mapa" title="Acercar" onClick={()=>setZoom(z=>Math.min(18,z+1))}><ZoomIn size={17}/></button>
         <button type="button" aria-label="Alejar mapa" title="Alejar" onClick={()=>setZoom(z=>Math.max(11,z-1))}><ZoomOut size={17}/></button>
         <button type="button" aria-label="Centrar elementos importantes" title="Centrar respuesta" onClick={recenter}><Crosshair size={17}/></button>
+        {userLocation?.lat!=null&&<button type="button" aria-label="Centrar mi ubicación" title="Centrar mi ubicación" onClick={()=>{setCenter({lat:userLocation.lat,lng:userLocation.lng});setZoom(z=>Math.max(z,16))}}><Navigation size={17}/></button>}
         <button type="button" aria-label={expanded?'Salir de mapa ampliado':'Ampliar mapa'} title={expanded?'Salir de vista ampliada':'Ampliar mapa'} onClick={()=>setExpanded(v=>!v)}>{expanded?<Minimize2 size={17}/>:<Maximize2 size={17}/>}</button>
         <span className="geo-zoom-indicator">Z{zoom}</span>
       </div>
