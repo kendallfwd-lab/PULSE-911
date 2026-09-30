@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Ambulance, Building2, Crosshair, Flame, Layers3, MapPinned, Maximize2, Minimize2, ShieldAlert, Siren, Truck, Waves, ZoomIn, ZoomOut } from 'lucide-react'
+import { AlertTriangle, Building2, Crosshair, Flame, Layers3, MapPinned, Maximize2, Minimize2, Waves, ZoomIn, ZoomOut } from 'lucide-react'
 import { DEMO_MAP_CENTER } from '../config/demoGeography'
+import { getUnitVisual } from './UnitTypeIcon'
 
 const TILE = 256
 const DEFAULT_CENTER = DEMO_MAP_CENTER
@@ -26,14 +27,6 @@ function locationOf(item){
   if(item?.lat != null) return item
   return null
 }
-function unitIcon(type=''){
-  const t=type.toLowerCase()
-  if(t.includes('bombero')||t.includes('fire')) return Flame
-  if(t.includes('patrulla')||t.includes('seguridad')||t.includes('polic')) return ShieldAlert
-  if(t.includes('rescate')) return Siren
-  if(t.includes('grúa')||t.includes('grua')) return Truck
-  return Ambulance
-}
 function categoryIcon(cat=''){
   if(cat==='fire') return Flame
   if(cat==='flood') return Waves
@@ -47,7 +40,7 @@ function radiusPx(lat, meters, zoom){
 export default function GeoMap({
   incidents=[], units=[], alerts=[], riskZones=[], hospitals=[], historicalIncidents=[],
   selectedId=null,
-  onSelectIncident, onSelectUnit, onSelectRiskZone, onSelectAlert,
+  onSelectIncident, onSelectUnit, onSelectRiskZone, onSelectAlert, onSelectHospital,
   onMapClick, onMoveRiskZone, onMoveAlert,
   draggableRiskId=null, draggableAlertId=null,
   initialCenter=DEFAULT_CENTER, initialZoom=14,
@@ -250,7 +243,7 @@ export default function GeoMap({
     {layers.hospitals && hospitals.map(hospital=>{
       const loc=locationOf(hospital); if(!loc) return null
       const p=toScreen(loc)
-      return <button key={hospital.id} type="button" className="geo-marker hospital" style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();setCenter(loc);setZoom(z=>Math.max(z,15))}} title={`${hospital.name} · ${hospital.capacity||0} cupos`} aria-label={`Centrar ${hospital.name}`}><Building2 size={14}/><span>H</span></button>
+      return <button key={hospital.id} type="button" className={`geo-marker hospital ${selectedId===hospital.id?'selected':''}`} style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();if(onSelectHospital)onSelectHospital(hospital);setCenter(loc);setZoom(z=>Math.max(z,15))}} title={`${hospital.name} · ${hospital.type||'Centro médico'} · capacidad simulada ${hospital.capacity||0}`} aria-label={`Centrar ${hospital.name}`}><Building2 size={14}/><span>{hospital.mapCode||'H'}</span></button>
     })}
 
     {layers.incidents && incidents.map(incident=>{
@@ -262,8 +255,8 @@ export default function GeoMap({
 
     {layers.units && units.map(unit=>{
       const loc=locationOf(unit); if(!loc) return null
-      const p=toScreen(loc); const Icon=unitIcon(unit.type)
-      return <button key={unit.id} className={`geo-marker unit ${unit.status} ${selectedId===unit.id?'selected':''}`} style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();if(onSelectUnit)onSelectUnit(unit);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} type="button" title={`${unit.id} · ${unit.status}`}><Icon size={15}/><span>{unit.id}</span></button>
+      const p=toScreen(loc); const {Icon,tone,label}=getUnitVisual(unit)
+      return <button key={unit.id} className={`geo-marker unit service-${tone} ${unit.status} ${selectedId===unit.id?'selected':''}`} style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();if(onSelectUnit)onSelectUnit(unit);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} type="button" title={`${unit.id} · ${label} · ${unit.type}`}><Icon size={15}/><span>{unit.id}</span></button>
     })}
 
     {showControls&&!compact&&<>

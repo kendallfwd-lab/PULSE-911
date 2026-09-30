@@ -1,4 +1,7 @@
-export const DEMO_MAP_VERSION = 2
+import { migrateMedicalNetwork } from './medicalNetwork.js'
+import { migrateEmergencyFleet } from './emergencyFleet.js'
+
+export const DEMO_MAP_VERSION = 3
 
 // Centro urbano de la demostración, desplazado hacia el interior de El Roble.
 // Mantiene la operación lejos de la línea costera y deja las calles como contexto principal.
@@ -41,11 +44,9 @@ function migrateUnit(unit) {
 }
 
 export function migrateDemoGeography(database) {
-  if (Number(database?.mapDataVersion || 0) >= DEMO_MAP_VERSION) return database
-
-  return {
+  const currentVersion = Number(database?.mapDataVersion || 0)
+  const geographicallyMigrated = currentVersion >= 2 ? database : {
     ...database,
-    mapDataVersion: DEMO_MAP_VERSION,
     incidents: (database.incidents || []).map(item => ({ ...item, location: moveInland(item.location) })),
     units: (database.units || []).map(migrateUnit),
     alerts: (database.alerts || []).map(item => ({ ...item, location: moveInland(item.location) })),
@@ -54,4 +55,8 @@ export function migrateDemoGeography(database) {
     historicalIncidents: (database.historicalIncidents || []).map(moveInland),
     publications: (database.publications || []).map(item => ({ ...item, location: moveInland(item.location) })),
   }
+
+  if (currentVersion >= DEMO_MAP_VERSION) return migrateMedicalNetwork(migrateEmergencyFleet(geographicallyMigrated))
+
+  return migrateMedicalNetwork(migrateEmergencyFleet({ ...geographicallyMigrated, mapDataVersion: DEMO_MAP_VERSION }))
 }

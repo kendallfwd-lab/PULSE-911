@@ -20,7 +20,7 @@ export default function RiskZonesPage(){
   const mapClick=ll=>{if(placing||!form.location){setForm(v=>({...v,location:ll}));setPlacing(false);setNotice({tone:'success',text:'Ubicación seleccionada. Completa los datos y guarda la zona.'})}}
   const mapRiskZones=form.location&&!selectedId?[...riskZones,{id:'risk-draft',...form,reports:form.reports||1}]:riskZones
   return <div className="admin-page risk-page-v4">
-    <div className="admin-toolbar"><div><span>INTELIGENCIA TERRITORIAL</span><h2>Zonas de riesgo y puntos peligrosos</h2><p>Administra puntos geográficos reales dentro del mapa, ajusta su radio y vincula recurrencia de accidentes simulados.</p></div><button className="btn primary" onClick={fresh}><Plus size={16}/>Registrar zona en mapa</button></div>
+    <div className="admin-toolbar admin-toolbar-compact"><button className="btn primary" onClick={fresh}><Plus size={16}/>Registrar zona en mapa</button></div>
     {notice&&<InlineNotice tone={notice.tone}>{notice.text}</InlineNotice>}
     <div className="risk-stats-row"><div><ShieldAlert/><strong>{riskZones.length}</strong><span>Zonas registradas</span></div><div><AlertTriangle/><strong>{critical}</strong><span>Prioridad alta/crítica</span></div><div><MapPinned/><strong>{historical.length}</strong><span>Eventos históricos GIS</span></div></div>
 

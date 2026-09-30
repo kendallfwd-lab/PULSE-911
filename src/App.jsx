@@ -13,12 +13,10 @@ const CitizenHome = lazy(() => import('./pages/citizen/CitizenHome'))
 const ReportEmergency = lazy(() => import('./pages/citizen/ReportEmergency'))
 const IncidentDetail = lazy(() => import('./pages/citizen/IncidentsPages').then(module => ({ default: module.IncidentDetail })))
 const MyIncidents = lazy(() => import('./pages/citizen/IncidentsPages').then(module => ({ default: module.MyIncidents })))
-const AlertsPage = lazy(() => import('./pages/citizen/AlertsResourcesProfile').then(module => ({ default: module.AlertsPage })))
 const ProfilePage = lazy(() => import('./pages/citizen/AlertsResourcesProfile').then(module => ({ default: module.ProfilePage })))
 const ResourcesPage = lazy(() => import('./pages/citizen/AlertsResourcesProfile').then(module => ({ default: module.ResourcesPage })))
-const SafetyMapPage = lazy(() => import('./pages/citizen/AlertsResourcesProfile').then(module => ({ default: module.SafetyMapPage })))
+const SafetyMapPage = lazy(() => import('./pages/citizen/UnifiedSafetyMapPage'))
 const CommunityPage = lazy(() => import('./pages/citizen/CommunityPage').then(module => ({ default: module.CommunityPage })))
-const NotificationsPage = lazy(() => import('./pages/citizen/CommunityPage').then(module => ({ default: module.NotificationsPage })))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const AdminIncidentDetail = lazy(() => import('./pages/admin/AdminIncidents').then(module => ({ default: module.AdminIncidentDetail })))
 const AdminIncidents = lazy(() => import('./pages/admin/AdminIncidents').then(module => ({ default: module.AdminIncidents })))
@@ -44,8 +42,7 @@ const routeTitles = [
   [/^\/app\/alerts$/, 'Alertas — PULSE 911'],
   [/^\/app\/resources$/, 'Recursos — PULSE 911'],
   [/^\/app\/profile$/, 'Perfil — PULSE 911'],
-  [/^\/app\/community$/, 'Comunidad — PULSE 911'],
-  [/^\/app\/notifications$/, 'Notificaciones — PULSE 911'],
+  [/^\/app\/community$/, 'Reportes ciudadanos — PULSE 911'],
   [/^\/app$/, 'Portal ciudadano — PULSE 911'],
   [/^\/command\/incidents\//, 'Detalle operativo — PULSE Command'],
   [/^\/command\/incidents$/, 'Incidentes — PULSE Command'],
@@ -78,7 +75,7 @@ export default function App(){return <>
         <Route path="/" element={<LandingPage/>}/><Route path="/login" element={<LoginPage/>}/><Route path="/register" element={<RegisterPage/>}/>
         <Route path="/onboarding" element={<ProtectedRoute role="citizen"><OnboardingPage/></ProtectedRoute>}/>
         <Route element={<ProtectedRoute role="citizen"><CitizenLayout/></ProtectedRoute>}>
-          <Route path="/app" element={<CitizenHome/>}/><Route path="/app/report" element={<ReportEmergency/>}/><Route path="/app/map" element={<SafetyMapPage/>}/><Route path="/app/incidents" element={<MyIncidents/>}/><Route path="/app/incidents/:id" element={<IncidentDetail/>}/><Route path="/app/alerts" element={<AlertsPage/>}/><Route path="/app/resources" element={<ResourcesPage/>}/><Route path="/app/profile" element={<ProfilePage/>}/><Route path="/app/community" element={<CommunityPage/>}/><Route path="/app/notifications" element={<NotificationsPage/>}/>
+          <Route path="/app" element={<CitizenHome/>}/><Route path="/app/report" element={<ReportEmergency/>}/><Route path="/app/map" element={<SafetyMapPage/>}/><Route path="/app/incidents" element={<MyIncidents/>}/><Route path="/app/incidents/:id" element={<IncidentDetail/>}/><Route path="/app/alerts" element={<Navigate to="/app/map" replace/>}/><Route path="/app/resources" element={<ResourcesPage/>}/><Route path="/app/profile" element={<ProfilePage/>}/><Route path="/app/community" element={<CommunityPage/>}/><Route path="/app/notifications" element={<Navigate to="/app" replace/>}/>
         </Route>
         <Route element={<ProtectedRoute role="admin"><AdminLayout/></ProtectedRoute>}>
           <Route path="/command" element={<AdminDashboard/>}/><Route path="/command/incidents" element={<AdminIncidents/>}/><Route path="/command/incidents/:id" element={<AdminIncidentDetail/>}/><Route path="/command/dispatch" element={<DispatchPage/>}/><Route path="/command/risk-zones" element={<RiskZonesPage/>}/><Route path="/command/alerts" element={<PublicAlertsAdmin/>}/><Route path="/command/analytics" element={<AnalyticsPage/>}/><Route path="/command/units" element={<UnitsPage/>}/><Route path="/command/hospitals" element={<HospitalsPage/>}/><Route path="/command/publications" element={<PublicationsAdminPage/>}/><Route path="/command/audit" element={<AuditPage/>}/><Route path="/command/scenarios" element={<ScenariosPage/>}/>

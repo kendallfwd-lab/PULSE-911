@@ -33,6 +33,23 @@ function routePosition(route, progress) {
   const a = route[index], b = route[index + 1] || a
   return { lat: a.lat + (b.lat - a.lat) * frac, lng: a.lng + (b.lng - a.lng) * frac }
 }
+function missionTiming(start, end, minDurationMs = 18000) {
+  const etaMin = Math.max(2, Math.ceil(distanceKm(start, end) / 0.55))
+  return { etaMin, durationMs: Math.max(minDurationMs, etaMin * 12000) }
+}
+function requestRoadRoute(start, end) {
+  if (typeof fetch !== 'function') return Promise.resolve(null)
+  const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`
+  return fetch(url)
+    .then(response => response.ok ? response.json() : Promise.reject())
+    .then(data => {
+      const coordinates = data?.routes?.[0]?.geometry?.coordinates
+      return Array.isArray(coordinates) && coordinates.length >= 2
+        ? coordinates.map(([lng, lat]) => ({ lat, lng }))
+        : null
+    })
+    .catch(() => null)
+}
 function activity(type, label, meta = {}) { return { id: `act-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, type, label, at: nowIso(), ...meta } }
 function normalizeDb(raw) {
   const base = migrateDemoGeography(clone(raw))
@@ -92,7 +109,7 @@ export function PulseProvider({ children }) {
           changed = true
           if (progress >= 1) arrivals.push({ unit, mission: m })
           return progress >= 1
-            ? { ...unit, location, status: m.mode === 'to_hospital' ? 'at_hospital' : m.mode === 'returning' ? 'available' : 'on_scene', assignedIncident: m.mode === 'returning' ? null : unit.assignedIncident, mission: { ...m, progress: 1, lastTick: tick, arrivedAt: nowIso() } }
+            ? { ...unit, location, status: m.mode === 'to_hospital' ? 'at_hospital' : m.mode === 'returning' ? 'available' : 'on_scene', assignedIncident: m.mode === 'returning' ? null : unit.assignedIncident, mission: m.mode === 'returning' ? null : { ...m, progress: 1, lastTick: tick, arrivedAt: nowIso() } }
             : { ...unit, location, mission: { ...m, progress, lastTick: tick } }
         })
         if (!changed) return prev
@@ -103,7 +120,8 @@ export function PulseProvider({ children }) {
             incidents = incidents.map(i => i.id !== mission.incidentId ? i : ({ ...i, status: 'at_hospital', hospitalStatus: 'patient_received', timeline: [...(i.timeline || []), { id: `tl-${Date.now()}-${unit.id}`, status: 'at_hospital', label: `${unit.id} llegó al hospital ${i.hospitalDestination?.name || 'seleccionado'}`, at: nowIso() }] }))
             next = pushNotification(next, makeNotification('transport', 'Llegada al hospital', `${unit.id} llegó al hospital asignado. El operador puede cerrar el caso y liberar el recurso.`, { incidentId: mission.incidentId }))
           } else if (mission.mode === 'returning') {
-            next = pushNotification(next, makeNotification('unit', 'Unidad disponible', `${unit.id} regresó a su base y está disponible.`))
+            const baseHospital = prev.hospitals.find(hospital => hospital.id === unit.baseHospitalId)
+            next = pushNotification(next, makeNotification('unit', 'Unidad disponible', `${unit.id} regresó a ${baseHospital?.shortName || baseHospital?.name || 'su base'} y está disponible.`))
           } else {
             incidents = incidents.map(i => i.id !== mission.incidentId ? i : ({ ...i, status: 'on_scene', eta: 0, timeline: [...(i.timeline || []), { id: `tl-${Date.now()}-${unit.id}`, status: 'on_scene', label: `${unit.id} llegó al lugar del incidente`, at: nowIso() }] }))
             next = pushNotification(next, makeNotification('arrival', 'Unidad en sitio', `${unit.id} llegó al incidente.`, { incidentId: mission.incidentId, unitId: unit.id }))
@@ -164,23 +182,23 @@ export function PulseProvider({ children }) {
       if (unit.status !== 'available') { result = { ok: false, message: `${unit.id} no está disponible.` }; return prev }
       const start = unit.location || unit.base, end = incident.location
       if (start?.lat == null || start?.lng == null || end?.lat == null || end?.lng == null) { result = { ok: false, message: 'La unidad o el incidente no tiene coordenadas.' }; return prev }
-      const route = routeBetween(start, end), etaMin = Math.max(2, Math.ceil(distanceKm(start, end) / 0.55)), durationMs = Math.max(18000, etaMin * 12000)
+      const { etaMin, durationMs } = missionTiming(start, end)
+      const route = routeBetween(start, end)
+      const baseHospital = prev.hospitals.find(hospital => hospital.id === unit.baseHospitalId)
+      const baseName = baseHospital?.shortName || baseHospital?.name || 'su base operativa'
       const mission = { incidentId, mode: 'to_scene', route, progress: 0, lastTick: Date.now(), durationMs, etaMin, startedAt: nowIso() }
       const units = prev.units.map(u => u.id === unitId ? { ...u, status: 'en_route', assignedIncident: incidentId, mission } : u)
-      const incidents = prev.incidents.map(i => i.id !== incidentId ? i : ({ ...i, status: 'en_route', assignedUnits: [...new Set([...(i.assignedUnits || []), unitId])], assignedUnit: i.assignedUnit || unitId, eta: Math.min(...[...(i.assignedUnits || []), unitId].map(uid => uid === unitId ? etaMin : (prev.units.find(x => x.id === uid)?.eta || 99))), timeline: [...(i.timeline || []), { id: `tl-${Date.now()}-${unitId}`, status: 'en_route', label: `${unitId} despachada y en ruta`, at: nowIso() }] }))
-      const notification = makeNotification('dispatch', 'Unidad despachada', `${unitId} está en ruta hacia ${incident.code}.`, { incidentId, unitId, citizenId: incident.citizenId })
+      const incidents = prev.incidents.map(i => i.id !== incidentId ? i : ({ ...i, status: 'en_route', assignedUnits: [...new Set([...(i.assignedUnits || []), unitId])], assignedUnit: i.assignedUnit || unitId, eta: Math.min(...[...(i.assignedUnits || []), unitId].map(uid => uid === unitId ? etaMin : (prev.units.find(x => x.id === uid)?.eta || 99))), timeline: [...(i.timeline || []), { id: `tl-${Date.now()}-${unitId}`, status: 'en_route', label: `${unitId} salió de ${baseName} y está en ruta`, at: nowIso() }] }))
+      const notification = makeNotification('dispatch', 'Unidad despachada', `${unitId} salió de ${baseName} hacia ${incident.code}.`, { incidentId, unitId, citizenId: incident.citizenId })
       result = { ok: true, start, end }
       return appendAudit(pushNotification({ ...prev, units, incidents, activityLogs: [...(prev.activityLogs || []), activity('dispatch', `${unitId} despachada a ${incident.code}`, { incidentId, unitId })].slice(-180) }, notification), 'Despacho ejecutado', { incidentId, unitId })
     })
-    if (result.ok && typeof fetch === 'function') {
+    if (result.ok) {
       const { start, end } = result
-      const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`
-      fetch(url).then(r => r.ok ? r.json() : Promise.reject()).then(data => {
-        const coords = data?.routes?.[0]?.geometry?.coordinates
-        if (!Array.isArray(coords) || coords.length < 2) return
-        const routed = coords.map(([lng, lat]) => ({ lat, lng }))
+      requestRoadRoute(start, end).then(routed => {
+        if (!routed) return
         commit(prev => ({ ...prev, units: prev.units.map(u => u.id === unitId && u.status === 'en_route' && u.mission?.incidentId === incidentId ? { ...u, mission: { ...u.mission, route: routed } } : u) }))
-      }).catch(() => {})
+      })
     }
     return result
   }
@@ -192,34 +210,73 @@ export function PulseProvider({ children }) {
       if (!incident || !unit || !hospital) { result.message = 'Faltan datos del incidente, unidad u hospital.'; return prev }
       if (unit.status !== 'on_scene') { result.message = 'La unidad debe estar en sitio antes del traslado.'; return prev }
       if (hospital.status === 'full') { result.message = 'El hospital seleccionado está lleno.'; return prev }
-      const route = routeBetween(unit.location, hospital.location), etaMin = Math.max(2, Math.ceil(distanceKm(unit.location, hospital.location) / 0.55))
-      const mission = { incidentId, mode: 'to_hospital', route, progress: 0, lastTick: Date.now(), durationMs: Math.max(16000, etaMin * 11000), etaMin, startedAt: nowIso(), hospitalId }
+      if (hospital.receivesTransfers === false) { result.message = 'Este centro funciona como base local, no como destino hospitalario de traslado.'; return prev }
+      const start = unit.location, end = hospital.location
+      const { etaMin, durationMs } = missionTiming(start, end, 16000)
+      const route = routeBetween(start, end)
+      const mission = { incidentId, mode: 'to_hospital', route, progress: 0, lastTick: Date.now(), durationMs, etaMin, startedAt: nowIso(), hospitalId }
       const units = prev.units.map(u => u.id === unitId ? { ...u, status: 'transporting', mission } : u)
       const incidents = prev.incidents.map(i => i.id !== incidentId ? i : ({ ...i, status: 'transporting', hospitalDestination: hospital, timeline: [...(i.timeline || []), { id: `tl-${Date.now()}`, status: 'transporting', label: `${unitId} inició traslado hacia ${hospital.name}`, at: nowIso() }] }))
-      result = { ok: true }
+      result = { ok: true, start, end }
       return appendAudit(pushNotification({ ...prev, units, incidents }, makeNotification('transport', 'Traslado iniciado', `${unitId} se dirige a ${hospital.name}.`, { incidentId, unitId })), 'Traslado hospitalario iniciado', { incidentId, unitId, hospitalId })
     })
+    if (result.ok) {
+      requestRoadRoute(result.start, result.end).then(routed => {
+        if (!routed) return
+        commit(prev => ({ ...prev, units: prev.units.map(u => u.id === unitId && u.status === 'transporting' && u.mission?.incidentId === incidentId ? { ...u, mission: { ...u.mission, route: routed } } : u) }))
+      })
+    }
     return result
   }
 
-  const returnUnit = unitId => commit(prev => {
-    const unit = prev.units.find(u => u.id === unitId)
-    if (!unit) return prev
-    const route = routeBetween(unit.location || unit.base, unit.base || unit.location)
-    return appendAudit({ ...prev, units: prev.units.map(u => u.id === unitId ? { ...u, status: 'returning', mission: { incidentId: u.assignedIncident, mode: 'returning', route, progress: 0, lastTick: Date.now(), durationMs: 22000, etaMin: 2 } } : u) }, `Unidad ${unitId} regresando a base`, { unitId })
-  })
+  const returnUnit = unitId => {
+    let result = { ok: false }
+    commit(prev => {
+      const unit = prev.units.find(u => u.id === unitId)
+      if (!unit) return prev
+      const start = unit.location || unit.base, end = unit.base || unit.location
+      const { etaMin, durationMs } = missionTiming(start, end, 14000)
+      const route = routeBetween(start, end)
+      const baseHospital = prev.hospitals.find(hospital => hospital.id === unit.baseHospitalId)
+      const baseName = baseHospital?.shortName || baseHospital?.name || 'base operativa'
+      result = { ok: true, start, end }
+      return appendAudit({ ...prev, units: prev.units.map(u => u.id === unitId ? { ...u, status: 'returning', mission: { incidentId: u.assignedIncident, mode: 'returning', route, progress: 0, lastTick: Date.now(), durationMs, etaMin, destinationName: baseName } } : u) }, `Unidad ${unitId} regresando a ${baseName}`, { unitId })
+    })
+    if (result.ok) {
+      requestRoadRoute(result.start, result.end).then(routed => {
+        if (!routed) return
+        commit(prev => ({ ...prev, units: prev.units.map(u => u.id === unitId && u.status === 'returning' ? { ...u, mission: { ...u.mission, route: routed } } : u) }))
+      })
+    }
+    return result
+  }
 
-  const closeIncident = (id, resolution = {}) => commit(prev => {
-    const incident = prev.incidents.find(i => i.id === id)
-    if (!incident) return prev
-    const incidents = prev.incidents.map(i => i.id === id ? { ...i, status: 'resolved', resolution, closedAt: nowIso(), updatedAt: nowIso(), timeline: [...(i.timeline || []), { id: `tl-${Date.now()}`, status: 'resolved', label: 'Incidente cerrado por operador', at: nowIso() }] } : i)
-    let next = { ...prev, incidents }
-    next = pushNotification(next, makeNotification('resolution', 'Incidente resuelto', `${incident.code} fue marcado como resuelto.`, { incidentId: id, citizenId: incident.citizenId }))
-    next = appendAudit(next, `Incidente ${incident.code} cerrado`, { incidentId: id })
-    const unitIds = [...new Set([...(incident.assignedUnits || []), incident.assignedUnit].filter(Boolean))]
-    next.units = next.units.map(u => unitIds.includes(u.id) && ['en_route', 'on_scene', 'transporting', 'at_hospital'].includes(u.status) ? { ...u, status: 'returning', mission: { incidentId: id, mode: 'returning', route: routeBetween(u.location, u.base || u.location), progress: 0, lastTick: Date.now(), durationMs: 22000, etaMin: 2 } } : u)
-    return next
-  })
+  const closeIncident = (id, resolution = {}) => {
+    const returningRoutes = []
+    commit(prev => {
+      const incident = prev.incidents.find(i => i.id === id)
+      if (!incident) return prev
+      const incidents = prev.incidents.map(i => i.id === id ? { ...i, status: 'resolved', resolution, closedAt: nowIso(), updatedAt: nowIso(), timeline: [...(i.timeline || []), { id: `tl-${Date.now()}`, status: 'resolved', label: 'Incidente cerrado por operador', at: nowIso() }] } : i)
+      let next = { ...prev, incidents }
+      next = pushNotification(next, makeNotification('resolution', 'Incidente resuelto', `${incident.code} fue marcado como resuelto.`, { incidentId: id, citizenId: incident.citizenId }))
+      next = appendAudit(next, `Incidente ${incident.code} cerrado`, { incidentId: id })
+      const unitIds = [...new Set([...(incident.assignedUnits || []), incident.assignedUnit].filter(Boolean))]
+      next.units = next.units.map(u => {
+        if (!unitIds.includes(u.id) || !['en_route', 'on_scene', 'transporting', 'at_hospital'].includes(u.status)) return u
+        const start = u.location, end = u.base || u.location
+        const { etaMin, durationMs } = missionTiming(start, end, 14000)
+        returningRoutes.push({ unitId: u.id, start, end })
+        return { ...u, status: 'returning', mission: { incidentId: id, mode: 'returning', route: routeBetween(start, end), progress: 0, lastTick: Date.now(), durationMs, etaMin } }
+      })
+      return next
+    })
+    returningRoutes.forEach(({ unitId, start, end }) => {
+      requestRoadRoute(start, end).then(routed => {
+        if (!routed) return
+        commit(prev => ({ ...prev, units: prev.units.map(u => u.id === unitId && u.status === 'returning' && u.mission?.incidentId === id ? { ...u, mission: { ...u.mission, route: routed } } : u) }))
+      })
+    })
+  }
 
   const addAlert = alert => {
     const next = { id: `alert-${Date.now()}`, ...alert, issuedAt: nowIso(), active: true, status: 'active', radiusM: Number(alert.radiusM || 350), location: alert.location || { ...DEMO_MAP_CENTER } }
@@ -245,7 +302,7 @@ export function PulseProvider({ children }) {
   const addPublication = payload => {
     if (!currentUser) return null
     const publication = { id: `pub-${Date.now()}`, authorId: currentUser.id, status: 'pending', createdAt: nowIso(), ...payload }
-    commit(prev => appendAudit({ ...prev, publications: [publication, ...(prev.publications || [])] }, 'Nueva publicación comunitaria', { publicationId: publication.id }))
+    commit(prev => appendAudit({ ...prev, publications: [publication, ...(prev.publications || [])] }, 'Nuevo reporte ciudadano', { publicationId: publication.id }))
     return publication
   }
   const updatePublication = (id, patch) => commit(prev => appendAudit({ ...prev, publications: (prev.publications || []).map(p => p.id === id ? { ...p, ...patch, updatedAt: nowIso() } : p) }, 'Publicación comunitaria actualizada', { publicationId: id }))

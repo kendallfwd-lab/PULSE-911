@@ -983,33 +983,88 @@
   "hospitals": [
     {
       "id": "HOSP-1",
-      "name": "Hospital Regional Demo",
+      "name": "Hospital Monseñor Víctor Manuel Sanabria Martínez",
+      "shortName": "Hospital Monseñor Sanabria",
+      "mapCode": "HMS",
+      "type": "Hospital regional",
+      "network": "CCSS",
+      "address": "Avenida John F. Kennedy, INVU de Barranca",
       "location": {
-        "lat": 9.9797,
-        "lng": -84.7582
+        "lat": 9.988534,
+        "lng": -84.719061
       },
       "status": "available",
-      "capacity": 18
+      "capacity": 24,
+      "receivesTransfers": true,
+      "emergencyCare": true
     },
     {
       "id": "HOSP-2",
-      "name": "Clínica Central Demo",
+      "name": "Área de Salud Barranca · Clínica Dr. Roberto Soto",
+      "shortName": "Área de Salud Barranca",
+      "mapCode": "ASB",
+      "type": "Área de salud",
+      "network": "CCSS",
+      "address": "Avenida Camarón, Barranca",
       "location": {
-        "lat": 9.9688,
-        "lng": -84.747
+        "lat": 9.97932,
+        "lng": -84.72238
       },
       "status": "available",
-      "capacity": 8
+      "capacity": 10,
+      "receivesTransfers": false,
+      "emergencyCare": false
     },
     {
       "id": "HOSP-3",
-      "name": "Centro Médico Norte Demo",
+      "name": "Área de Salud Chacarita · Clínica Dr. Francisco Quintana",
+      "shortName": "Área de Salud Chacarita",
+      "mapCode": "ASC",
+      "type": "Área de salud",
+      "network": "CCSS",
+      "address": "Avenida José María Cañas, Chacarita",
       "location": {
-        "lat": 9.9888,
-        "lng": -84.7495
+        "lat": 9.97995,
+        "lng": -84.76514
       },
       "status": "high_demand",
-      "capacity": 3
+      "capacity": 6,
+      "receivesTransfers": false,
+      "emergencyCare": false
+    },
+    {
+      "id": "HOSP-4",
+      "name": "Área de Salud San Rafael de Puntarenas",
+      "shortName": "Área de Salud San Rafael",
+      "mapCode": "ASR",
+      "type": "Área de salud",
+      "network": "CCSS",
+      "address": "Calle 9, Puntarenas centro",
+      "location": {
+        "lat": 9.97594,
+        "lng": -84.83633
+      },
+      "status": "available",
+      "capacity": 8,
+      "receivesTransfers": false,
+      "emergencyCare": false
+    },
+    {
+      "id": "HOSP-5",
+      "name": "EBAIS El Roble",
+      "shortName": "EBAIS El Roble",
+      "mapCode": "ER",
+      "type": "EBAIS",
+      "network": "CCSS",
+      "address": "Avenida 3, El Roble",
+      "location": {
+        "lat": 9.98142,
+        "lng": -84.73175
+      },
+      "status": "available",
+      "capacity": 4,
+      "receivesTransfers": false,
+      "emergencyCare": false
     }
   ],
   "historicalIncidents": [
