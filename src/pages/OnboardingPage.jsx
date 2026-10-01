@@ -7,7 +7,7 @@ import { Brand } from '../components/Brand'
 import { CostaRicaLocationFields } from '../components/CostaRicaLocationFields'
 import { TaxpayerLookupField } from '../components/TaxpayerLookupField'
 import { CalculatedAgeField } from '../components/CalculatedAgeField'
-import { toLocalDateInputValue } from '../utils/age'
+import { calculateAge, toLocalDateInputValue } from '../utils/age'
 
 export default function OnboardingPage() {
   const { currentUser, updateProfile } = usePulse()
@@ -20,6 +20,8 @@ export default function OnboardingPage() {
       ? currentUser.profile.contacts
       : [{ id: `ct-${Date.now()}`, name: '', relation: '', phone: '', email: '', priority: 1 }],
   })
+  const calculatedAge = calculateAge(form.birthDate)
+  const isUnderage = calculatedAge !== null && calculatedAge < 18
 
   const set = (key, value) => setForm(current => ({ ...current, [key]: value }))
   const setLocation = values => setForm(current => ({ ...current, ...values }))
@@ -34,7 +36,12 @@ export default function OnboardingPage() {
 
   const next = async event => {
     event.preventDefault()
+    if (step === 1 && isUnderage) {
+      setError('Debes tener al menos 18 años para continuar con el registro.')
+      return
+    }
     if (step < 3) {
+      setError('')
       setStep(step + 1)
       return
     }
@@ -94,13 +101,18 @@ export default function OnboardingPage() {
                   <input
                     id="profile-birth-date"
                     type="date"
+                    required
                     min="1900-01-01"
                     max={toLocalDateInputValue()}
                     value={form.birthDate || ''}
-                    onChange={event => set('birthDate', event.target.value)}
+                    onChange={event => {
+                      set('birthDate', event.target.value)
+                      setError('')
+                    }}
+                    aria-describedby="profile-calculated-age"
                   />
                 </label>
-                <CalculatedAgeField birthDate={form.birthDate} />
+                <CalculatedAgeField birthDate={form.birthDate} minimumAge={18} />
                 <label>
                   Teléfono
                   <input value={form.phone || ''} onChange={event => set('phone', event.target.value)} />
@@ -170,7 +182,9 @@ export default function OnboardingPage() {
 
           <div className="wizard-actions">
             {step > 1 && <button type="button" className="btn ghost" onClick={() => setStep(step - 1)}>Atrás</button>}
-            <button className="btn primary">{step === 3 ? 'Guardar y entrar' : 'Continuar'}</button>
+            <button className="btn primary" disabled={step === 1 && isUnderage}>
+              {step === 3 ? 'Guardar y entrar' : 'Continuar'}
+            </button>
           </div>
         </form>
       </main>
