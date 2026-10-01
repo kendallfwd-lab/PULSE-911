@@ -1,6 +1,66 @@
 {
   "users": [
     {
+      "id": "usr-citizen-demo-001",
+      "email": "ciudadano-registro-1@pulse.demo",
+      "password": "Pulse911!",
+      "role": "citizen",
+      "profileComplete": false,
+      "profile": {
+        "fullName": "Ciudadano Demo 1",
+        "document": "",
+        "birthDate": "",
+        "phone": "",
+        "province": "",
+        "canton": "",
+        "district": "",
+        "address": "",
+        "bloodType": "",
+        "allergies": "",
+        "medications": "",
+        "conditions": "",
+        "mobility": "",
+        "notes": "Datos ficticios para demostraci?n.",
+        "consents": {
+          "location": true,
+          "medical": false,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": []
+      }
+    },
+    {
+      "id": "usr-citizen-demo-002",
+      "email": "ciudadano-registro-2@pulse.demo",
+      "password": "Pulse911!",
+      "role": "citizen",
+      "profileComplete": false,
+      "profile": {
+        "fullName": "Ciudadano Demo 2",
+        "document": "",
+        "birthDate": "",
+        "phone": "",
+        "province": "",
+        "canton": "",
+        "district": "",
+        "address": "",
+        "bloodType": "",
+        "allergies": "",
+        "medications": "",
+        "conditions": "",
+        "mobility": "",
+        "notes": "Datos ficticios para demostraci?n.",
+        "consents": {
+          "location": true,
+          "medical": false,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": []
+      }
+    },
+    {
       "id": "usr-5d3aa4f0-501f-40c3-813f-bbd9a6cbb45c",
       "email": "fwdsalazar@gmail.com",
       "passwordSalt": "55cfbd1f74d903cc9450f58af61f43a5",
@@ -1977,6 +2037,27 @@
       "label": "Perfil ciudadano actualizado",
       "at": "2026-10-01T17:57:39.806Z",
       "userId": "usr-5d3aa4f0-501f-40c3-813f-bbd9a6cbb45c"
+    },
+    {
+      "id": "audit-24650fcf-7aa7-431a-8bf4-40e7e72b5c0f",
+      "type": "audit",
+      "label": "Nueva cuenta ciudadana creada",
+      "at": "2026-10-01T18:30:57.509Z",
+      "userId": "usr-citizen-demo-002"
+    },
+    {
+      "id": "audit-9a942fec-fde3-4544-9776-8b61b24cc151",
+      "type": "audit",
+      "label": "Perfil ciudadano actualizado",
+      "at": "2026-10-01T19:05:38.672Z",
+      "userId": "usr-citizen-demo-002"
+    },
+    {
+      "id": "audit-75f33330-977a-473c-852e-6061bab7e3ff",
+      "type": "audit",
+      "label": "Nueva cuenta ciudadana creada",
+      "at": "2026-10-01T19:08:55.893Z",
+      "userId": "usr-citizen-demo-001"
     }
   ],
   "scenarios": [
