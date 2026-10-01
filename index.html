@@ -4,6 +4,18 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#102A43" />
+    <script>
+      (() => {
+        try {
+          const storedTheme = localStorage.getItem('pulse911-theme')
+          const theme = storedTheme === 'light' || storedTheme === 'dark'
+            ? storedTheme
+            : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+          document.documentElement.dataset.theme = theme
+          document.documentElement.style.colorScheme = theme
+        } catch {}
+      })()
+    </script>
     <meta name="description" content="PULSE 911 — demostración educativa de coordinación de emergencias." />
     <title>PULSE 911 — Command Center · Versión Final</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
