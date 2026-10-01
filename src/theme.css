@@ -500,6 +500,22 @@ html[data-theme='dark'] :is(
   color: #d5e1e8 !important;
 }
 
+html[data-theme='dark'] .community-composer-actions {
+  border-top-color: #30424e !important;
+  background: rgba(18, 29, 38, .97) !important;
+  color: #d5e1e8 !important;
+  box-shadow: 0 -12px 30px rgba(0, 0, 0, .24);
+}
+
+html[data-theme='dark'] .community-composer-actions > div:first-child,
+html[data-theme='dark'] .community-composer-actions small {
+  color: #b9c9d2 !important;
+}
+
+html[data-theme='dark'] .community-composer-actions strong {
+  color: #f4f8fb !important;
+}
+
 html[data-theme='dark'] .calculated-age-output {
   border-color: #3a4b58;
   background: #18232c;
