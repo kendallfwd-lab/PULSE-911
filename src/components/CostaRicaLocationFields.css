@@ -1,0 +1,32 @@
+.onboard-card select:focus {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 3px #e3f0fb;
+}
+
+.onboard-card select:disabled {
+  background: #f2f5f7;
+  color: #7d8c95;
+  cursor: not-allowed;
+}
+
+.location-fields-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: #fff0f0;
+  color: #a72525;
+  border: 1px solid #f1c7c7;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 12px;
+}
+
+.location-fields-error button {
+  border: 0;
+  border-radius: 7px;
+  padding: 7px 10px;
+  background: #a72525;
+  color: white;
+  font-weight: 800;
+}
