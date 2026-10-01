@@ -628,6 +628,186 @@ html[data-theme='dark'] :is(.civic-top-actions, .command-top-actions) > span {
   display: inline;
 }
 
+.civic-navbar-theme {
+  display: none;
+}
+
+.command-mobile-theme {
+  display: none;
+}
+
+/* Visual audit refinements: accent microcopy and late-loaded page styles. */
+html[data-theme='dark'] {
+  --dark-accent-text: #ff7a89;
+  --dark-secondary-text: #c5d3dc;
+  --dark-primary-text: #f4f8fb;
+}
+
+html[data-theme='dark'] :is(
+  .auth-info .eyebrow,
+  .onboarding .step-title span,
+  .civic-main .eyebrow,
+  .learning-heading span,
+  .command-title-block small,
+  .command-nav-label,
+  .admin-toolbar > div > span,
+  .command-map-head > div > span
+) {
+  color: var(--dark-accent-text) !important;
+}
+
+html[data-theme='dark'] .landing-v7-header nav a {
+  color: #d5e1e8 !important;
+}
+
+html[data-theme='dark'] :is(.landing-v7-brand span, .landing-trust-row) {
+  color: var(--dark-secondary-text) !important;
+}
+
+html[data-theme='dark'] .onboarding > header .brand {
+  color: var(--dark-primary-text) !important;
+}
+
+html[data-theme='dark'] .onboarding > header .brand span,
+html[data-theme='dark'] .onboarding .calculated-age-label {
+  color: var(--dark-accent-text) !important;
+}
+
+html[data-theme='dark'] .onboarding :is(.taxpayer-lookup-help, .calculated-age-output.empty) {
+  color: var(--dark-secondary-text) !important;
+}
+
+html[data-theme='dark'] .civic-main :is(
+  .catalog-grid button span:last-child,
+  .timeline-item span,
+  .course-card p,
+  .course-meta,
+  .resource-meta,
+  .publication-empty-unit span
+) {
+  color: var(--dark-secondary-text) !important;
+}
+
+html[data-theme='dark'] .civic-main :is(.report-title span:not(.catalog-icon), .confirm-emergency span) {
+  color: var(--dark-accent-text) !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .map-point-tools-title strong {
+  color: var(--dark-primary-text) !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .map-point-tools-title span {
+  color: var(--dark-accent-text) !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .point-type-button.accident,
+html[data-theme='dark'] .civic-shell .map-point-tools .point-type-button.accident.active {
+  border-color: #71404a !important;
+  background: linear-gradient(135deg, #321c24, #25171d) !important;
+  color: #ff7a89 !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .point-type-button.danger,
+html[data-theme='dark'] .civic-shell .map-point-tools .point-type-button.danger.active {
+  border-color: #6c572d !important;
+  background: linear-gradient(135deg, #302817, #241f15) !important;
+  color: #f4ca72 !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .point-type-button > svg {
+  background: rgba(255, 255, 255, .08) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .point-type-button.accident strong {
+  color: #ff9aa6 !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .point-type-button.danger strong {
+  color: #f6d48b !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .point-type-button small {
+  color: #d8e3e9 !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .map-placement-notice {
+  border-color: #3a4c58 !important;
+  background: #17232d !important;
+  color: var(--dark-secondary-text) !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .official-alert-note {
+  border-color: #315770 !important;
+  background: #142938 !important;
+  color: #a9d4ee !important;
+}
+
+html[data-theme='dark'] .civic-shell .map-point-tools .official-alert-note small {
+  color: #c6d7e1 !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 .command-main-v2 .panel-title h3,
+html[data-theme='dark'] .command-workspace-v2 .command-main-v2 .panel-title h2,
+html[data-theme='dark'] .command-workspace-v2 .incident-queue-v4 .panel-title h3,
+html[data-theme='dark'] .command-workspace-v2 .alert-form .panel-title h3 {
+  color: var(--dark-primary-text) !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 .panel-title > svg {
+  color: #ff6678 !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 .command-map-head > div strong {
+  color: #e5eef3 !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 .queue-item-v4 :is(span:not(.badge), small),
+html[data-theme='dark'] .command-workspace-v2 :is(.unit-table, .activity-list, .shortcut-card) span {
+  color: var(--dark-secondary-text) !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 .queue-item-v4 strong,
+html[data-theme='dark'] .command-workspace-v2 :is(.unit-table, .activity-list, .shortcut-card) strong {
+  color: var(--dark-primary-text) !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 :is(.resource-unit-head span, .hospital-card span, .publication-admin-body > span) {
+  color: var(--dark-accent-text) !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 .recommend-list > div.recommended-unit {
+  border-color: #32614d !important;
+  background: #172a23 !important;
+  box-shadow: inset 3px 0 #53cf95 !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 .recommend-list > div.recommended-unit :is(strong, span, small) {
+  color: #dff4e9 !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 .analytics-note {
+  border-color: #66522b !important;
+  background: #2c2518 !important;
+  color: #f1d18a !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 .analytics-note p {
+  color: #f1d18a !important;
+}
+
+html[data-theme='dark'] .app-error h1 {
+  color: var(--dark-primary-text) !important;
+}
+
+html[data-theme='dark'] .app-error p {
+  color: var(--dark-secondary-text) !important;
+}
+
+html[data-theme='dark'] .app-error > div > span {
+  color: var(--dark-accent-text) !important;
+}
+
 @media (max-width: 720px) {
   .theme-toggle {
     width: 26px;
@@ -654,6 +834,68 @@ html[data-theme='dark'] :is(.civic-top-actions, .command-top-actions) > span {
     justify-content: flex-start;
     padding-left: 8px;
     padding-right: 42px;
+  }
+
+  .simulation-banner > .theme-toggle {
+    right: 5px;
+    z-index: 2;
+    display: inline-flex !important;
+  }
+
+  .command-workspace-v2 > .simulation-banner .theme-toggle {
+    display: none !important;
+  }
+
+  .command-topbar-v2 {
+    padding-right: 48px !important;
+  }
+
+  .command-top-actions {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    display: inline-flex !important;
+    margin: 0 !important;
+    transform: translateY(-50%);
+  }
+
+  .command-top-actions > span {
+    display: none !important;
+  }
+
+  .command-top-actions .theme-toggle {
+    position: static;
+    display: inline-flex !important;
+    transform: none;
+  }
+
+  .command-top-actions .theme-toggle:hover {
+    transform: translateY(-1px);
+  }
+
+  .command-top-actions {
+    display: none !important;
+  }
+
+  .command-mobile-theme {
+    position: static;
+    display: block !important;
+    flex: 0 0 auto;
+    margin-left: auto;
+    transform: none;
+  }
+
+  .command-mobile-theme .theme-toggle {
+    display: inline-flex !important;
+  }
+
+  .civic-navbar-theme {
+    display: block;
+    margin-left: auto;
+  }
+
+  .civic-navbar-theme .theme-toggle {
+    display: inline-flex !important;
   }
 
   .simulation-banner-message {
