@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { HeartPulse, MapPin, UserRound, UsersRound } from 'lucide-react'
 import { usePulse } from '../context/PulseContext'
-import { SimulationBanner } from '../components/Common'
+import { ThemeToggle } from '../components/ThemeToggle'
 import { Brand } from '../components/Brand'
 import { CostaRicaLocationFields } from '../components/CostaRicaLocationFields'
 import { TaxpayerLookupField } from '../components/TaxpayerLookupField'
@@ -57,10 +57,9 @@ export default function OnboardingPage() {
 
   return (
     <div className="onboarding">
-      <SimulationBanner />
       <header>
         <Brand />
-        <span>Paso {step} de 3</span>
+        <div className="onboarding-header-actions"><span>Paso {step} de 3</span><ThemeToggle compact /></div>
       </header>
       <main>
         <div className="onboard-side">

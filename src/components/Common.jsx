@@ -6,7 +6,7 @@ export const statusLabel = {
 }
 
 export function SimulationBanner({ dark = false }) {
-  return <div className={`simulation-banner ${dark ? 'dark' : ''}`}><span className="simulation-banner-message"><AlertTriangle size={14} /> ENTORNO DE DEMOSTRACIÓN — NO CONECTADO A SERVICIOS 911 REALES</span><ThemeToggle compact /></div>
+  return <div className={`simulation-banner ${dark ? 'dark' : ''}`}><ThemeToggle compact /></div>
 }
 
 export function PageLoader() {

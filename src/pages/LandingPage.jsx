@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { ArrowDown, ArrowRight, CheckCircle2, HeartHandshake, LockKeyhole, ShieldCheck, Siren, UsersRound } from 'lucide-react'
 import { Brand } from '../components/Brand'
-import { SimulationBanner } from '../components/Common'
+import { ThemeToggle } from '../components/ThemeToggle'
 import './LandingPage.css'
 
 const ease = [0.22, 1, 0.36, 1]
@@ -67,11 +67,10 @@ export default function LandingPage(){
   const heroImageScale = useTransform(scrollYProgress, [0, 1], [1, 0.965])
 
   return <div className="pulse-landing-v7">
-    <SimulationBanner/>
     <header className="landing-v7-header">
       <Link to="/" className="landing-v7-brand" aria-label="PULSE 911, inicio"><i/><strong>PULSE 911</strong><span>Plataforma cívica de simulación</span></Link>
       <nav aria-label="Navegación de la presentación"><a href="#recorrido">Recorrido</a><a href="#command">Command</a><a href="#preparacion">Preparación</a></nav>
-      <div className="landing-v7-actions"><Link className="btn ghost" to="/login">Iniciar sesión</Link><Link className="btn emergency" to="/register">Crear cuenta</Link></div>
+      <div className="landing-v7-actions"><ThemeToggle compact/><Link className="btn ghost" to="/login">Iniciar sesión</Link><Link className="btn emergency" to="/register">Crear cuenta</Link></div>
     </header>
 
     <main>

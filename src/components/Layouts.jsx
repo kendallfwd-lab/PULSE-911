@@ -45,7 +45,6 @@ export function CitizenLayout() {
   const {status:locationStatus,start:startLocation,stop:stopLocation,isActive:locationActive}=useLiveLocation()
   const submit=(e)=>{e.preventDefault();navigate(`/app/incidents${search.trim()?`?q=${encodeURIComponent(search.trim())}`:''}`)}
   return <div className="citizen-shell civic-shell">
-    <SimulationBanner />
     <header className="civic-topbar">
       <div className="civic-topbar-inner">
         <NavLink to="/app" className="civic-wordmark"><i/><strong>PULSE 911</strong><span>CANAL METROPOLITANO ACTIVO</span></NavLink>

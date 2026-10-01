@@ -103,6 +103,58 @@ html[data-theme='dark'] .theme-toggle-icon {
   height: 20px;
 }
 
+/* Keep the theme control while removing the former demonstration strip. */
+.command-workspace-v2 > .simulation-banner {
+  display: none !important;
+}
+
+.auth-page {
+  position: relative;
+}
+
+.auth-page > .simulation-banner {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 10;
+  width: auto;
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.auth-page > .simulation-banner > .theme-toggle {
+  position: static;
+  height: auto;
+  min-height: 26px;
+  transform: none;
+}
+
+.auth-page > .simulation-banner > .theme-toggle:hover {
+  transform: translateY(-1px);
+}
+
+.auth-wrap {
+  min-height: 100vh;
+}
+
+.onboarding-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.onboarding-header-actions > span {
+  color: #667987;
+  font-weight: 800;
+}
+
+html[data-theme='dark'] .onboarding-header-actions > span {
+  color: #dbe5ec;
+}
+
 .simulation-banner {
   position: relative;
   padding-inline: 8px 126px;
