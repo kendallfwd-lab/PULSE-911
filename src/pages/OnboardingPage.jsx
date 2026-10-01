@@ -5,6 +5,7 @@ import { usePulse } from '../context/PulseContext'
 import { SimulationBanner } from '../components/Common'
 import { Brand } from '../components/Brand'
 import { CostaRicaLocationFields } from '../components/CostaRicaLocationFields'
+import { TaxpayerLookupField } from '../components/TaxpayerLookupField'
 
 export default function OnboardingPage() {
   const { currentUser, updateProfile } = usePulse()
@@ -77,13 +78,14 @@ export default function OnboardingPage() {
                 </div>
               </div>
               <div className="form-grid">
+                <TaxpayerLookupField
+                  value={form.document}
+                  onChange={value => set('document', value)}
+                  onNameFound={value => set('fullName', value)}
+                />
                 <label className="span-2">
                   Nombre completo
                   <input required value={form.fullName || ''} onChange={event => set('fullName', event.target.value)} />
-                </label>
-                <label>
-                  Documento
-                  <input required value={form.document || ''} onChange={event => set('document', event.target.value)} placeholder="DEMO-0001" />
                 </label>
                 <label>
                   Fecha de nacimiento

@@ -1,0 +1,59 @@
+.taxpayer-lookup {
+  margin-top: 4px;
+}
+
+.taxpayer-lookup label {
+  margin-bottom: 5px;
+}
+
+.taxpayer-lookup-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.taxpayer-lookup-row button {
+  min-width: 126px;
+  border: 0;
+  border-radius: 9px;
+  padding: 0 14px;
+  background: #1f4e79;
+  color: white;
+  font-weight: 800;
+}
+
+.taxpayer-lookup-row button:disabled {
+  background: #9aabb6;
+  cursor: not-allowed;
+}
+
+.taxpayer-lookup-help,
+.taxpayer-lookup-message {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.taxpayer-lookup-help {
+  color: #71818b;
+}
+
+.taxpayer-lookup-message.success {
+  color: #2e7d32;
+  font-weight: 700;
+}
+
+.taxpayer-lookup-message.error {
+  color: #a72525;
+}
+
+@media (max-width: 560px) {
+  .taxpayer-lookup-row {
+    grid-template-columns: 1fr;
+  }
+
+  .taxpayer-lookup-row button {
+    min-height: 42px;
+  }
+}
