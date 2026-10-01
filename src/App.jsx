@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import AppRoutes from './routes/AppRoutes'
-import { ThemeToggle } from './components/ThemeToggle'
 
 function ResetScrollOnNavigation(){
   const {pathname}=useLocation()
@@ -21,6 +20,5 @@ export default function App(){
     <div id="route-content" tabIndex="-1">
       <AppRoutes />
     </div>
-    <ThemeToggle />
   </>
 }

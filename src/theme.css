@@ -37,22 +37,22 @@ html[data-theme='dark'] body {
 }
 
 .theme-toggle {
-  position: fixed;
-  z-index: 1000;
-  right: 18px;
-  bottom: 18px;
-  min-height: 40px;
+  position: static;
+  flex: 0 0 auto;
+  min-height: 32px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   border: 1px solid #cad8e1;
   border-radius: 999px;
-  padding: 6px 13px 6px 7px;
+  padding: 4px 10px 4px 4px;
   background: rgba(255, 255, 255, .94);
   color: #173f5f;
-  box-shadow: 0 12px 32px rgba(8, 26, 43, .2);
-  font-size: 11px;
+  box-shadow: 0 4px 12px rgba(8, 26, 43, .12);
+  font-size: 10px;
   font-weight: 850;
+  line-height: 1;
+  white-space: nowrap;
   backdrop-filter: blur(14px);
 }
 
@@ -67,8 +67,8 @@ html[data-theme='dark'] body {
 }
 
 .theme-toggle-icon {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -86,6 +86,53 @@ html[data-theme='dark'] .theme-toggle {
 html[data-theme='dark'] .theme-toggle-icon {
   background: #3a2d16;
   color: #f8c45c;
+}
+
+.theme-toggle-compact {
+  min-height: 26px;
+  padding: 2px 8px 2px 3px;
+  font-size: 9px;
+  box-shadow: none;
+}
+
+.theme-toggle-compact .theme-toggle-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.simulation-banner {
+  position: relative;
+  padding-inline: 8px 126px;
+}
+
+.simulation-banner-message {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.simulation-banner > .theme-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: auto;
+  height: 20px;
+  min-height: 20px;
+  padding-block: 1px;
+  transform: translateY(-50%);
+}
+
+.simulation-banner > .theme-toggle .theme-toggle-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.simulation-banner > .theme-toggle:hover {
+  transform: translateY(calc(-50% - 1px));
+}
+
+.command-workspace-v2 > .simulation-banner .theme-toggle {
+  display: none;
 }
 
 /* Global application canvases and navigation. */
@@ -465,14 +512,128 @@ html[data-theme='dark'] .calculated-age-output.underage {
   color: #ffb5bf;
 }
 
+/* High-contrast typography. Several legacy rules use !important, so these
+   portal-scoped overrides deliberately appear last. */
+html[data-theme='dark'] :is(.auth-info, .auth-info h1, .auth-info .brand-light) {
+  color: #f4f8fb !important;
+}
+
+html[data-theme='dark'] :is(
+  .auth-info > p,
+  .auth-info > small,
+  .auth-info .brand-light span,
+  .demo-account span,
+  .check-list li,
+  .auth-card > p,
+  .auth-footer
+) {
+  color: #c5d3dc !important;
+}
+
+html[data-theme='dark'] :is(.onboard-side p, .step-title span, .onboarding .help) {
+  color: #c5d3dc !important;
+}
+
+html[data-theme='dark'] :is(.onboard-card, .auth-card) :is(label, strong) {
+  color: #edf4f8 !important;
+}
+
+html[data-theme='dark'] .civic-main :is(p, small, label, dt, dd, .help) {
+  color: #c5d3dc !important;
+}
+
+html[data-theme='dark'] .civic-main :is(h1, h2, h3, h4, strong) {
+  color: #f4f8fb !important;
+}
+
+html[data-theme='dark'] .civic-shell :is(
+  .civic-wordmark > span,
+  .profile-mini > span,
+  .desk-badge small,
+  .verified-user small,
+  .rail-title span,
+  .rail-card span,
+  .nearby-row span,
+  .tactical-list-item span,
+  .publication-address span,
+  .publication-eta span,
+  .publication-timeline small,
+  .publication-units small,
+  .publication-simulated-info span,
+  .course-meta,
+  .resource-meta
+) {
+  color: #bed0dc !important;
+}
+
+html[data-theme='dark'] .command-main-v2 :is(p, small, label, dt, dd) {
+  color: #c5d3dc !important;
+}
+
+html[data-theme='dark'] .command-main-v2 :is(h1, h2, h3, h4, strong) {
+  color: #f4f8fb !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 :is(
+  .command-title-block small,
+  .command-top-actions > span,
+  .stat-card span,
+  .stat-card small,
+  .admin-toolbar p,
+  .admin-table-head span,
+  .admin-table-row,
+  .admin-table-row small,
+  .queue-item span,
+  .queue-item small,
+  .case-detail-grid-v4 span,
+  .personal-grid span,
+  .location-detail-v4 span,
+  .recommend-list span,
+  .recommend-list small,
+  .risk-stats-row span
+) {
+  color: #bed0dc !important;
+}
+
+html[data-theme='dark'] .command-workspace-v2 :is(
+  .stat-card strong,
+  .admin-table-row strong,
+  .queue-item strong,
+  .case-detail-grid-v4 strong,
+  .personal-grid strong,
+  .location-detail-v4 strong,
+  .recommend-list strong,
+  .risk-stats-row strong
+) {
+  color: #f4f8fb !important;
+}
+
+html[data-theme='dark'] :is(.civic-top-actions, .command-top-actions) > span {
+  border-color: #344754 !important;
+  background: #17232d !important;
+}
+
+.command-top-actions .theme-toggle span {
+  display: inline-grid;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+.command-top-actions .theme-toggle > span:last-child {
+  display: inline;
+}
+
 @media (max-width: 720px) {
   .theme-toggle {
-    right: 12px;
-    bottom: 76px;
-    width: 42px;
-    height: 42px;
-    min-height: 42px;
-    padding: 6px;
+    width: 26px;
+    height: 26px;
+    min-height: 26px;
+    padding: 2px;
   }
 
   .theme-toggle > span:last-child {
@@ -485,8 +646,21 @@ html[data-theme='dark'] .calculated-age-output.underage {
   }
 
   .theme-toggle-icon {
-    width: 28px;
-    height: 28px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .simulation-banner {
+    justify-content: flex-start;
+    padding-left: 8px;
+    padding-right: 42px;
+  }
+
+  .simulation-banner-message {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 

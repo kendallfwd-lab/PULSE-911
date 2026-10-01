@@ -1,11 +1,12 @@
 import { AlertTriangle, CheckCircle2, Clock3, Info, MapPin, ShieldCheck, XCircle } from 'lucide-react'
+import { ThemeToggle } from './ThemeToggle'
 
 export const statusLabel = {
   received: 'Recibido', validating: 'Validando', validated: 'Validado', dispatched: 'Despachado', en_route: 'Unidades en ruta', on_scene: 'Unidades en sitio', transporting: 'Trasladando', at_hospital: 'En hospital', returning: 'Regresando a base', resolved: 'Resuelto', cancelled: 'Cancelado'
 }
 
 export function SimulationBanner({ dark = false }) {
-  return <div className={`simulation-banner ${dark ? 'dark' : ''}`}><AlertTriangle size={14} /> ENTORNO DE DEMOSTRACIÓN — NO CONECTADO A SERVICIOS 911 REALES</div>
+  return <div className={`simulation-banner ${dark ? 'dark' : ''}`}><span className="simulation-banner-message"><AlertTriangle size={14} /> ENTORNO DE DEMOSTRACIÓN — NO CONECTADO A SERVICIOS 911 REALES</span><ThemeToggle compact /></div>
 }
 
 export function PageLoader() {

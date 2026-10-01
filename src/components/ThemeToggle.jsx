@@ -1,14 +1,14 @@
 import { Moon, Sun } from 'lucide-react'
 import { useTheme } from '../context/ThemeContext'
 
-export function ThemeToggle() {
+export function ThemeToggle({ compact = false }) {
   const { isDark, toggleTheme } = useTheme()
   const nextTheme = isDark ? 'claro' : 'oscuro'
 
   return (
     <button
       type="button"
-      className="theme-toggle"
+      className={`theme-toggle${compact ? ' theme-toggle-compact' : ''}`}
       onClick={toggleTheme}
       aria-label={`Cambiar a modo ${nextTheme}`}
       title={`Cambiar a modo ${nextTheme}`}
