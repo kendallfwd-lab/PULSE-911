@@ -6,6 +6,8 @@ import { SimulationBanner } from '../components/Common'
 import { Brand } from '../components/Brand'
 import { CostaRicaLocationFields } from '../components/CostaRicaLocationFields'
 import { TaxpayerLookupField } from '../components/TaxpayerLookupField'
+import { CalculatedAgeField } from '../components/CalculatedAgeField'
+import { toLocalDateInputValue } from '../utils/age'
 
 export default function OnboardingPage() {
   const { currentUser, updateProfile } = usePulse()
@@ -89,8 +91,16 @@ export default function OnboardingPage() {
                 </label>
                 <label>
                   Fecha de nacimiento
-                  <input type="date" value={form.birthDate || ''} onChange={event => set('birthDate', event.target.value)} />
+                  <input
+                    id="profile-birth-date"
+                    type="date"
+                    min="1900-01-01"
+                    max={toLocalDateInputValue()}
+                    value={form.birthDate || ''}
+                    onChange={event => set('birthDate', event.target.value)}
+                  />
                 </label>
+                <CalculatedAgeField birthDate={form.birthDate} />
                 <label>
                   Teléfono
                   <input value={form.phone || ''} onChange={event => set('phone', event.target.value)} />

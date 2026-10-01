@@ -1,0 +1,29 @@
+.calculated-age-field {
+  display: grid;
+  gap: 7px;
+  margin: 14px 0;
+}
+
+.calculated-age-label {
+  color: #4c606c;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.calculated-age-output {
+  width: 100%;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  border: 1px solid #d7e1e7;
+  border-radius: 9px;
+  padding: 11px 12px;
+  background: #f2f5f7;
+  color: #102a43;
+  font-weight: 800;
+}
+
+.calculated-age-output.empty {
+  color: #7d8c95;
+  font-weight: 500;
+}
