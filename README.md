@@ -6,7 +6,8 @@ Aplicación web académica de respuesta a emergencias construida con React + Vit
 
 - Portal ciudadano con feed, reporte guiado, SOS, mapa situacional, incidentes, alertas, recursos, comunidad, notificaciones y perfil.
 - PULSE Command con centro de mando, gestión de incidentes, despacho geográfico, unidades, hospitales, zonas de riesgo, alertas públicas, publicaciones, analítica, auditoría y escenarios.
-- `db.json` como fuente de datos inicial única. Los cambios de la demo persisten en `localStorage`.
+- `db.json` como fuente de datos inicial. Los cambios operativos de la demo persisten en `localStorage`; las cuentas ciudadanas y sus fichas personales se guardan en `db.json` mediante una API local de Vite.
+- Las contraseñas de cuentas nuevas se almacenan con hash scrypt y sal aleatoria, nunca en texto plano.
 - Mapa interactivo con OpenStreetMap cuando hay Internet y fondo de respaldo local cuando no hay tiles disponibles.
 - Movimiento simulado de unidades, rutas, ETA, traslado hospitalario, retorno a base y control de velocidad de simulación.
 - Diseño final optimizado para escritorio/laptop con sidebar colapsable y mapa ampliable a pantalla completa.
@@ -40,6 +41,8 @@ npm run dev
 ```
 
 Vite abrirá la aplicación en `http://127.0.0.1:5175`.
+
+El registro y el guardado de fichas requieren el servidor de desarrollo (`npm run dev` o el script de inicio). `npm run preview` sirve una compilación estática y no incluye la API de escritura.
 
 ## Verificar antes de presentar
 

@@ -141,19 +141,60 @@ export function PulseProvider({ children }) {
   }, [])
 
   const currentUser = db.users.find(u => u.id === sessionId) || null
-  const login = (email, password) => {
-    const user = db.users.find(u => u.email.toLowerCase() === email.trim().toLowerCase() && u.password === password)
-    if (!user) return { ok: false, message: 'Correo o contraseña incorrectos.' }
-    saveSession(user.id); setSessionId(user.id); return { ok: true, user }
+  const login = async (email, password) => {
+    const normalizedEmail=email.trim().toLowerCase()
+    const localUser=db.users.find(user=>user.email.toLowerCase()===normalizedEmail&&user.password===password)
+    if(localUser){
+      try{
+        const response=await fetch('/api/users/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:localUser.id,email:localUser.email,password:localUser.password,role:localUser.role,profile:localUser.profile,profileComplete:localUser.profileComplete})})
+        const result=await response.json()
+        if(!response.ok)return {ok:false,message:result.message||'No se pudo sincronizar la cuenta con db.json.'}
+        const user={...result.user,password:localUser.password}
+        commit(prev=>({...prev,users:[user,...prev.users.filter(existing=>existing.id!==user.id&&existing.email.toLowerCase()!==user.email.toLowerCase())]}))
+        saveSession(user.id);setSessionId(user.id);return {ok:true,user}
+      }catch{
+        return {ok:false,message:'No se pudo sincronizar la cuenta con db.json. Verifica que el servidor local esté activo.'}
+      }
+    }
+    try{
+      const response=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:normalizedEmail,password})})
+      const result=await response.json()
+      if(!response.ok)return {ok:false,message:result.message||'Correo o contraseña incorrectos.'}
+      const user=result.user
+      commit(prev=>({...prev,users:[user,...prev.users.filter(existing=>existing.id!==user.id&&existing.email.toLowerCase()!==user.email.toLowerCase())]}))
+      saveSession(user.id);setSessionId(user.id);return {ok:true,user}
+    }catch{
+      return {ok:false,message:'No se pudo conectar con la base local de cuentas.'}
+    }
   }
   const logout = () => { clearSession(); setSessionId(null) }
-  const register = ({ fullName, email, password }) => {
-    if (db.users.some(u => u.email.toLowerCase() === email.trim().toLowerCase())) return { ok: false, message: 'Ya existe una cuenta con ese correo.' }
-    const user = { id: `usr-${Date.now()}`, email: email.trim(), password, role: 'citizen', profileComplete: false, profile: { fullName, document: '', birthDate: '', phone: '', province: '', canton: '', district: '', address: '', bloodType: '', allergies: '', medications: '', conditions: '', mobility: '', notes: 'Datos ficticios para demostración.', consents: { location: true, medical: false, notifyContact: true, unitTracking: true }, contacts: [] } }
-    commit(prev => appendAudit({ ...prev, users: [user, ...prev.users] }, 'Nueva cuenta ciudadana creada', { userId: user.id }))
-    saveSession(user.id); setSessionId(user.id); return { ok: true, user }
+  const register = async ({ fullName, email, password }) => {
+    const normalizedEmail=email.trim().toLowerCase()
+    if(db.users.some(user=>user.email.toLowerCase()===normalizedEmail))return {ok:false,message:'Ya existe una cuenta con ese correo.'}
+    try{
+      const response=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fullName,email:normalizedEmail,password})})
+      const result=await response.json()
+      if(!response.ok)return {ok:false,message:result.message||'No se pudo crear la cuenta.'}
+      const user=result.user
+      commit(prev=>appendAudit({...prev,users:[user,...prev.users.filter(existing=>existing.email.toLowerCase()!==user.email.toLowerCase())]},'Nueva cuenta ciudadana creada',{userId:user.id}))
+      saveSession(user.id);setSessionId(user.id);return {ok:true,user}
+    }catch{
+      return {ok:false,message:'No se pudo guardar la cuenta en db.json. Verifica que el servidor local esté activo.'}
+    }
   }
-  const updateProfile = profile => { if (!currentUser) return; commit(prev => appendAudit({ ...prev, users: prev.users.map(u => u.id === currentUser.id ? { ...u, profile: { ...u.profile, ...profile }, profileComplete: true } : u) }, 'Perfil ciudadano actualizado', { userId: currentUser.id })) }
+  const updateProfile = async profile => {
+    if(!currentUser)return {ok:false,message:'No hay una sesión ciudadana activa.'}
+    try{
+      const response=await fetch(`/api/users/${encodeURIComponent(currentUser.id)}/profile`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile})})
+      const result=await response.json()
+      if(!response.ok)return {ok:false,message:result.message||'No se pudo guardar la ficha.'}
+      const user=result.user
+      commit(prev=>appendAudit({...prev,users:prev.users.map(existing=>existing.id===user.id?user:existing)},'Perfil ciudadano actualizado',{userId:user.id}))
+      return {ok:true,user}
+    }catch{
+      return {ok:false,message:'No se pudo guardar la ficha en db.json. Verifica que el servidor local esté activo.'}
+    }
+  }
 
   const addIncident = payload => {
     if (!currentUser) return null

@@ -1,6 +1,77 @@
 {
   "users": [
     {
+      "id": "usr-5d3aa4f0-501f-40c3-813f-bbd9a6cbb45c",
+      "email": "fwdsalazar@gmail.com",
+      "passwordSalt": "55cfbd1f74d903cc9450f58af61f43a5",
+      "passwordHash": "7e79a3846a086f160cdacb1205fcb7aadbd576d29f613345d018246045790ede61be6ab74e0df207c5c5dfda5816533e7307dd13aa9a57a592a4bf96475463a0",
+      "role": "citizen",
+      "profileComplete": true,
+      "profile": {
+        "fullName": "Mauricio",
+        "document": "Demo-003",
+        "birthDate": "2008-07-17",
+        "phone": "83120950",
+        "province": "Puntarenas",
+        "canton": "barranca",
+        "district": "roble",
+        "address": "jjfkj04324hihjfasjpfopog",
+        "bloodType": "A+",
+        "allergies": "no",
+        "medications": "no",
+        "conditions": "no",
+        "mobility": "no",
+        "notes": "Datos ficticios para demostración.",
+        "consents": {
+          "location": true,
+          "medical": true,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": [
+          {
+            "id": "ct-1790877305064",
+            "name": "karla",
+            "relation": "mama",
+            "phone": "872140443",
+            "email": "karlazalazar@gmail.com",
+            "priority": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "usr-b8fcba9d-aaf2-4431-a2b9-5918cea7579d",
+      "email": "fwdkendall@gmail.com",
+      "passwordSalt": "50238ec1ab2d1d117f5a980a52228859",
+      "passwordHash": "c091084a25763e0833c17539273b9c98e816318ce4380f70436c874bd3c7ee886d5b79a508f250313013e9a39d374af9b0c10852da9549caac13d1cc70a71191",
+      "role": "citizen",
+      "profileComplete": false,
+      "profile": {
+        "fullName": "KENDALL",
+        "document": "",
+        "birthDate": "",
+        "phone": "",
+        "province": "",
+        "canton": "",
+        "district": "",
+        "address": "",
+        "bloodType": "",
+        "allergies": "",
+        "medications": "",
+        "conditions": "",
+        "mobility": "",
+        "notes": "Datos ficticios para demostración.",
+        "consents": {
+          "location": true,
+          "medical": false,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": []
+      }
+    },
+    {
       "id": "usr-citizen-demo",
       "email": "citizen@pulse.demo",
       "password": "Pulse911!",
@@ -654,7 +725,7 @@
         "road_hazard",
         "traffic_accident"
       ],
-      "distanceKm": 5.0,
+      "distanceKm": 5,
       "eta": 9,
       "crew": 1,
       "location": {
@@ -1588,19 +1659,284 @@
       "authorId": "usr-citizen-demo",
       "status": "pending",
       "createdAt": "2026-09-25T11:20:00-06:00",
-      "title": "Acumulación de agua en vía",
+      "title": "Inundación vial en Barrio El Carmen",
       "category": "flood",
       "severity": "medium",
-      "description": "Se observa acumulación de agua y circulación lenta.",
+      "description": "Reporte P-2026-000505, prioridad P2 y validado por el centro de mando. El agua alcanza aproximadamente 35 cm; hay cuatro viviendas cercanas y vehículos en riesgo. La vía está bloqueada y el nivel se clasifica como moderado. No se confirma si hay personas atrapadas y no se reporta corriente fuerte. Evita cruzar o conducir por el sector.",
       "location": {
-        "label": "Corredor costero demo",
+        "label": "Barrio El Carmen, Puntarenas",
         "lat": 9.979,
-        "lng": -84.745
+        "lng": -84.743
       },
       "details": {
-        "waterHeight": "20 cm"
+        "incidentCode": "P-2026-000505",
+        "incidentPriority": "P2",
+        "incidentStatus": "validated",
+        "waterHeight": "35 cm",
+        "homes": 4,
+        "trapped": "No confirmado",
+        "strongCurrent": "No",
+        "roadBlocked": "Sí",
+        "waterLevel": "Moderado",
+        "vehiclesAtRisk": "Sí",
+        "currentStrong": "No",
+        "riskScore": 62
       },
-      "image": "/assets/generated/incidents/inundacion.webp"
+      "image": "/assets/user-content/calle-inundada.webp"
+    },
+    {
+      "id": "pub-demo-3",
+      "authorId": "usr-citizen-demo",
+      "status": "pending",
+      "createdAt": "2026-09-24T14:42:00-06:00",
+      "title": "Colisión de dos vehículos en El Roble",
+      "category": "traffic_accident",
+      "severity": "high",
+      "description": "Reporte P-2026-000482, prioridad P1 y validado. La colisión involucra dos vehículos y tres personas; una persona refiere dolor en un brazo. Se reporta una fuga de combustible y bloqueo parcial del carril, con lluvia ligera. No se reportan personas atrapadas, fuego ni humo. Mantén distancia y sigue las indicaciones del personal de respuesta.",
+      "location": {
+        "label": "El Roble, Puntarenas",
+        "lat": 9.976,
+        "lng": -84.748
+      },
+      "details": {
+        "incidentCode": "P-2026-000482",
+        "incidentPriority": "P1",
+        "incidentStatus": "validated",
+        "vehicles": 2,
+        "people": 3,
+        "injured": "Sí, dolor en un brazo",
+        "trapped": "No",
+        "fire": "No",
+        "smoke": "No",
+        "fuelLeak": "Sí",
+        "roadBlocked": "Parcial",
+        "heavyVehicle": "No",
+        "weather": "Lluvia ligera",
+        "riskScore": 88
+      },
+      "image": "/assets/user-content/rescate-colision.webp"
+    },
+    {
+      "id": "pub-demo-4",
+      "authorId": "usr-citizen-demo",
+      "status": "pending",
+      "createdAt": "2026-09-22T08:10:00-06:00",
+      "title": "Árbol caído y cableado en Barranca",
+      "category": "road_hazard",
+      "severity": "low",
+      "description": "Reporte P-2026-000471, prioridad P3. Un árbol y cableado bloquearon parcialmente la vía y redujeron la visibilidad. El registro operativo indica que la vía fue liberada a las 09:05 por la unidad RES-004. La publicación queda pendiente de revisión; verifica las condiciones antes de circular.",
+      "location": {
+        "label": "Barranca, Puntarenas",
+        "lat": 9.991,
+        "lng": -84.724
+      },
+      "details": {
+        "incidentCode": "P-2026-000471",
+        "incidentPriority": "P3",
+        "incidentStatus": "resolved",
+        "roadBlocked": "Parcial",
+        "hazard": "Árbol y cableado sobre la vía",
+        "visibility": "Reducida",
+        "assignedUnit": "RES-004",
+        "resolution": "Vía liberada a las 09:05",
+        "riskScore": 38
+      },
+      "image": "/assets/user-content/arbol-caido.png"
+    },
+    {
+      "id": "pub-demo-5",
+      "authorId": "usr-demo-guest",
+      "status": "pending",
+      "createdAt": "2026-09-24T15:06:00-06:00",
+      "title": "Humo en bodega comercial de dos pisos",
+      "category": "fire",
+      "severity": "high",
+      "description": "Reporte P-2026-000499, prioridad P1 y validado. Se observa humo en una bodega comercial de dos pisos. Se desconoce si hay personas dentro; la propagación es posible y la presencia de gas no está confirmada. No se reportan materiales peligrosos. Mantén libre el acceso para los equipos de emergencia.",
+      "location": {
+        "label": "San José, zona demo",
+        "lat": 9.93,
+        "lng": -84.08
+      },
+      "details": {
+        "incidentCode": "P-2026-000499",
+        "incidentPriority": "P1",
+        "incidentStatus": "validated",
+        "structure": "Bodega comercial",
+        "peopleInside": "Desconocido",
+        "smoke": "Sí",
+        "propagation": "Posible",
+        "gas": "No confirmado",
+        "hazmat": "No",
+        "floors": 2,
+        "riskScore": 88
+      },
+      "image": "/assets/generated/incidents/incendio-estructural.webp"
+    },
+    {
+      "id": "pub-demo-6",
+      "authorId": "usr-citizen-demo",
+      "status": "pending",
+      "createdAt": "2026-09-25T10:12:00-06:00",
+      "title": "Incendio en bodega de Av. Central",
+      "category": "fire",
+      "severity": "high",
+      "description": "Reporte P-2026-000611, prioridad P1 y validado. Hay llamas visibles y humo denso en una bodega comercial de dos pisos; es posible que haya personas dentro. La propagación se considera moderada, el gas no está confirmado y no se reportan materiales peligrosos. El tránsito está regulado frente a la plaza comercial.",
+      "location": {
+        "label": "Av. Central, Puntarenas (demo)",
+        "lat": 9.9794,
+        "lng": -84.7521
+      },
+      "details": {
+        "incidentCode": "P-2026-000611",
+        "incidentPriority": "P1",
+        "incidentStatus": "validated",
+        "structure": "Bodega comercial",
+        "peopleInside": "Posible",
+        "smoke": "Denso",
+        "propagation": "Moderada",
+        "gas": "No confirmado",
+        "hazmat": "No",
+        "floors": 2,
+        "riskScore": 91
+      },
+      "image": "/assets/user-content/incendio-comercio.webp"
+    },
+    {
+      "id": "pub-demo-7",
+      "authorId": "usr-citizen-demo",
+      "status": "pending",
+      "createdAt": "2026-09-25T11:18:00-06:00",
+      "title": "Colisión entre motocicleta y automóvil",
+      "category": "traffic_accident",
+      "severity": "high",
+      "description": "Reporte P-2026-000613, prioridad P1 y validado. El choque involucra una motocicleta y un automóvil; hay cinco personas involucradas y una lesionada. El carril está bloqueado parcialmente. No se reportan personas atrapadas, fuego, humo ni fuga de combustible; llovía ligeramente. Circula con precaución y sigue las instrucciones de respuesta.",
+      "location": {
+        "label": "Intersección Norte, Puntarenas (demo)",
+        "lat": 9.9842,
+        "lng": -84.7442
+      },
+      "details": {
+        "incidentCode": "P-2026-000613",
+        "incidentPriority": "P1",
+        "incidentStatus": "validated",
+        "vehicles": 2,
+        "people": 5,
+        "injured": 1,
+        "trapped": 0,
+        "fire": "No",
+        "smoke": "No",
+        "fuelLeak": "No",
+        "roadBlocked": "Parcial",
+        "heavyVehicle": "No",
+        "weather": "Lluvia ligera",
+        "riskScore": 87
+      },
+      "image": "/assets/user-content/colision-motocicleta.webp"
+    },
+    {
+      "id": "pub-demo-8",
+      "authorId": "usr-citizen-demo",
+      "status": "pending",
+      "createdAt": "2026-09-26T09:15:00-06:00",
+      "title": "Botiquín básico para el hogar",
+      "category": "medical",
+      "severity": "low",
+      "description": "Publicación educativa de demostración: mantener un botiquín accesible con guantes, gasas, vendas, cinta adhesiva y solución para limpieza ayuda a responder ante lesiones leves. Revisa periódicamente los suministros y sus fechas de vencimiento. Para una emergencia, contacta a los servicios correspondientes.",
+      "location": {
+        "label": "Puntarenas, material educativo demo",
+        "lat": 9.976,
+        "lng": -84.748
+      },
+      "details": {
+        "contentType": "educational",
+        "topic": "Preparación y primeros auxilios",
+        "source": "Recurso local de primeros auxilios"
+      },
+      "image": "/assets/user-content/primeros-auxilios.webp"
+    },
+    {
+      "id": "pub-demo-9",
+      "authorId": "usr-citizen-demo",
+      "status": "pending",
+      "createdAt": "2026-09-27T10:30:00-06:00",
+      "title": "Práctica de RCP en capacitación comunitaria",
+      "category": "medical",
+      "severity": "low",
+      "description": "Publicación educativa de demostración sobre reconocimiento de emergencias y práctica de RCP. La imagen corresponde a una capacitación; las maniobras deben aprenderse con personal certificado y seguir las instrucciones del operador de emergencias.",
+      "location": {
+        "label": "Puntarenas, capacitación demo",
+        "lat": 9.976,
+        "lng": -84.748
+      },
+      "details": {
+        "contentType": "educational",
+        "topic": "RCP introductoria",
+        "source": "Curso demo de respuesta inicial"
+      },
+      "image": "/assets/user-content/practica-rcp.webp"
+    },
+    {
+      "id": "pub-demo-10",
+      "authorId": "usr-citizen-demo",
+      "status": "pending",
+      "createdAt": "2026-09-28T08:45:00-06:00",
+      "title": "Preparación familiar ante emergencias",
+      "category": "other",
+      "severity": "low",
+      "description": "Publicación educativa de demostración: acuerda contactos, una ruta de salida y un punto de reunión; prepara agua, linterna, radio y suministros esenciales. Mantén el plan en un lugar que todas las personas del hogar puedan consultar.",
+      "location": {
+        "label": "El Roble, Puntarenas (material demo)",
+        "lat": 9.976,
+        "lng": -84.748
+      },
+      "details": {
+        "contentType": "educational",
+        "topic": "Plan familiar",
+        "source": "Recurso local de preparación"
+      },
+      "image": "/assets/user-content/plan-familiar.webp"
+    },
+    {
+      "id": "pub-demo-11",
+      "authorId": "usr-citizen-demo",
+      "status": "pending",
+      "createdAt": "2026-09-29T14:10:00-06:00",
+      "title": "Apoyo emocional después de una emergencia",
+      "category": "other",
+      "severity": "low",
+      "description": "Publicación educativa de demostración: escuchar sin presionar, ofrecer compañía y ayudar a conectar con redes de apoyo puede ser importante después de una situación difícil. Respeta la privacidad y busca asistencia profesional cuando se necesite.",
+      "location": {
+        "label": "Puntarenas, recurso comunitario demo",
+        "lat": 9.976,
+        "lng": -84.748
+      },
+      "details": {
+        "contentType": "educational",
+        "topic": "Apoyo emocional",
+        "source": "Recurso local de bienestar"
+      },
+      "image": "/assets/user-content/apoyo-emocional.webp"
+    },
+    {
+      "id": "pub-demo-12",
+      "authorId": "usr-citizen-demo",
+      "status": "pending",
+      "createdAt": "2026-09-30T11:05:00-06:00",
+      "title": "Asistencia segura mientras llega la ayuda",
+      "category": "medical",
+      "severity": "medium",
+      "description": "Publicación educativa de demostración: antes de ayudar, verifica que la escena sea segura y activa el sistema de emergencias. Sigue las indicaciones del operador, no te expongas a peligros y evita mover a una persona lesionada salvo que exista un riesgo inmediato.",
+      "location": {
+        "label": "Puntarenas, recurso de respuesta demo",
+        "lat": 9.976,
+        "lng": -84.748
+      },
+      "details": {
+        "contentType": "educational",
+        "topic": "Respuesta inicial segura",
+        "source": "Recurso local de primeros auxilios"
+      },
+      "image": "/assets/user-content/asistencia-en-escena.webp"
     }
   ],
   "notifications": [
@@ -1620,6 +1956,27 @@
       "type": "audit",
       "label": "Centro de mando iniciado en modo simulación",
       "at": "2026-09-25T08:00:00-06:00"
+    },
+    {
+      "id": "audit-0b58e189-c667-4a97-a910-ff800dcc51a9",
+      "type": "audit",
+      "label": "Nueva cuenta ciudadana creada",
+      "at": "2026-10-01T17:50:31.887Z",
+      "userId": "usr-b8fcba9d-aaf2-4431-a2b9-5918cea7579d"
+    },
+    {
+      "id": "audit-0f8a139f-e6d1-4934-b839-7b2cdf80ad96",
+      "type": "audit",
+      "label": "Nueva cuenta ciudadana creada",
+      "at": "2026-10-01T17:55:05.035Z",
+      "userId": "usr-5d3aa4f0-501f-40c3-813f-bbd9a6cbb45c"
+    },
+    {
+      "id": "audit-190f3917-34e6-41bd-928d-341afd406f90",
+      "type": "audit",
+      "label": "Perfil ciudadano actualizado",
+      "at": "2026-10-01T17:57:39.806Z",
+      "userId": "usr-5d3aa4f0-501f-40c3-813f-bbd9a6cbb45c"
     }
   ],
   "scenarios": [

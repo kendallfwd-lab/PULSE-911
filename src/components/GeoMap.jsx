@@ -63,11 +63,20 @@ export default function GeoMap({
 
   useEffect(()=>{
     if(!expanded) return
-    const previous=document.body.style.overflow
+    const previousBodyOverflow=document.body.style.overflow
+    const previousRootOverflow=document.documentElement.style.overflow
+    const previousRootScrollbarGutter=document.documentElement.style.scrollbarGutter
     document.body.style.overflow='hidden'
+    document.documentElement.style.overflow='hidden'
+    document.documentElement.style.scrollbarGutter='auto'
     const onKey=(e)=>{ if(e.key==='Escape') setExpanded(false) }
     window.addEventListener('keydown',onKey)
-    return ()=>{ document.body.style.overflow=previous; window.removeEventListener('keydown',onKey) }
+    return ()=>{
+      document.body.style.overflow=previousBodyOverflow
+      document.documentElement.style.overflow=previousRootOverflow
+      document.documentElement.style.scrollbarGutter=previousRootScrollbarGutter
+      window.removeEventListener('keydown',onKey)
+    }
   },[expanded])
 
   useEffect(()=>{

@@ -5,6 +5,7 @@ import { usePulse } from '../../context/PulseContext'
 import { Badge, StatusBadge } from '../../components/Common'
 import GeoMap from '../../components/GeoMap'
 import { incidentImage } from '../../utils/incidentMedia'
+import { compatibleUnits } from '../../utils/dispatch'
 
 const statusCopy = {
   received:'Reporte recibido',
@@ -37,6 +38,30 @@ function simulatedDetails(incident){
   return {address,event:details[0],people:details[1],condition:details[2]}
 }
 
+function responseEta(incident,units){
+  if(incident.status==='resolved') return 'Resuelto'
+  const assignedIds=[...new Set([...(incident.assignedUnits||[]),incident.assignedUnit].filter(Boolean))]
+  const assigned=assignedIds.map(id=>units.find(unit=>unit.id===id)).filter(Boolean)
+  if(incident.status==='on_scene'||assigned.some(unit=>unit.status==='on_scene'||unit.status==='at_hospital')) return 'En sitio'
+  if(incident.status==='transporting'||assigned.some(unit=>unit.status==='transporting')) return 'En traslado'
+  if(incident.eta!=null&&Number.isFinite(Number(incident.eta))){
+    const minutes=Math.max(0,Math.ceil(Number(incident.eta)))
+    return minutes===0?'En sitio':`~${minutes} min`
+  }
+  const assignedEtas=assigned
+    .filter(unit=>['en_route','dispatched'].includes(unit.status))
+    .map(unit=>unit.mission?.etaMin??unit.eta)
+    .map(Number)
+    .filter(Number.isFinite)
+  const available=compatibleUnits(incident,units)
+  const estimate=assignedEtas.length
+    ? Math.min(...assignedEtas)
+    : available.length
+      ? Math.min(...available.map(unit=>unit.eta))
+      : ({P1:4,P2:7,P3:10,P4:12}[incident.priority]||8)
+  return `~${Math.max(1,Math.ceil(estimate))} min`
+}
+
 export default function CitizenHome(){
   const {db,currentUser}=usePulse(); const [saved,setSaved]=useState([]); const [useful,setUseful]=useState([]); const [safe,setSafe]=useState(false); const [copied,setCopied]=useState(false)
   const mine=db.incidents.filter(i=>i.citizenId===currentUser.id); const active=mine.find(i=>!['resolved','cancelled'].includes(i.status))
@@ -59,7 +84,7 @@ function IncidentPublication({incident,units,primary=false,isMine=false,saved=fa
   const assignedUnits=assignedIds.map(id=>units.find(unit=>unit.id===id)||{id,type:'Unidad asignada',status:'dispatched'}).slice(0,4)
   const detailUrl=isMine?`/app/incidents/${incident.id}`:'/app/map'
   const created=new Date(incident.createdAt).toLocaleString('es-CR',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'})
-  const eta=incident.eta?`${incident.eta} min`:'En cálculo'
+  const eta=responseEta(incident,units)
   const simulated=simulatedDetails(incident)
   const timeline=[
     ['red','Incidente reportado',created],
@@ -75,7 +100,7 @@ function IncidentPublication({incident,units,primary=false,isMine=false,saved=fa
         <div className="publication-badges"><Badge tone={incident.priority==='P1'?'red':'amber'}>{incident.priority==='P1'?'PRIORIDAD ALTA':`PRIORIDAD ${incident.priority}`}</Badge><StatusBadge status={incident.status}/>{primary&&<Badge tone="blue">EN ATENCIÓN</Badge>}</div>
         <h2>{incident.title}</h2>
         <div className="publication-address"><MapPin size={21}/><div><strong>{simulated.address}</strong><span>{incident.code} · Ubicación simulada para la demostración</span></div></div>
-        <div className="publication-simulated-info"><div><span>Evento</span><strong>{simulated.event}</strong></div><div><span>Personas</span><strong>{simulated.people}</strong></div><div><span>Condición</span><strong>{simulated.condition}</strong></div></div>
+        <p className="publication-facts">{simulated.event} | {simulated.people} | {simulated.condition}</p>
         <div className="publication-eta"><Clock3 size={28}/><div><span>Tiempo estimado de respuesta</span><strong>{eta}</strong></div></div>
         <div className="publication-actions">
           {primary?<><button className={safe?'active':''} onClick={onSafe}><ShieldCheck size={17}/>{safe?'Estado seguro':'Estoy a salvo'}</button><Link to={detailUrl}><MessageCircle size={17}/>Seguimiento</Link><button className={copied?'active':''} onClick={onShare}><Share2 size={17}/>{copied?'Código copiado':'Compartir'}</button></>:<><button className={useful?'active':''} onClick={onUseful}><Heart size={17} fill={useful?'currentColor':'none'}/>{useful?'Información útil':'Me sirve'}</button><Link to={detailUrl}><Navigation size={17}/>Ver reporte</Link>{!isMine&&<Link to="/app/report"><Siren size={17}/>Aportar</Link>}</>}
@@ -85,8 +110,8 @@ function IncidentPublication({incident,units,primary=false,isMine=false,saved=fa
     </div>
 
     <div className="publication-detail-grid">
-      <section className="publication-detail-card timeline-card"><h3><Clock3 size={18}/>Evolución del incidente</h3><div className="publication-timeline">{timeline.map(([tone,title,description])=><div key={title} className={tone}><i/><span><strong>{title}</strong><small>{description}</small></span></div>)}</div></section>
-      <section className="publication-detail-card units-card"><h3><Ambulance size={18}/>Unidades asignadas</h3>{assignedUnits.length?<div className="publication-units">{assignedUnits.map(unit=><div key={unit.id}><span><i><Ambulance size={14}/></i><strong>{unit.id}</strong><small>{unit.type}</small></span><b className={unit.status}>{unit.status==='on_scene'?'En sitio':unit.status==='available'?'Disponible':'En ruta'}</b></div>)}</div>:<div className="publication-empty-unit"><Ambulance size={24}/><strong>Asignación en proceso</strong><span>El centro de mando está coordinando recursos.</span></div>}</section>
+      <div className="publication-followup"><section className="publication-detail-card timeline-card"><h3><Clock3 size={18}/>Evolución del incidente</h3><div className="publication-timeline">{timeline.map(([tone,title,description])=><div key={title} className={tone}><i/><span><strong>{title}</strong><small>{description}</small></span></div>)}</div></section>
+      <section className="publication-detail-card units-card"><h3><Ambulance size={18}/>Unidades asignadas</h3>{assignedUnits.length?<div className="publication-units">{assignedUnits.map(unit=><div key={unit.id}><span><i><Ambulance size={14}/></i><strong>{unit.id}</strong><small>{unit.type}</small></span><b className={unit.status}>{unit.status==='on_scene'?'En sitio':unit.status==='available'?'Disponible':'En ruta'}</b></div>)}</div>:<div className="publication-empty-unit"><Ambulance size={24}/><strong>Asignación en proceso</strong><span>El centro de mando está coordinando recursos.</span></div>}</section></div>
       <section className="publication-detail-card location-card"><h3><MapPin size={18}/>Ubicación del incidente</h3><div className="publication-live-map"><GeoMap compact incidents={[{...incident,location:{...incident.location,label:simulated.address}}]} selectedId={incident.id} initialCenter={incident.location} initialZoom={15}/><Link to="/app/map"><strong>{simulated.address}</strong><span>Abrir mapa situacional</span></Link></div></section>
     </div>
   </article>
