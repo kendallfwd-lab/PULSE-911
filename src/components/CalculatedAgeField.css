@@ -6,7 +6,7 @@
 
 .calculated-age-label {
   color: #4c606c;
-  font-size: 12px;
+  font-size:calc(12px * var(--text-scale, 1));
   font-weight: 800;
 }
 

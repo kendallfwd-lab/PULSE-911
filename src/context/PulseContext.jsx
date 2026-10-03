@@ -5,6 +5,7 @@ import { clearSession, clearStored, loadSession, loadStored, saveSession, saveSt
 import { makeNotification } from '../services/notificationService'
 import { calculateRiskScore, findDuplicateCandidates, mergeIncidents, distanceKm } from '../utils/incidentEngine'
 import { DEMO_MAP_CENTER, migrateDemoGeography } from '../config/demoGeography'
+import { DATA_MODE, pulseDataGateway } from '../services/pulseDataGateway'
 
 const PulseContext = createContext(null)
 const nowIso = () => new Date().toISOString()
@@ -59,7 +60,10 @@ function normalizeDb(raw) {
     hospitals: base.hospitals || [], historicalIncidents: base.historicalIncidents || [], activityLogs: base.activityLogs || [],
     resources: base.resources || [], courses: base.courses || [], users: base.users || [], publications: base.publications || [],
     notifications: base.notifications || [], courseProgress: base.courseProgress || {}, scenarios: base.scenarios || [],
-    auditLogs: base.auditLogs || [],
+    auditLogs: base.auditLogs || [], roadStatus: base.roadStatus?.length ? base.roadStatus : (seed.roadStatus || []),
+    aiSuggestions: base.aiSuggestions?.length ? base.aiSuggestions : (seed.aiSuggestions || []),
+    trafficEvents: base.trafficEvents?.length ? base.trafficEvents : (seed.trafficEvents || []), translations: base.translations || {}, aiConversations: base.aiConversations || [],
+    routeQueries: base.routeQueries || [], externalSources: base.externalSources?.length ? base.externalSources : (seed.externalSources || []),
   }
 }
 
@@ -68,6 +72,7 @@ export function PulseProvider({ children }) {
   const [sessionId, setSessionId] = useState(loadSession)
   const [simulationSpeed, setSimulationSpeed] = useState(4)
   const [simulationPaused, setSimulationPaused] = useState(false)
+  const [lastSyncAt, setLastSyncAt] = useState(null)
   const speedRef = useRef(simulationSpeed), pausedRef = useRef(simulationPaused), lastMovementPersistRef = useRef(0)
   speedRef.current = simulationSpeed; pausedRef.current = simulationPaused
 
@@ -90,6 +95,31 @@ export function PulseProvider({ children }) {
     const onChannel = e => { if (e.data?.type === 'db') setDb(normalizeDb(e.data.payload)) }
     window.addEventListener('storage', onStorage); channel?.addEventListener('message', onChannel)
     return () => { window.removeEventListener('storage', onStorage); channel?.removeEventListener('message', onChannel) }
+  }, [])
+
+  const syncNow = async () => {
+    if (DATA_MODE !== 'n8n') { setLastSyncAt(nowIso()); return { ok: true, local: true } }
+    try {
+      const response = await pulseDataGateway.pull({ since: lastSyncAt })
+      const remote = response?.data || response
+      if (remote && typeof remote === 'object') {
+        const allowed = ['incidents', 'alerts', 'riskZones', 'publications', 'roadStatus', 'aiSuggestions', 'trafficEvents', 'externalSources']
+        commit(prev => allowed.reduce((next, key) => Array.isArray(remote[key]) ? { ...next, [key]: remote[key] } : next, prev))
+      }
+      const syncedAt = nowIso(); setLastSyncAt(syncedAt); return { ok: true, syncedAt }
+    } catch (error) { return { ok: false, message: error.message } }
+  }
+
+  useEffect(() => {
+    if (DATA_MODE !== 'n8n') return undefined
+    let timer
+    const schedule = () => { window.clearInterval(timer); if (!document.hidden) timer = window.setInterval(syncNow, 30000) }
+    const visibility = () => { schedule(); if (!document.hidden) syncNow() }
+    document.addEventListener('visibilitychange', visibility)
+    syncNow(); schedule()
+    return () => { window.clearInterval(timer); document.removeEventListener('visibilitychange', visibility) }
+  // The remote mode is fixed at build time; lastSyncAt is intentionally read when each poll runs.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -347,6 +377,38 @@ export function PulseProvider({ children }) {
     return publication
   }
   const updatePublication = (id, patch) => commit(prev => appendAudit({ ...prev, publications: (prev.publications || []).map(p => p.id === id ? { ...p, ...patch, updatedAt: nowIso() } : p) }, 'Publicación comunitaria actualizada', { publicationId: id }))
+
+  const confirmSituation = (entityType, id, response) => {
+    const allowed = ['continues', 'cleared', 'incorrect']
+    if (!allowed.includes(response)) return { ok: false, message: 'Respuesta inválida.' }
+    const userKey = currentUser?.id || 'guest'
+    const storageKey = `pulse911-confirmation:${userKey}:${entityType}:${id}`
+    try { if (sessionStorage.getItem(storageKey)) return { ok: false, message: 'Ya registraste una confirmación en esta sesión.' } } catch {}
+    const collection = entityType === 'publication' ? 'publications' : 'incidents'
+    const field = response === 'continues' ? 'confirmationCount' : response === 'cleared' ? 'clearedCount' : 'incorrectCount'
+    let found = false
+    commit(prev => ({ ...prev, [collection]: (prev[collection] || []).map(item => {
+      if (item.id !== id) return item
+      found = true
+      return { ...item, [field]: Number(item[field] || 0) + 1, lastVerifiedAt: nowIso(), verificationStatus: response === 'continues' && Number(item.confirmationCount || 0) >= 2 ? 'community_confirmed' : (item.verificationStatus || 'reviewing') }
+    }) }))
+    if (!found) return { ok: false, message: 'Registro no encontrado.' }
+    try { sessionStorage.setItem(storageKey, response) } catch {}
+    return { ok: true }
+  }
+
+  const updateAiSuggestion = (id, patch) => commit(prev => appendAudit({ ...prev, aiSuggestions: (prev.aiSuggestions || []).map(item => item.id === id ? { ...item, ...patch, reviewedAt: nowIso(), reviewedBy: currentUser?.id } : item) }, 'Sugerencia IA revisada', { suggestionId: id, reviewStatus: patch.reviewStatus }))
+  const addAiSuggestion = suggestion => {
+    if (!suggestion?.id || !suggestion?.type || !suggestion?.location) return null
+    const next = { ...suggestion, reviewStatus: 'pending', requireHumanApproval: true, createdAt: suggestion.createdAt || nowIso() }
+    commit(prev => {
+      const signature = (next.sourceIds || []).slice().sort().join('|')
+      const exists = (prev.aiSuggestions || []).some(item => item.id === next.id || (signature && (item.sourceIds || []).slice().sort().join('|') === signature))
+      if (exists) return prev
+      return appendAudit({ ...prev, aiSuggestions: [next, ...(prev.aiSuggestions || [])] }, 'Nueva sugerencia IA pendiente', { suggestionId: next.id, humanApproved: false })
+    })
+    return next
+  }
   const convertPublication = (id, target) => {
     const pub = db.publications.find(p => p.id === id)
     if (!pub) return null
@@ -396,8 +458,9 @@ export function PulseProvider({ children }) {
   const value = useMemo(() => ({
     db, currentUser, login, logout, register, updateProfile, addIncident, updateIncident, dispatchUnit, startTransport, returnUnit, closeIncident,
     addAlert, updateAlert, deleteAlert, createAlertFromIncident, addRiskZone, updateRiskZone, deleteRiskZone, addPublication, updatePublication, convertPublication,
-    mergeReports, markNotificationRead, markAllNotificationsRead, setCourseProgress, loadScenario, resetDemo,
-    simulationSpeed, setSimulationSpeed, simulationPaused, setSimulationPaused: changeSimulationPaused
+    mergeReports, markNotificationRead, markAllNotificationsRead, setCourseProgress, loadScenario, resetDemo, confirmSituation, updateAiSuggestion,
+    simulationSpeed, setSimulationSpeed, simulationPaused, setSimulationPaused: changeSimulationPaused,
+    dataMode: DATA_MODE, lastSyncAt, syncNow, addAiSuggestion
   }), [db, currentUser, simulationSpeed, simulationPaused])
   return <PulseContext.Provider value={value}>{children}</PulseContext.Provider>
 }

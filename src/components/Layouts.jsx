@@ -1,17 +1,18 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Activity, Ambulance as AmbulanceIcon, BarChart3, Bell, BellRing, BookOpen, Bookmark, Building2 as HospitalIcon, CircleUserRound, ClipboardList, FileText as FileAuditIcon, Gauge, HeartPulse, Home, LogOut, MapPinned, Menu, Navigation, PanelLeftClose, PanelLeftOpen, Play as PlayIcon, Radio, Radar, Search, Settings, Shield, ShieldAlert, ShieldCheck, Siren, UsersRound } from 'lucide-react'
-import { SimulationBanner } from './Common'
-import { ThemeToggle } from './ThemeToggle'
+import { Activity, Ambulance as AmbulanceIcon, BarChart3, Bell, BellRing, BookOpen, Bookmark, Bot, Building2 as HospitalIcon, CircleUserRound, ClipboardList, Compass, FileText as FileAuditIcon, Gauge, HeartHandshake, HeartPulse, Home, LogOut, MapPinned, Menu, Navigation, PanelLeftClose, PanelLeftOpen, Play as PlayIcon, Radio, Radar, Route as RouteIcon, Search, Settings, Shield, ShieldAlert, ShieldCheck, Siren, Sparkles, UsersRound, X } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+import { AccessibilityControls } from './accessibility/AccessibilityControls'
 import { usePulse } from '../context/PulseContext'
 import { useLiveLocation } from '../context/LiveLocationContext'
 
 const citizenLinks = [
-  ['/app', Home, 'Publicaciones'], ['/app/map', MapPinned, 'Mapa situacional'],
-  ['/app/community', UsersRound, 'Reportes ciudadanos'], ['/app/resources', BookOpen, 'Cursos y apoyo'], ['/app/incidents', Bookmark, 'Mis incidentes'], ['/app/profile', Settings, 'Ajustes y protocolos']
+  ['/app', Home, 'nav.home'], ['/app/map', MapPinned, 'nav.map'], ['/app/roads', RouteIcon, 'nav.roads'], ['/app/nearby', Navigation, 'nav.nearby'],
+  ['/app/assistant', Bot, 'nav.assistant'], ['/app/travel', Compass, 'nav.travel'], ['/app/wellbeing', HeartHandshake, 'nav.wellbeing'],
+  ['/app/community', UsersRound, 'nav.community'], ['/app/resources', BookOpen, 'nav.resources'], ['/app/incidents', Bookmark, 'nav.incidents'], ['/app/profile', Settings, 'nav.profile']
 ]
 const adminLinks = [
-  ['/command', Gauge, 'Centro de mando'], ['/command/incidents', ClipboardList, 'Incidentes'], ['/command/dispatch', Radio, 'Despacho'], ['/command/units', AmbulanceIcon, 'Unidades'], ['/command/hospitals', HospitalIcon, 'Hospitales'], ['/command/risk-zones', ShieldAlert, 'Zonas de riesgo'], ['/command/alerts', BellRing, 'Alertas públicas'], ['/command/publications', UsersRound, 'Publicaciones'], ['/command/analytics', BarChart3, 'Analítica'], ['/command/audit', FileAuditIcon, 'Auditoría'], ['/command/scenarios', PlayIcon, 'Escenarios']
+  ['/command', Gauge, 'Centro de mando'], ['/command/incidents', ClipboardList, 'Incidentes'], ['/command/dispatch', Radio, 'Despacho'], ['/command/units', AmbulanceIcon, 'Unidades'], ['/command/hospitals', HospitalIcon, 'Hospitales'], ['/command/risk-zones', ShieldAlert, 'Zonas de riesgo'], ['/command/alerts', BellRing, 'Alertas públicas'], ['/command/publications', UsersRound, 'Publicaciones'], ['/command/analytics', BarChart3, 'Analítica'], ['/command/audit', FileAuditIcon, 'Auditoría'], ['/command/scenarios', PlayIcon, 'Escenarios'], ['/command/ai', Bot, 'Centro IA'], ['/command/ai-review', Sparkles, 'Revisión IA'], ['/command/traffic', RouteIcon, 'Monitoreo vial']
 ]
 
 function Initials({ name = 'PULSE' }) {
@@ -20,11 +21,12 @@ function Initials({ name = 'PULSE' }) {
 }
 
 function CitizenRightRail(){
+  const {t,i18n}=useTranslation(); const english=i18n.language.startsWith('en')
   const {db,currentUser}=usePulse(); const profile=currentUser?.profile || {}; const active=db.incidents.find(i=>i.citizenId===currentUser?.id&&!['resolved','cancelled'].includes(i.status));
   return <aside className="civic-right-rail">
     <section className="rail-card map-preview-card">
-      <div className="rail-title"><div><Radar size={15}/><span>Mapa situacional</span></div><NavLink to="/app/map">Abrir</NavLink></div>
-      <NavLink to="/app/map" className="mini-situational-map"><img src="/assets/stitch/situational-hybrid.webp" alt="Mapa situacional de demostración"/><span className="mini-map-beacon"/><div><strong>{active ? active.code : 'Sector demo'}</strong><span>{active ? active.location.label : 'Sin incidente personal activo'}</span></div></NavLink>
+      <div className="rail-title"><div><Radar size={15}/><span>{t('nav.map')}</span></div><NavLink to="/app/map">{t('actions.viewMap')}</NavLink></div>
+      <NavLink to="/app/map" className="mini-situational-map"><img src="/assets/stitch/situational-hybrid.webp" alt={t('map.interactive')}/><span className="mini-map-beacon"/><div><strong>{active ? active.code : (english?'Demo sector':'Sector demo')}</strong><span>{active ? active.location.label : (english?'No active personal incident':'Sin incidente personal activo')}</span></div></NavLink>
     </section>
     <section className="rail-card medical-summary">
       <div className="rail-title"><div><HeartPulse size={15}/><span>Ficha médica & contactos</span></div><i className="online-dot"/></div>
@@ -41,26 +43,29 @@ function CitizenRightRail(){
 }
 
 export function CitizenLayout() {
-  const { currentUser, logout } = usePulse(); const navigate=useNavigate(); const [search,setSearch]=useState(''); const [menu,setMenu]=useState(false)
+  const { t } = useTranslation()
+  const { currentUser, logout } = usePulse(); const navigate=useNavigate(); const [search,setSearch]=useState(''); const [menu,setMenu]=useState(false); const [reportMenu,setReportMenu]=useState(false)
   const {status:locationStatus,start:startLocation,stop:stopLocation,isActive:locationActive}=useLiveLocation()
+  useEffect(()=>{if(!reportMenu)return undefined;const close=event=>{if(event.key==='Escape')setReportMenu(false)};document.addEventListener('keydown',close);return()=>document.removeEventListener('keydown',close)},[reportMenu])
   const submit=(e)=>{e.preventDefault();navigate(`/app/incidents${search.trim()?`?q=${encodeURIComponent(search.trim())}`:''}`)}
   return <div className="citizen-shell civic-shell">
     <header className="civic-topbar">
       <div className="civic-topbar-inner">
-        <NavLink to="/app" className="civic-wordmark"><i/><strong>PULSE 911</strong><span>CANAL METROPOLITANO ACTIVO</span></NavLink>
-        <div className="civic-navbar-theme"><ThemeToggle compact/></div>
-        <form className="civic-search" role="search" onSubmit={submit}><Search size={16}/><input aria-label="Buscar incidentes, códigos o ubicaciones" value={search} onChange={e=>setSearch(e.target.value)} placeholder="Buscar incidentes, códigos o ubicaciones..."/></form>
-        <div className="civic-top-actions"><button className={`live-location-toggle ${locationActive?'active':''}`} type="button" onClick={locationActive?stopLocation:startLocation} aria-pressed={locationActive} title={locationActive?'Detener ubicación en tiempo real':'Activar ubicación en tiempo real'}><Navigation size={15}/><span>{locationStatus==='requesting'?'Buscando…':locationActive?'Ubicación activa':'Mi ubicación'}</span></button><NavLink className="broadcast-btn" to="/app/report"><Radio size={15}/>Reportar</NavLink><button className="profile-mini" type="button" aria-expanded={menu} aria-haspopup="menu" aria-controls="profile-menu" onClick={()=>setMenu(v=>!v)}><div className="avatar-mini"><Initials name={currentUser?.profile?.fullName}/></div><span>{currentUser?.profile?.fullName?.split(' ')[0] || 'Citizen'}</span></button>{menu&&<div className="profile-popover" id="profile-menu" role="menu"><NavLink role="menuitem" to="/app/profile"><CircleUserRound size={15}/>Mi perfil</NavLink><button role="menuitem" onClick={()=>{logout();navigate('/')}}><LogOut size={15}/>Cerrar sesión</button></div>}</div>
+        <NavLink to="/app" className="civic-wordmark"><i/><strong>PULSE 911</strong><span>{t('layout.activeChannel')}</span></NavLink>
+        <div className="civic-navbar-theme"><AccessibilityControls compact/></div>
+        <form className="civic-search" role="search" onSubmit={submit}><Search size={16}/><input aria-label={t('layout.search')} value={search} onChange={e=>setSearch(e.target.value)} placeholder={t('layout.search')}/></form>
+        <div className="civic-top-actions"><NavLink className="pulse-ai-nav-button" to="/app/assistant"><Sparkles size={15}/><span>{t('nav.assistant')}</span></NavLink><button className={`live-location-toggle ${locationActive?'active':''}`} type="button" onClick={locationActive?stopLocation:startLocation} aria-pressed={locationActive} title={locationActive?t('layout.stopLive'):t('layout.startLive')}><Navigation size={15}/><span>{locationStatus==='requesting'?t('layout.searching'):locationActive?t('layout.locationActive'):t('layout.myLocation')}</span></button><button className="broadcast-btn" type="button" aria-haspopup="dialog" onClick={()=>setReportMenu(true)}><Radio size={15}/>{t('actions.report')}</button><button className="profile-mini" type="button" aria-expanded={menu} aria-haspopup="menu" aria-controls="profile-menu" onClick={()=>setMenu(v=>!v)}><div className="avatar-mini"><Initials name={currentUser?.profile?.fullName}/></div><span>{currentUser?.profile?.fullName?.split(' ')[0] || 'Citizen'}</span></button>{menu&&<div className="profile-popover" id="profile-menu" role="menu"><NavLink role="menuitem" to="/app/profile"><CircleUserRound size={15}/>{t('layout.myProfile')}</NavLink><button role="menuitem" onClick={()=>{logout();navigate('/')}}><LogOut size={15}/>{t('layout.logout')}</button></div>}</div>
       </div>
     </header>
     <div className="civic-cockpit">
       <aside className="civic-left-rail"><div>
-        <div className="desk-badge"><div><Radar size={19}/><i/></div><span><strong>PULSE 911 DESK</strong><small>Sector demo · En red</small></span></div>
-        <nav>{citizenLinks.map(([to,Icon,label])=><NavLink key={to} end={to==='/app'} to={to}><Icon size={19}/><span>{label}</span></NavLink>)}</nav>
-      </div><div className="left-rail-footer"><div className="verified-user"><div className="avatar-mini large"><Initials name={currentUser?.profile?.fullName}/></div><span><strong>{currentUser?.profile?.fullName}</strong><small>Ciudadano verificado demo</small></span><i/></div><button onClick={()=>{logout();navigate('/')}}><LogOut size={14}/>Salir</button></div></aside>
+        <div className="desk-badge"><div><Radar size={19}/><i/></div><span><strong>PULSE 911 DESK</strong><small>{t('layout.demoSector')}</small></span></div>
+        <nav>{citizenLinks.map(([to,Icon,label])=><NavLink key={to} end={to==='/app'} to={to}><Icon size={19}/><span>{t(label)}</span></NavLink>)}</nav>
+      </div><div className="left-rail-footer"><div className="verified-user"><div className="avatar-mini large"><Initials name={currentUser?.profile?.fullName}/></div><span><strong>{currentUser?.profile?.fullName}</strong><small>{t('layout.verifiedCitizen')}</small></span><i/></div><button onClick={()=>{logout();navigate('/')}}><LogOut size={14}/>{t('layout.logout')}</button></div></aside>
       <main className="civic-main"><Outlet/></main>
     </div>
-    <nav className="mobile-bottom civic-mobile-bottom">{[['/app',Home,'Inicio'],['/app/map',MapPinned,'Mapa'],['/app/report',Siren,'SOS'],['/app/incidents',ClipboardList,'Reportes'],['/app/profile',CircleUserRound,'Perfil']].map(([to,Icon,label]) => <NavLink key={to} end={to==='/app'} to={to}><Icon size={20}/><span>{label}</span></NavLink>)}</nav>
+    <nav className="mobile-bottom civic-mobile-bottom">{[['/app',Home,t('nav.home')],['/app/map',MapPinned,t('nav.map')],['/app/report',Siren,'SOS'],['/app/incidents',ClipboardList,t('layout.reports')],['/app/profile',CircleUserRound,t('nav.profile')]].map(([to,Icon,label]) => <NavLink key={to} end={to==='/app'} to={to}><Icon size={20}/><span>{label}</span></NavLink>)}</nav>
+    {reportMenu&&<div className="report-choice-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setReportMenu(false)}}><section className="report-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="report-choice-title"><button className="report-choice-close" type="button" aria-label={t('layout.close')} onClick={()=>setReportMenu(false)}><X size={18}/></button><span>{t('layout.reportLabel')}</span><h2 id="report-choice-title">{t('layout.reportQuestion')}</h2><p>{t('layout.reportHelp')}</p><div><NavLink className="report-choice emergency" to="/app/report" onClick={()=>setReportMenu(false)}><Siren/><span><strong>{t('layout.emergency')}</strong><small>{t('layout.emergencyHelp')}</small></span></NavLink><NavLink className="report-choice road" to="/app/community?compose=road" onClick={()=>setReportMenu(false)}><RouteIcon/><span><strong>{t('layout.roadSituation')}</strong><small>{t('layout.roadHelp')}</small></span></NavLink></div><small>{t('layout.reportDisclaimer')}</small></section></div>}
   </div>
 }
 
@@ -74,6 +79,15 @@ export function AdminLayout() {
   return <div className={`admin-shell command-shell-v2 ${collapsed?'sidebar-collapsed':''}`}>
     {open&&<button type="button" aria-label="Cerrar menú" className="command-sidebar-scrim" onClick={()=>setOpen(false)}/>}
     <aside className={`command-sidebar-v2 ${open?'open':''} ${collapsed?'collapsed':''}`}><div><nav><span className="command-nav-label">Operación</span>{adminLinks.slice(0,5).map(([to,Icon,label]) => <NavLink key={to} end={to==='/command'} to={to} onClick={()=>setOpen(false)} title={collapsed?label:undefined}><Icon size={18}/><span>{label}</span>{label==='Incidentes'&&active?<b>{active}</b>:null}</NavLink>)}<span className="command-nav-label">Inteligencia y control</span>{adminLinks.slice(5).map(([to,Icon,label]) => <NavLink key={to} to={to} onClick={()=>setOpen(false)} title={collapsed?label:undefined}><Icon size={18}/><span>{label}</span></NavLink>)}</nav></div><div><div className="command-sidebar-health"><i/><div><strong>Sistema local estable</strong><span>{available}/{db.units.length} unidades disponibles</span></div></div><div className="command-user-card"><div className="avatar-mini large"><Initials name={currentUser?.profile?.fullName}/></div><div><strong>{currentUser?.profile?.fullName}</strong><small>{currentUser?.profile?.operatorCode || 'OP-DEMO'}</small></div><button aria-label="Cerrar sesión" title="Cerrar sesión" onClick={()=>{logout();navigate('/')}}><LogOut size={15}/></button></div></div></aside>
-    <section className="admin-workspace command-workspace-v2"><SimulationBanner/><header className="command-topbar-v2"><button className="command-menu-btn" aria-label="Abrir menú" onClick={()=>setOpen(v=>!v)}><Menu size={19}/></button><button className="command-collapse-btn" aria-label={collapsed?'Expandir barra lateral':'Contraer barra lateral'} title={collapsed?'Expandir navegación':'Contraer navegación'} onClick={toggleCollapsed}>{collapsed?<PanelLeftOpen size={18}/>:<PanelLeftClose size={18}/>}</button><div className="command-title-block"><small>PULSE COMMAND / OPERACIÓN SIMULADA</small><h1>{title}</h1></div><div className="command-top-actions"><span><i/>Vigilancia activa</span><span><Bell size={15}/>{db.notifications?.filter(n=>!n.read).length||0} nuevas</span><span><UsersRound size={15}/>{currentUser?.profile?.fullName}</span><ThemeToggle compact/></div><div className="command-mobile-theme"><ThemeToggle compact/></div></header><main className="admin-main command-main-v2"><Outlet/></main></section>
+    <section className="admin-workspace command-workspace-v2">
+      <header className="command-topbar-v2">
+        <button className="command-menu-btn" aria-label="Abrir menú" onClick={()=>setOpen(v=>!v)}><Menu size={19}/></button>
+        <button className="command-collapse-btn" aria-label={collapsed?'Expandir barra lateral':'Contraer barra lateral'} title={collapsed?'Expandir navegación':'Contraer navegación'} onClick={toggleCollapsed}>{collapsed?<PanelLeftOpen size={18}/>:<PanelLeftClose size={18}/>}</button>
+        <div className="command-title-block"><small>PULSE COMMAND / OPERACIÓN SIMULADA</small><h1>{title}</h1></div>
+        <div className="command-top-actions"><span><i/>Vigilancia activa</span><span><Bell size={15}/>{db.notifications?.filter(n=>!n.read).length||0} nuevas</span><span><UsersRound size={15}/>{currentUser?.profile?.fullName}</span><AccessibilityControls compact/></div>
+        <div className="command-mobile-theme"><AccessibilityControls compact/></div>
+      </header>
+      <main className="admin-main command-main-v2"><Outlet/></main>
+    </section>
   </div>
 }

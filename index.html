@@ -13,10 +13,21 @@
             : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
           document.documentElement.dataset.theme = theme
           document.documentElement.style.colorScheme = theme
+
+          const storedTextSize = localStorage.getItem('pulse911-text-size')
+          document.documentElement.dataset.textSize = ['normal', 'large', 'xlarge'].includes(storedTextSize)
+            ? storedTextSize
+            : 'normal'
+
+          const storedColorVision = localStorage.getItem('pulse911-color-vision')
+          document.documentElement.dataset.colorVision = ['standard', 'protanopia', 'deuteranopia', 'tritanopia', 'high-contrast'].includes(storedColorVision)
+            ? storedColorVision
+            : 'standard'
         } catch {}
       })()
     </script>
     <meta name="description" content="PULSE 911 — demostración educativa de coordinación de emergencias." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23081a2b'/%3E%3Ccircle cx='32' cy='32' r='15' fill='%23c62828'/%3E%3Cpath d='M28 20h8v8h8v8h-8v8h-8v-8h-8v-8h8z' fill='white'/%3E%3C/svg%3E" />
     <title>PULSE 911 — Command Center · Versión Final</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

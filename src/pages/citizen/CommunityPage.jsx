@@ -4,6 +4,8 @@ import { usePulse } from '../../context/PulseContext'
 import GeoMap from '../../components/GeoMap'
 import { Badge } from '../../components/Common'
 import { DEMO_MAP_CENTER } from '../../config/demoGeography'
+import { formatDate } from '../../utils/dateTime'
+import { TranslatableText } from '../../components/traffic/TranslatableText'
 
 const categories = [
   ['road_hazard','Riesgo vial',AlertTriangle],
@@ -38,7 +40,7 @@ export function CommunityPage(){
 
   return <div className="page-stack">
     <div className="page-heading"><div><span className="eyebrow">REPORTES CIUDADANOS</span><h1>Reportes ciudadanos</h1><p>Comparte información sobre lugares peligrosos, accidentes u obstáculos. El centro de mando revisa cada reporte antes de convertirlo en una alerta operativa.</p></div><button className="btn primary" onClick={()=>setOpen(true)}><Plus size={16}/>Nuevo reporte</button></div>
-    <div className="community-layout"><section className="panel"><div className="panel-title"><MapPin/><h2>Mapa de reportes</h2></div><GeoMap riskZones={db.riskZones||[]} incidents={db.incidents.filter(i=>i.publicVisibility)} alerts={db.alerts} initialCenter={form.location} initialZoom={14}/></section><aside className="community-list">{(db.publications||[]).map(p=><article className="community-card" key={p.id}>{p.image&&<img className="community-card-media" src={p.image} alt="Evidencia del reporte"/>}<div className="community-card-head"><Badge tone={p.status==='verified'||p.status==='published'?'green':p.status==='rejected'?'red':'amber'}>{p.status}</Badge><span>{new Date(p.createdAt).toLocaleDateString('es-CR')}</span></div><h3>{p.title}</h3><p>{p.description}</p><span><MapPin size={13}/>{p.location?.label}</span></article>)}{!(db.publications||[]).length&&<div className="empty"><ShieldAlert/><h3>Aún no hay reportes ciudadanos</h3></div>}</aside></div>
+    <div className="community-layout"><section className="panel"><div className="panel-title"><MapPin/><h2>Mapa de reportes</h2></div><GeoMap riskZones={db.riskZones||[]} incidents={db.incidents.filter(i=>i.publicVisibility)} alerts={db.alerts} initialCenter={form.location} initialZoom={14}/></section><aside className="community-list">{(db.publications||[]).map(p=><article className="community-card" key={p.id}>{p.image&&<img className="community-card-media" src={p.image} alt="Evidencia del reporte"/>}<div className="community-card-head"><Badge tone={p.status==='verified'||p.status==='published'?'green':p.status==='rejected'?'red':'amber'}>{p.status}</Badge><span>{formatDate(p.createdAt)}</span></div><h3>{p.title}</h3><TranslatableText text={p.description}/><span><MapPin size={13}/>{p.location?.label}</span></article>)}{!(db.publications||[]).length&&<div className="empty"><ShieldAlert/><h3>Aún no hay reportes ciudadanos</h3></div>}</aside></div>
 
     {open&&<div className="course-modal-backdrop community-backdrop" onClick={close}>
       <form className="community-modal community-composer" role="dialog" aria-modal="true" aria-labelledby="community-composer-title" onClick={e=>e.stopPropagation()} onSubmit={submit}>

@@ -1,0 +1,23 @@
+{
+  "name": "PULSE — Admin Report Analyzer",
+  "nodes": [
+    {
+      "parameters": { "content": "## Admin Report Analyzer\n**Purpose:** classify a report, calculate rule priority and shortlist deterministic duplicate candidates.\n**Input:** POST /webhook/pulse/admin/analyze-report with report, nearbyIncidents and nearbyRiskZones.\n**Output:** structured suggestion only; never publishes or changes official state.\n**Credentials:** admin authentication must be configured before production.\n**Dependencies:** reviewed PULSE records.\n**Failure path:** rejects invalid reports; prompt-injection text remains untrusted data.", "height": 310, "width": 480 },
+      "id": "90000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-590, -300]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "pulse/admin/analyze-report", "responseMode": "responseNode", "options": {} },
+      "id": "90000000-0000-4000-8000-000000000002", "name": "POST Admin Analysis", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-350, 100], "webhookId": "pulse-admin-analyze-report"
+    },
+    {
+      "parameters": { "jsCode": "const body=$json.body??$json;const report=body.report;if(!report||typeof report!=='object'||!String(report.description??report.title??'').trim())return[{json:{ok:false,error:{code:'INVALID_REPORT',message:'Reporte inválido.'}}}];const text=`${report.title??''} ${report.description??''}`.toLowerCase().slice(0,5000);const rules=[['medical',/(herid|médic|ambulancia|inconsciente|respira)/],['fire',/(incend|fuego|humo)/],['flood',/(inund|desbord)/],['landslide',/(derrumbe|deslizamiento)/],['missing_person',/(desaparecid|persona perdida)/],['weather',/(tormenta|viento|lluvia intensa)/],['traffic_accident',/(accidente|choque|colisión|vehículo)/],['road_hazard',/(hueco|obstáculo|carretera|vía bloqueada)/],['security',/(asalto|violencia|arma)/]];const classification=report.category&&['medical','traffic_accident','fire','security','flood','landslide','missing_person','weather','road_hazard','other'].includes(report.category)?report.category:(rules.find(([,regex])=>regex.test(text))?.[0]??'other');let score=0;const reasons=[];if(/no respira|inconsciente|sangrado|atrapad|fuego|arma/.test(text)){score+=55;reasons.push('señales críticas');}if(/bloquead|derrumbe|inund/.test(text)){score+=25;reasons.push('afectación vial');}if(Number(report.details?.injuredCount??0)>0){score+=25;reasons.push('personas lesionadas');}score=Math.min(100,score);const rulePriority=score>=50?'P1':score>=20?'P2':'P3';const point=report.location;const toRad=(v)=>v*Math.PI/180;const distance=(a,b)=>{if(![a?.lat,a?.lng,b?.lat,b?.lng].every(Number.isFinite))return Infinity;const dLat=toRad(b.lat-a.lat),dLng=toRad(b.lng-a.lng),h=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;return 6371*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));};const created=Date.parse(report.createdAt??new Date().toISOString());const duplicateCandidates=(Array.isArray(body.nearbyIncidents)?body.nearbyIncidents:[]).filter((item)=>item.id!==report.id&&item.category===classification&&distance(point,item.location)<=0.5&&Math.abs(created-Date.parse(item.createdAt??0))<=20*60*1000).map((item)=>item.id).slice(0,10);const prioritySuggestion=rulePriority;const summary=String(report.description??report.title).replace(/[<>]/g,' ').slice(0,500);return[{json:{ok:true,classification,prioritySuggestion,rulePriority,finalPriority:rulePriority,trafficImpact:/bloquead|carretera|vía|tráfico/.test(text)?'high':'unknown',duplicateCandidates,summary,recommendedAction:rulePriority==='P1'?'Revisión humana inmediata':'Revisar y validar fuentes',confidence:Math.min(95,55+reasons.length*10),warnings:['Sugerencia no oficial','Requiere revisión humana'],requireHumanApproval:true,generatedAt:new Date().toISOString()}}];" },
+      "id": "90000000-0000-4000-8000-000000000003", "name": "Classify And Apply Priority Rules", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-40, 100]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": {} },
+      "id": "90000000-0000-4000-8000-000000000004", "name": "Return Review Suggestion", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [270, 100]
+    }
+  ],
+  "connections": { "POST Admin Analysis": { "main": [[{ "node": "Classify And Apply Priority Rules", "type": "main", "index": 0 }]] }, "Classify And Apply Priority Rules": { "main": [[{ "node": "Return Review Suggestion", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "90000000-0000-4000-8000-000000000099"
+}

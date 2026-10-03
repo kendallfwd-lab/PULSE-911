@@ -1,0 +1,23 @@
+{
+  "name": "PULSE — Post Accident Support Tool",
+  "nodes": [
+    {
+      "parameters": { "content": "## Post Accident Support Tool\n**Purpose:** provide brief post-incident orientation with emergency-first triage.\n**Input:** POST /webhook/pulse/support with message and locale.\n**Output:** structured guidance; no diagnosis or therapy claims.\n**Credentials:** none for deterministic safety baseline; optional AI only after policy review.\n**Dependencies:** official resources table for any extra phone numbers.\n**Failure path:** immediate-risk language always prioritizes 9-1-1.", "height": 300, "width": 460 },
+      "id": "80000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-580, -290]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "pulse/support", "responseMode": "responseNode", "options": {} },
+      "id": "80000000-0000-4000-8000-000000000002", "name": "POST Support Request", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-340, 100], "webhookId": "pulse-support"
+    },
+    {
+      "parameters": { "jsCode": "const body=$json.body??$json;const message=String(body.message??'').replace(/[<>]/g,' ').trim().slice(0,1000);if(!message)return[{json:{ok:false,error:{code:'INVALID_PAYLOAD',message:'Mensaje requerido.'}}}];const emergency=/(no respira|dificultad.*respirar|sangrado|inconsciente|peligro inmediato|autolesi|not breathing|severe bleeding|unconscious|self-harm)/i.test(message);const answer=emergency?'Existe una señal de posible emergencia. Llama al 9-1-1 ahora y sigue sus instrucciones. Aléjate del peligro solo si puedes hacerlo de forma segura.':'Primero confirma que estás en un lugar seguro. Siéntate si estás mareado y hacerlo es seguro, respira lentamente y contacta a una persona de confianza. Busca atención profesional si los síntomas persisten o empeoran. Esta orientación no es terapia ni diagnóstico.';return[{json:{ok:true,intent:emergency?'emergency':'post_accident_support',answer,spokenAnswer:answer,requiresEmergencyContact:emergency,cards:[],sources:[],mapActions:[],suggestedQuestions:[],generatedAt:new Date().toISOString()}}];" },
+      "id": "80000000-0000-4000-8000-000000000003", "name": "Run Safety Triage", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-50, 100]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": {} },
+      "id": "80000000-0000-4000-8000-000000000004", "name": "Return Support Guidance", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [240, 100]
+    }
+  ],
+  "connections": { "POST Support Request": { "main": [[{ "node": "Run Safety Triage", "type": "main", "index": 0 }]] }, "Run Safety Triage": { "main": [[{ "node": "Return Support Guidance", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "80000000-0000-4000-8000-000000000099"
+}

@@ -1,0 +1,31 @@
+{
+  "name": "PULSE — Risk Zone Detector",
+  "nodes": [
+    {
+      "parameters": { "content": "## Risk Zone Detector\n**Purpose:** create pending geographic cluster suggestions with deterministic distance/time rules.\n**Input:** schedule or POST /webhook/pulse/admin/analyze-risk with reports[].\n**Output:** pending `risk_zone` suggestions only.\n**Credentials:** none.\n**Dependencies:** Data Sync/Data Tables should supply recent reports.\n**Failure path:** empty inputs create no suggestion; nothing is published automatically.", "height": 300, "width": 470 },
+      "id": "a0000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-720, -300]
+    },
+    {
+      "parameters": { "rule": { "interval": [{ "field": "hours", "hoursInterval": 1 }] } },
+      "id": "a0000000-0000-4000-8000-000000000002", "name": "Hourly Risk Scan", "type": "n8n-nodes-base.scheduleTrigger", "typeVersion": 1.2, "position": [-500, 10]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "pulse/admin/analyze-risk", "responseMode": "responseNode", "options": {} },
+      "id": "a0000000-0000-4000-8000-000000000003", "name": "POST Manual Risk Scan", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-500, 170], "webhookId": "pulse-detect-risks"
+    },
+    {
+      "parameters": { "jsCode": "const body=$json.body??$json;const reports=(Array.isArray(body.reports)?body.reports:[]).filter((item)=>Number.isFinite(Number(item.location?.lat))&&Number.isFinite(Number(item.location?.lng))).slice(0,2000);const radiusM=Math.min(1000,Math.max(100,Number(body.radiusM??450)));const windowMs=Math.min(90*86400000,Math.max(3600000,Number(body.windowHours??168)*3600000));const threshold=Math.min(20,Math.max(3,Number(body.threshold??4)));const now=Date.now();const recent=reports.filter((item)=>now-Date.parse(item.createdAt??0)<=windowMs);const toRad=(v)=>v*Math.PI/180;const distance=(a,b)=>{const dLat=toRad(b.lat-a.lat),dLng=toRad(b.lng-a.lng),h=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;return 6371000*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));};const used=new Set(),suggestions=[];for(const seed of recent){if(used.has(seed.id))continue;const group=recent.filter((item)=>!used.has(item.id)&&distance(seed.location,item.location)<=radiusM);if(group.length<threshold)continue;group.forEach((item)=>used.add(item.id));const lat=group.reduce((sum,item)=>sum+Number(item.location.lat),0)/group.length;const lng=group.reduce((sum,item)=>sum+Number(item.location.lng),0)/group.length;suggestions.push({id:`ai-risk-${now}-${suggestions.length+1}`,type:'risk_zone',title:'Posible concentración de incidentes',description:'Agrupación geográfica pendiente de revisión humana.',location:{lat:Number(lat.toFixed(6)),lng:Number(lng.toFixed(6)),label:seed.location.label??'Sector reportado'},radiusM,confidence:Math.min(95,60+group.length*5),reason:`${group.length} reportes relacionados en ${Math.round(windowMs/86400000)} día(s)`,sourceIds:group.map((item)=>item.id),reviewStatus:'pending',requireHumanApproval:true,createdAt:new Date().toISOString()});}return[{json:{ok:true,suggestions,count:suggestions.length,scanned:recent.length,generatedAt:new Date().toISOString()}}];" },
+      "id": "a0000000-0000-4000-8000-000000000004", "name": "Cluster Reports Deterministically", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-210, 100]
+    },
+    {
+      "parameters": { "jsCode": "return [{json:{ok:true,scheduled:true,message:'Conecte la lectura de pulse_incidents y pulse_publications antes del nodo de clustering.',generatedAt:new Date().toISOString()}}];" },
+      "id": "a0000000-0000-4000-8000-000000000006", "name": "Prepare Scheduled Data Table Scan", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-210, -30]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": {} },
+      "id": "a0000000-0000-4000-8000-000000000005", "name": "Return Pending Suggestions", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [90, 170]
+    }
+  ],
+  "connections": { "Hourly Risk Scan": { "main": [[{ "node": "Prepare Scheduled Data Table Scan", "type": "main", "index": 0 }]] }, "POST Manual Risk Scan": { "main": [[{ "node": "Cluster Reports Deterministically", "type": "main", "index": 0 }]] }, "Cluster Reports Deterministically": { "main": [[{ "node": "Return Pending Suggestions", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "a0000000-0000-4000-8000-000000000099"
+}

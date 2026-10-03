@@ -1,0 +1,31 @@
+{
+  "name": "PULSE — Weather Tool",
+  "nodes": [
+    {
+      "parameters": { "content": "## Weather Tool\n**Purpose:** fetch current conditions from Open-Meteo and normalize safety-relevant fields.\n**Input:** POST /webhook/pulse/weather with location.lat/lng.\n**Output:** temperature, precipitation, rain, wind, weatherCode and generatedAt.\n**Credentials:** none.\n**Dependencies:** Open-Meteo public API.\n**Failure path:** safe WEATHER_UNAVAILABLE response; route planning can continue.", "height": 280, "width": 450 },
+      "id": "60000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-730, -270]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "pulse/weather", "responseMode": "responseNode", "options": {} },
+      "id": "60000000-0000-4000-8000-000000000002", "name": "POST Weather Query", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-520, 100], "webhookId": "pulse-weather"
+    },
+    {
+      "parameters": { "jsCode": "const body=$json.body??$json;const lat=Number(body.location?.lat??body.lat),lng=Number(body.location?.lng??body.lng);const valid=Number.isFinite(lat)&&Number.isFinite(lng)&&Math.abs(lat)<=90&&Math.abs(lng)<=180;return[{json:{valid,lat,lng,url:valid?`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,precipitation,rain,wind_speed_10m,weather_code&hourly=visibility&forecast_days=1`:''}}];" },
+      "id": "60000000-0000-4000-8000-000000000003", "name": "Validate Weather Location", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-280, 100]
+    },
+    {
+      "parameters": { "url": "={{ $json.url || 'https://api.open-meteo.com/v1/forecast?latitude=0&longitude=0&current=temperature_2m' }}", "options": { "timeout": 7000 } },
+      "id": "60000000-0000-4000-8000-000000000004", "name": "Fetch Open Meteo", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [-20, 100], "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": { "jsCode": "const request=$('Validate Weather Location').first().json;if(!request.valid)return[{json:{ok:false,error:{code:'INVALID_LOCATION',message:'Ubicación inválida.'}}}];const current=$json.current;if(!current)return[{json:{ok:false,error:{code:'WEATHER_UNAVAILABLE',message:'El clima no está disponible temporalmente.'},provider:'open-meteo',generatedAt:new Date().toISOString()}}];return[{json:{ok:true,provider:'open-meteo',temperature:current.temperature_2m??null,precipitation:current.precipitation??null,rain:current.rain??null,wind:current.wind_speed_10m??null,weatherCode:current.weather_code??null,visibility:Array.isArray($json.hourly?.visibility)?$json.hourly.visibility[0]:null,warning:Number(current.precipitation??0)>4?'Precaución: lluvia intensa modelada en esta zona.':null,sourceUpdatedAt:current.time??null,generatedAt:new Date().toISOString()}}];" },
+      "id": "60000000-0000-4000-8000-000000000005", "name": "Normalize Weather", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [240, 100]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": {} },
+      "id": "60000000-0000-4000-8000-000000000006", "name": "Return Weather", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [500, 100]
+    }
+  ],
+  "connections": { "POST Weather Query": { "main": [[{ "node": "Validate Weather Location", "type": "main", "index": 0 }]] }, "Validate Weather Location": { "main": [[{ "node": "Fetch Open Meteo", "type": "main", "index": 0 }]] }, "Fetch Open Meteo": { "main": [[{ "node": "Normalize Weather", "type": "main", "index": 0 }]] }, "Normalize Weather": { "main": [[{ "node": "Return Weather", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "60000000-0000-4000-8000-000000000099"
+}

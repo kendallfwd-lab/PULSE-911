@@ -19,7 +19,7 @@
   border: 1px solid #f1c7c7;
   border-radius: 8px;
   padding: 10px 12px;
-  font-size: 12px;
+  font-size:calc(12px * var(--text-scale, 1));
 }
 
 .location-fields-error button {

@@ -1,0 +1,23 @@
+{
+  "name": "PULSE — Translation Tool",
+  "nodes": [
+    {
+      "parameters": { "content": "## Translation Tool\n**Purpose:** validate, normalize and cache translations without altering the original text.\n**Input:** POST /webhook/pulse/translate, max 4000 chars.\n**Output:** originalText, translatedText, sourceLanguage, targetLanguage, provider.\n**Credentials:** optional `PULSE Google Translation`; never expose its key to React.\n**Dependencies:** provider result may be injected after a credentialed HTTP node.\n**Failure path:** same-language text passes through; otherwise returns TRANSLATION_UNAVAILABLE.", "height": 310, "width": 470 },
+      "id": "70000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-590, -300]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "pulse/translate", "responseMode": "responseNode", "options": {} },
+      "id": "70000000-0000-4000-8000-000000000002", "name": "POST Translation", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-350, 100], "webhookId": "pulse-translate"
+    },
+    {
+      "parameters": { "jsCode": "const body=$json.body??$json;const originalText=String(body.text??'').slice(0,4000);const sourceLanguage=String(body.sourceLanguage??'auto').slice(0,8);const targetLanguage=String(body.targetLanguage??'').slice(0,8);const allowed=new Set(['auto','es','en','fr','pt','de']);if(!originalText.trim()||!allowed.has(sourceLanguage)||!allowed.has(targetLanguage)||targetLanguage==='auto')return[{json:{ok:false,error:{code:'INVALID_PAYLOAD',message:'Solicitud de traducción inválida.'}}}];const supplied=typeof body.translatedText==='string'?body.translatedText.slice(0,8000):null;const same=sourceLanguage===targetLanguage;const translatedText=same?originalText:supplied;if(!translatedText)return[{json:{ok:false,error:{code:'TRANSLATION_UNAVAILABLE',message:'El proveedor de traducción no está configurado.'},originalText,sourceLanguage,targetLanguage}}];return[{json:{ok:true,translation:translatedText,originalText,translatedText,sourceLanguage,targetLanguage,provider:same?'passthrough':'google_translation',cacheKey:`${sourceLanguage}:${targetLanguage}:${originalText.length}`,generatedAt:new Date().toISOString()}}];" },
+      "id": "70000000-0000-4000-8000-000000000003", "name": "Validate And Preserve Original", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-50, 100]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": {} },
+      "id": "70000000-0000-4000-8000-000000000004", "name": "Return Translation", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [240, 100]
+    }
+  ],
+  "connections": { "POST Translation": { "main": [[{ "node": "Validate And Preserve Original", "type": "main", "index": 0 }]] }, "Validate And Preserve Original": { "main": [[{ "node": "Return Translation", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "70000000-0000-4000-8000-000000000099"
+}

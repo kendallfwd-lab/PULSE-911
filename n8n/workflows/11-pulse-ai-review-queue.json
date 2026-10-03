@@ -1,0 +1,23 @@
+{
+  "name": "PULSE — AI Review Queue",
+  "nodes": [
+    {
+      "parameters": { "content": "## AI Review Queue\n**Purpose:** validate explicit human approval/rejection before converting an AI suggestion.\n**Input:** POST /webhook/pulse/admin/approve-suggestion.\n**Output:** reviewed suggestion plus an auditable conversion payload.\n**Credentials:** production requires admin JWT/Header Auth.\n**Dependencies:** Data Sync persists the returned record/audit entry.\n**Failure path:** no approval, reviewer or valid type means no state change.", "height": 300, "width": 470 },
+      "id": "b0000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-590, -300]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "pulse/admin/approve-suggestion", "responseMode": "responseNode", "options": {} },
+      "id": "b0000000-0000-4000-8000-000000000002", "name": "POST Human Review", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-350, 100], "webhookId": "pulse-approve-suggestion"
+    },
+    {
+      "parameters": { "jsCode": "const body=$json.body??$json;const suggestion=body.suggestion;const action=body.action;const approvedBy=String(body.approvedBy??'').trim().slice(0,120);const allowedTypes=new Set(['risk_zone','alert','incident','publication']);if(!suggestion?.id||!allowedTypes.has(suggestion.type)||!['approve','reject'].includes(action)||!approvedBy)return[{json:{ok:false,error:{code:'REVIEW_REQUIRED',message:'Se requiere una sugerencia válida, acción y revisor humano.'}}}];const approved=action==='approve';const reviewed={...suggestion,reviewStatus:approved?'approved':'rejected',reviewedAt:new Date().toISOString(),reviewedBy:approvedBy,humanApproved:approved};const result=approved?{id:`reviewed-${suggestion.id}`,type:suggestion.type,title:String(suggestion.title??'').slice(0,180),description:String(suggestion.description??'').slice(0,1000),location:suggestion.location,source:'ai_reviewed',sourceSuggestionId:suggestion.id,createdAt:new Date().toISOString()}:null;const audit={timestamp:new Date().toISOString(),workflow:'PULSE — AI Review Queue',action, inputIds:[suggestion.id],model:suggestion.model??'deterministic',confidence:suggestion.confidence??null,humanApproved:approved,approvedBy,resultId:result?.id??null};return[{json:{ok:true,reviewed,result,audit,requiresPersistence:true}}];" },
+      "id": "b0000000-0000-4000-8000-000000000003", "name": "Enforce Human Decision", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-40, 100]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": {} },
+      "id": "b0000000-0000-4000-8000-000000000004", "name": "Return Reviewed Payload", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [270, 100]
+    }
+  ],
+  "connections": { "POST Human Review": { "main": [[{ "node": "Enforce Human Decision", "type": "main", "index": 0 }]] }, "Enforce Human Decision": { "main": [[{ "node": "Return Reviewed Payload", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "b0000000-0000-4000-8000-000000000099"
+}

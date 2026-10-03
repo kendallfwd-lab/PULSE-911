@@ -1,0 +1,23 @@
+{
+  "name": "PULSE — API Gateway / Health",
+  "nodes": [
+    {
+      "parameters": { "content": "## PULSE API Gateway / Health\n**Purpose:** report enabled capabilities without exposing credentials.\n**Input:** GET /webhook/pulse/status\n**Output:** normalized service status JSON.\n**Credentials:** none.\n**Dependencies:** environment flags only.\n**Failure path:** returns a safe degraded capability map.", "height": 250, "width": 430 },
+      "id": "10000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-520, -220]
+    },
+    {
+      "parameters": { "httpMethod": "GET", "path": "pulse/status", "responseMode": "responseNode", "options": {} },
+      "id": "10000000-0000-4000-8000-000000000002", "name": "GET Pulse Status", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-280, 100], "webhookId": "pulse-status"
+    },
+    {
+      "parameters": { "jsCode": "const now = new Date().toISOString();\nreturn [{ json: { ok: true, service: 'pulse-ai', version: '1.0', mode: $env.PULSE_DEMO_MODE === 'false' ? 'production-review' : 'demo', ai: Boolean($env.AI_PROVIDER), routes: true, places: Boolean($env.GOOGLE_PLACES_API_KEY), weather: true, translation: Boolean($env.GOOGLE_TRANSLATION_API_KEY), timestamp: now } }];" },
+      "id": "10000000-0000-4000-8000-000000000003", "name": "Build Safe Capability Status", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-40, 100]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": { "responseCode": 200 } },
+      "id": "10000000-0000-4000-8000-000000000004", "name": "Return Status", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [200, 100]
+    }
+  ],
+  "connections": { "GET Pulse Status": { "main": [[{ "node": "Build Safe Capability Status", "type": "main", "index": 0 }]] }, "Build Safe Capability Status": { "main": [[{ "node": "Return Status", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "10000000-0000-4000-8000-000000000099"
+}

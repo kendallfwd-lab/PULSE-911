@@ -4,6 +4,8 @@ import { usePulse } from '../../context/PulseContext'
 import GeoMap from '../../components/GeoMap'
 import { Badge, InlineNotice } from '../../components/Common'
 import { TRAINING_CONTENT } from '../../config/trainingContent'
+import { localizeTrainingContent } from '../../config/trainingTranslations'
+import { useTranslation } from 'react-i18next'
 
 export function AlertsPage(){const {db}=usePulse();const active=db.alerts.filter(a=>a.active);return <div className="page-stack"><div className="page-heading"><div><span className="eyebrow">INFORMACIÓN PÚBLICA</span><h1>Alertas y zonas de riesgo</h1><p>Avisos simulados publicados por PULSE Command y casos públicos anonimizados.</p></div></div><div className="alerts-layout"><GeoMap incidents={db.incidents.filter(i=>i.publicVisibility&&!['resolved','cancelled'].includes(i.status))} alerts={active} riskZones={db.riskZones||[]} initialZoom={14}/><div className="alert-cards">{active.map(a=><article key={a.id} className="alert-card"><div className="alert-card-head"><AlertTriangle/><Badge tone={a.severity==='warning'?'amber':'blue'}>{a.severity}</Badge></div><h3>{a.title}</h3><p>{a.description}</p><span><MapPin size={14}/>{a.area}</span><div className="instructions"><strong>Indicaciones</strong>{a.instructions}</div></article>)}</div></div></div>}
 
@@ -45,6 +47,7 @@ function TrainingQuiz({ course, answers, setAnswers, result, onSubmit, onRetry }
 }
 
 export function ResourcesPage(){
+  const {i18n}=useTranslation()
   const {db,currentUser,setCourseProgress}=usePulse()
   const [filter,setFilter]=useState('all')
   const [selectedCourse,setSelectedCourse]=useState(null)
@@ -56,7 +59,7 @@ export function ResourcesPage(){
   const progressMap=db.courseProgress?.[currentUser?.id]||{}
 
   const openCourse=course=>{
-    const training=TRAINING_CONTENT[course.id]
+    const training=localizeTrainingContent(TRAINING_CONTENT[course.id],i18n.resolvedLanguage)
     const lessons=training?.lessons||course.lessons||[]
     setSelectedCourse({...course,lessons,training})
     setLesson(Math.min(Math.max(lessons.length-1,0),Math.floor((progressMap[course.id]||0)/25)))
@@ -84,7 +87,7 @@ export function ResourcesPage(){
     <div className="page-heading"><div><span className="eyebrow">PREVENCIÓN, SEGURIDAD Y RECUPERACIÓN</span><h1>Aprende a actuar antes, durante y después</h1><p>Cursos y recursos educativos para mejorar la preparación comunitaria.</p></div></div>
     <div className="filter-row">{[['all','Todos'],['physical','Recuperación'],['wellbeing','Bienestar'],['prevention','Preparación']].map(([key,label])=><button key={key} className={filter===key?'active':''} onClick={()=>setFilter(key)}>{label}</button>)}</div>
     <section className="learning-section">
-      <div className="learning-heading"><div><GraduationCap/><div><span>CURSOS DE SEGURIDAD</span><h2>Formación práctica para la comunidad</h2></div></div><small>{courses.length} curso(s)</small></div>
+      <div className="learning-heading"><div><GraduationCap/><div><span>CURSOS DE SEGURIDAD</span><h2>Formación práctica para la comunidad</h2></div></div><small>{courses.length} {courses.length===1?'curso':'cursos'}</small></div>
       <div className="course-grid">{courses.map(course=>{const progress=progressMap[course.id]||0;return <article key={course.id} className="course-card"><img src={course.image} alt={`Imagen representativa del curso ${course.title}`} loading="lazy" decoding="async"/><div className="course-card-body"><Badge tone={course.kind==='wellbeing'?'green':'blue'}>{course.kind==='wellbeing'?'Bienestar':'Preparación'}</Badge><h3>{course.title}</h3><p>{course.summary}</p><div className="course-meta"><span><Clock3 size={14}/>{course.duration}</span><span><BookOpen size={14}/>{course.lessons.length} lecciones + evaluación</span></div><div className="course-progress"><i style={{width:`${progress}%`}}/><span>{progress}% completado</span></div><button className="btn primary small" onClick={()=>openCourse(course)}><PlayCircle size={15}/>{progress>=100?'Repasar capacitación':'Iniciar capacitación'}</button></div></article>})}</div>
     </section>
     <section className="learning-section">

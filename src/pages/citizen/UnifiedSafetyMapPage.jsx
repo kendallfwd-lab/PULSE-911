@@ -3,6 +3,8 @@ import { AlertTriangle, BellRing, MapPin, Navigation, Siren, Trash2 } from 'luci
 import GeoMap from '../../components/GeoMap'
 import { usePulse } from '../../context/PulseContext'
 import { useLiveLocation } from '../../context/LiveLocationContext'
+import { AccessibleMapList } from '../../components/AccessibleMapList'
+import { useTranslation } from 'react-i18next'
 
 const STORAGE_KEY = 'pulse911-citizen-map-points'
 
@@ -16,11 +18,13 @@ function readStoredPoints(){
 }
 
 export default function UnifiedSafetyMapPage(){
+  const {t}=useTranslation()
   const {db}=usePulse()
   const {location,status:locationStatus,error:locationError,start:startLocation,stop:stopLocation,isActive:locationActive}=useLiveLocation()
   const [pointType,setPointType]=useState(null)
   const [userPoints,setUserPoints]=useState(readStoredPoints)
-  const [notice,setNotice]=useState('Elige un tipo de punto y después haz clic en el mapa.')
+  const [notice,setNotice]=useState(()=>t('map.instruction'))
+  const [selectedPoint,setSelectedPoint]=useState(null)
 
   useEffect(()=>{
     try { localStorage.setItem(STORAGE_KEY,JSON.stringify(userPoints)) } catch {}
@@ -30,66 +34,66 @@ export default function UnifiedSafetyMapPage(){
   const activeAlerts=useMemo(()=>db.alerts.filter(a=>a.active!==false),[db.alerts])
   const placedIncidents=useMemo(()=>userPoints.filter(p=>p.type==='accident').map(p=>({
     id:p.id,
-    code:'PUNTO CIUDADANO',
-    title:'Accidente señalado',
+    code:t('map.citizenPoint'),
+    title:t('map.markedAccident'),
     category:'traffic_accident',
     priority:'P1',
     status:'received',
     publicVisibility:true,
     assignedUnits:[],
     location:p.location
-  })),[userPoints])
+  })),[t,userPoints])
   const placedRisks=useMemo(()=>userPoints.filter(p=>p.type==='danger').map(p=>({
     id:p.id,
-    title:'Lugar peligroso',
-    area:'Punto señalado por la ciudadanía',
+    title:t('map.danger'),
+    area:t('map.citizenMarked'),
     category:'road_hazard',
     severity:'medium',
     reports:1,
     radiusM:130,
     location:p.location
-  })),[userPoints])
+  })),[t,userPoints])
 
   const chooseType=type=>{
     setPointType(type)
-    setNotice(type==='accident'?'Haz clic en el lugar del accidente.':'Haz clic en el lugar peligroso.')
+    setNotice(type==='accident'?t('map.instructionAccident'):t('map.instructionDanger'))
   }
   const placePoint=location=>{
-    if(!pointType){setNotice('Primero selecciona Accidente o Lugar peligroso.');return}
-    const point={id:`citizen-${pointType}-${Date.now()}`,type:pointType,location:{...location,label:'Punto colocado en el mapa'}}
+    if(!pointType){setNotice(t('map.firstSelect'));return}
+    const point={id:`citizen-${pointType}-${Date.now()}`,type:pointType,location:{...location,label:t('map.placedLabel')}}
     setUserPoints(points=>[...points,point])
-    setNotice(pointType==='accident'?'Accidente marcado en rojo.':'Lugar peligroso marcado en amarillo.')
+    setNotice(pointType==='accident'?t('map.placedAccident'):t('map.placedDanger'))
     setPointType(null)
   }
   const clearPoints=()=>{
     setUserPoints([])
     setPointType(null)
-    setNotice('Los puntos colocados por ti fueron eliminados.')
+    setNotice(t('map.cleared'))
   }
 
   return <div className="unified-map-page">
     <header className="unified-map-heading">
-      <div><h1>Mapa situacional</h1><p>Consulta alertas oficiales o señala un punto directamente sobre el mapa.</p></div>
-      <div className="unified-map-counts"><span><i className="red"/>{publicIncidents.length} accidentes</span><span><i className="yellow"/>{(db.riskZones||[]).length} lugares peligrosos</span><span><i className="blue"/>{activeAlerts.length} alertas oficiales</span></div>
+      <div><h1>{t('map.title')}</h1><p>{t('map.subtitle')}</p></div>
+      <div className="unified-map-counts"><span><i className="red"/>{publicIncidents.length} {t('map.accidents')}</span><span><i className="yellow"/>{(db.riskZones||[]).length} {t('map.dangerPlaces')}</span><span><i className="blue"/>{activeAlerts.length} {t('map.officialAlerts')}</span></div>
     </header>
 
     <div className="unified-map-workspace">
-      <aside className="map-point-tools" aria-label="Herramientas para colocar puntos">
+      <aside className="map-point-tools" aria-label={t('map.tools')}>
         <div className={`live-location-panel ${locationActive?'active':''}`}>
-          <div><Navigation size={19}/><span><strong>Mi ubicación en vivo</strong><small>{locationStatus==='requesting'?'Buscando señal GPS…':locationActive&&location?`Precisión aproximada: ${Math.round(location.accuracy||0)} m`:'Solo se activa con tu permiso'}</small></span></div>
-          <button type="button" onClick={locationActive?stopLocation:startLocation}>{locationActive?'Detener':'Activar ubicación'}</button>
+          <div><Navigation size={19}/><span><strong>{t('map.liveLocation')}</strong><small>{locationStatus==='requesting'?t('common.requestingLocation'):locationActive&&location?`± ${Math.round(location.accuracy||0)} m`:t('map.permissionOnly')}</small></span></div>
+          <button type="button" onClick={locationActive?stopLocation:startLocation}>{locationActive?t('common.stopLocation'):t('common.activateLocation')}</button>
           {locationError&&<p role="alert">{locationError}</p>}
         </div>
-        <div className="map-point-tools-title"><MapPin size={20}/><div><strong>Colocar un punto</strong><span>Selecciona el tipo</span></div></div>
-        <button type="button" className={`point-type-button accident ${pointType==='accident'?'active':''}`} aria-pressed={pointType==='accident'} onClick={()=>chooseType('accident')}><Siren size={22}/><span><strong>Accidente</strong><small>Punto rojo</small></span></button>
-        <button type="button" className={`point-type-button danger ${pointType==='danger'?'active':''}`} aria-pressed={pointType==='danger'} onClick={()=>chooseType('danger')}><AlertTriangle size={22}/><span><strong>Lugar peligroso</strong><small>Punto amarillo</small></span></button>
+        <div className="map-point-tools-title"><MapPin size={20}/><div><strong>{t('map.placePoint')}</strong><span>{t('map.selectType')}</span></div></div>
+        <button type="button" className={`point-type-button accident ${pointType==='accident'?'active':''}`} aria-pressed={pointType==='accident'} onClick={()=>chooseType('accident')}><Siren size={22}/><span><strong>{t('map.accident')}</strong><small>{t('map.pointRed')}</small></span></button>
+        <button type="button" className={`point-type-button danger ${pointType==='danger'?'active':''}`} aria-pressed={pointType==='danger'} onClick={()=>chooseType('danger')}><AlertTriangle size={22}/><span><strong>{t('map.danger')}</strong><small>{t('map.pointYellow')}</small></span></button>
         <div className={`map-placement-notice ${pointType?'active':''}`} role="status">{notice}</div>
-        <div className="official-alert-note"><BellRing size={17}/><span><strong>Canales oficiales incluidos</strong><small>Las alertas activas aparecen en este mismo mapa.</small></span></div>
-        {userPoints.length>0&&<button type="button" className="clear-map-points" onClick={clearPoints}><Trash2 size={15}/>Limpiar mis puntos ({userPoints.length})</button>}
+        <div className="official-alert-note"><BellRing size={17}/><span><strong>{t('map.officialChannels')}</strong><small>{t('map.officialDetail')}</small></span></div>
+        {userPoints.length>0&&<button type="button" className="clear-map-points" onClick={clearPoints}><Trash2 size={15}/>{t('map.clear')} ({userPoints.length})</button>}
       </aside>
 
-      <section className={`unified-citizen-map ${pointType?'placing-point':''}`} aria-label="Mapa situacional interactivo">
-        {pointType&&<div className={`map-placement-banner ${pointType}`}><span>{pointType==='accident'?'Accidente':'Lugar peligroso'}</span> Haz clic en cualquier parte del mapa</div>}
+      <section className={`unified-citizen-map ${pointType?'placing-point':''}`} aria-label={t('map.interactive')}>
+        {pointType&&<div className={`map-placement-banner ${pointType}`}><span>{pointType==='accident'?t('map.accident'):t('map.danger')}</span> {t('map.clickAnywhere')}</div>}
         <GeoMap
           incidents={[...publicIncidents,...placedIncidents]}
           units={db.units}
@@ -97,13 +101,21 @@ export default function UnifiedSafetyMapPage(){
           riskZones={[...(db.riskZones||[]),...placedRisks]}
           hospitals={db.hospitals||[]}
           historicalIncidents={db.historicalIncidents||[]}
+          aiSuggestions={db.aiSuggestions||[]}
           userLocation={location}
-          focusLocations={location?[location]:[]}
-          focusKey={location?'live-location-ready':''}
+          selectedId={selectedPoint?.id}
+          focusLocations={selectedPoint?.location?[selectedPoint.location]:(location?[location]:[])}
+          focusKey={selectedPoint?.id || (location?'live-location-ready':'')}
+          onSelectIncident={setSelectedPoint}
+          onSelectRiskZone={setSelectedPoint}
+          onSelectAlert={setSelectedPoint}
+          onSelectHospital={setSelectedPoint}
+          onSelectAiSuggestion={setSelectedPoint}
           onMapClick={placePoint}
           initialZoom={14}
         />
       </section>
     </div>
+    <AccessibleMapList incidents={[...publicIncidents,...placedIncidents]} alerts={activeAlerts} riskZones={[...(db.riskZones||[]),...placedRisks]} hospitals={db.hospitals||[]} aiSuggestions={db.aiSuggestions||[]} referenceLocation={location} onSelect={setSelectedPoint}/>
   </div>
 }

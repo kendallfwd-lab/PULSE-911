@@ -1,0 +1,3 @@
+import { AlertTriangle, Clock3, Route } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
+export function RouteOptionCard({ route, risk, selected, onSelect }) { const {t}=useTranslation(); return <button type="button" className={`route-option-card${selected ? ' selected' : ''}`} onClick={onSelect}><Route/><span><strong>{route.distanceKm.toFixed(1)} km · {route.durationMin} min</strong><small>{route.provider.toUpperCase()} · {t('travel.risk',{level:t(`travel.${risk.level}`)})}</small></span><b>{risk.score}/100</b>{risk.level !== 'low' && <AlertTriangle size={16}/>}<Clock3 size={15}/></button> }

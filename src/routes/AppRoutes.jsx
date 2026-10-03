@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { PageLoader } from '../components/Common'
 import { ProtectedRoute } from '../components/Guards'
 
@@ -17,6 +18,11 @@ const ProfilePage = lazy(() => import('../pages/citizen/AlertsResourcesProfile')
 const ResourcesPage = lazy(() => import('../pages/citizen/AlertsResourcesProfile').then(module => ({ default: module.ResourcesPage })))
 const SafetyMapPage = lazy(() => import('../pages/citizen/UnifiedSafetyMapPage'))
 const CommunityPage = lazy(() => import('../pages/citizen/CommunityPage').then(module => ({ default: module.CommunityPage })))
+const NearbyPage = lazy(() => import('../pages/citizen/NearbyPage'))
+const RoadStatusPage = lazy(() => import('../pages/citizen/RoadStatusPage'))
+const PulseAssistantPage = lazy(() => import('../pages/citizen/PulseAssistantPage'))
+const TravelPage = lazy(() => import('../pages/citizen/TravelPage'))
+const WellbeingPage = lazy(() => import('../pages/citizen/WellbeingPage'))
 const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
 const AdminIncidentDetail = lazy(() => import('../pages/admin/AdminIncidents').then(module => ({ default: module.AdminIncidentDetail })))
 const AdminIncidents = lazy(() => import('../pages/admin/AdminIncidents').then(module => ({ default: module.AdminIncidents })))
@@ -29,40 +35,54 @@ const HospitalsPage = lazy(() => import('../pages/admin/OperationsPages').then(m
 const PublicationsAdminPage = lazy(() => import('../pages/admin/OperationsPages').then(module => ({ default: module.PublicationsAdminPage })))
 const AuditPage = lazy(() => import('../pages/admin/OperationsPages').then(module => ({ default: module.AuditPage })))
 const ScenariosPage = lazy(() => import('../pages/admin/OperationsPages').then(module => ({ default: module.ScenariosPage })))
+const AdminAIPage = lazy(() => import('../pages/admin/AdminAIPage'))
+const AIReviewPage = lazy(() => import('../pages/admin/AIReviewPage'))
+const TrafficMonitorPage = lazy(() => import('../pages/admin/TrafficMonitorPage'))
 
-const routeTitles = [
-  [/^\/$/, 'PULSE 911 — Simulación de respuesta'],
-  [/^\/login$/, 'Iniciar sesión — PULSE 911'],
-  [/^\/register$/, 'Crear cuenta — PULSE 911'],
-  [/^\/onboarding$/, 'Ficha de emergencia — PULSE 911'],
-  [/^\/app\/report$/, 'Reportar emergencia — PULSE 911'],
-  [/^\/app\/map$/, 'Mapa situacional — PULSE 911'],
-  [/^\/app\/incidents\//, 'Detalle del incidente — PULSE 911'],
-  [/^\/app\/incidents$/, 'Mis incidentes — PULSE 911'],
-  [/^\/app\/alerts$/, 'Alertas — PULSE 911'],
-  [/^\/app\/resources$/, 'Recursos — PULSE 911'],
-  [/^\/app\/profile$/, 'Perfil — PULSE 911'],
-  [/^\/app\/community$/, 'Reportes ciudadanos — PULSE 911'],
-  [/^\/app$/, 'Portal ciudadano — PULSE 911'],
-  [/^\/command\/incidents\//, 'Detalle operativo — PULSE Command'],
-  [/^\/command\/incidents$/, 'Incidentes — PULSE Command'],
-  [/^\/command\/dispatch$/, 'Despacho — PULSE Command'],
-  [/^\/command\/risk-zones$/, 'Zonas de riesgo — PULSE Command'],
-  [/^\/command\/alerts$/, 'Alertas públicas — PULSE Command'],
-  [/^\/command\/analytics$/, 'Analítica — PULSE Command'],
-  [/^\/command\/units$/, 'Unidades — PULSE Command'],
-  [/^\/command\/hospitals$/, 'Hospitales — PULSE Command'],
-  [/^\/command\/publications$/, 'Publicaciones — PULSE Command'],
-  [/^\/command\/audit$/, 'Auditoría — PULSE Command'],
-  [/^\/command\/scenarios$/, 'Escenarios — PULSE Command'],
-  [/^\/command$/, 'Centro de mando — PULSE Command'],
+const routeTitleKeys = [
+  [/^\/$/, 'landing.platform'],
+  [/^\/login$/, 'auth.loginTitle'],
+  [/^\/register$/, 'auth.createTitle'],
+  [/^\/onboarding$/, 'legacy.emergencyFile'],
+  [/^\/app\/report$/, 'legacy.reportEmergency'],
+  [/^\/app\/map$/, 'map.title'],
+  [/^\/app\/incidents\//, 'legacy.incident'],
+  [/^\/app\/incidents$/, 'nav.incidents'],
+  [/^\/app\/alerts$/, 'nav.map'],
+  [/^\/app\/resources$/, 'nav.resources'],
+  [/^\/app\/profile$/, 'nav.profile'],
+  [/^\/app\/community$/, 'nav.community'],
+  [/^\/app\/roads$/, 'nav.roads'],
+  [/^\/app\/nearby$/, 'nav.nearby'],
+  [/^\/app\/assistant$/, 'nav.assistant'],
+  [/^\/app\/travel$/, 'nav.travel'],
+  [/^\/app\/wellbeing$/, 'nav.wellbeing'],
+  [/^\/app$/, 'nav.home'],
+  [/^\/command\/incidents\//, 'legacy.incident'],
+  [/^\/command\/incidents$/, 'legacy.incidents'],
+  [/^\/command\/dispatch$/, 'legacy.dispatch'],
+  [/^\/command\/risk-zones$/, 'legacy.riskZones'],
+  [/^\/command\/alerts$/, 'legacy.publicAlerts'],
+  [/^\/command\/analytics$/, 'legacy.analytics'],
+  [/^\/command\/units$/, 'legacy.units'],
+  [/^\/command\/hospitals$/, 'legacy.hospitals'],
+  [/^\/command\/publications$/, 'legacy.publications'],
+  [/^\/command\/audit$/, 'legacy.audit'],
+  [/^\/command\/scenarios$/, 'legacy.scenarios'],
+  [/^\/command\/ai-review$/, 'legacy.aiReview'],
+  [/^\/command\/ai$/, 'legacy.aiCenter'],
+  [/^\/command\/traffic$/, 'legacy.trafficMonitoring'],
+  [/^\/command$/, 'legacy.commandCenter'],
 ]
 
 function RouteMeta() {
   const { pathname } = useLocation()
+  const { t } = useTranslation()
   useEffect(() => {
-    document.title = routeTitles.find(([pattern]) => pattern.test(pathname))?.[1] || 'PULSE 911'
-  }, [pathname])
+    const key = routeTitleKeys.find(([pattern]) => pattern.test(pathname))?.[1]
+    const product = pathname.startsWith('/command') ? 'PULSE Command' : 'PULSE 911'
+    document.title = key ? `${t(key)} — ${product}` : product
+  }, [pathname, t])
   return null
 }
 
@@ -85,6 +105,11 @@ export default function AppRoutes() {
           <Route path="/app/resources" element={<ResourcesPage />} />
           <Route path="/app/profile" element={<ProfilePage />} />
           <Route path="/app/community" element={<CommunityPage />} />
+          <Route path="/app/roads" element={<RoadStatusPage />} />
+          <Route path="/app/nearby" element={<NearbyPage />} />
+          <Route path="/app/assistant" element={<PulseAssistantPage />} />
+          <Route path="/app/travel" element={<TravelPage />} />
+          <Route path="/app/wellbeing" element={<WellbeingPage />} />
           <Route path="/app/notifications" element={<Navigate to="/app" replace />} />
         </Route>
         <Route element={<ProtectedRoute role="admin"><AdminLayout /></ProtectedRoute>}>
@@ -100,6 +125,9 @@ export default function AppRoutes() {
           <Route path="/command/publications" element={<PublicationsAdminPage />} />
           <Route path="/command/audit" element={<AuditPage />} />
           <Route path="/command/scenarios" element={<ScenariosPage />} />
+          <Route path="/command/ai" element={<AdminAIPage />} />
+          <Route path="/command/ai-review" element={<AIReviewPage />} />
+          <Route path="/command/traffic" element={<TrafficMonitorPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

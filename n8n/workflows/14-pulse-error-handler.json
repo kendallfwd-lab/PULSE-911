@@ -1,0 +1,19 @@
+{
+  "name": "PULSE — Error Handler",
+  "nodes": [
+    {
+      "parameters": { "content": "## Error Handler\n**Purpose:** sanitize workflow failures into operational metadata without leaking payloads, secrets or stack traces.\n**Input:** n8n Error Trigger.\n**Output:** requestId, workflow, node, error code and timestamp for an approved log sink.\n**Credentials:** optional monitoring destination.\n**Dependencies:** assign this workflow in each production workflow's error settings.\n**Failure path:** retains only bounded metadata.", "height": 300, "width": 470 },
+      "id": "e0000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-500, -300]
+    },
+    {
+      "parameters": {},
+      "id": "e0000000-0000-4000-8000-000000000002", "name": "Catch Workflow Error", "type": "n8n-nodes-base.errorTrigger", "typeVersion": 1, "position": [-260, 80]
+    },
+    {
+      "parameters": { "jsCode": "const execution=$json.execution??{};const workflow=$json.workflow??{};const trigger=$json.trigger??{};const error=execution.error??trigger.error??{};const safe={requestId:String(execution.id??`err-${Date.now()}`),workflow:String(workflow.name??'unknown').slice(0,160),node:String(error.node?.name??'unknown').slice(0,160),time:new Date().toISOString(),error:String(error.name??'WORKFLOW_ERROR').slice(0,80),message:'PULSE IA no está disponible temporalmente.'};return[{json:safe}];" },
+      "id": "e0000000-0000-4000-8000-000000000003", "name": "Sanitize Error Metadata", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [20, 80]
+    }
+  ],
+  "connections": { "Catch Workflow Error": { "main": [[{ "node": "Sanitize Error Metadata", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "e0000000-0000-4000-8000-000000000099"
+}

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { AlertTriangle, Building2, Crosshair, Flame, Layers3, MapPinned, Maximize2, Minimize2, Navigation, Waves, ZoomIn, ZoomOut } from 'lucide-react'
+import { AlertTriangle, Building2, Crosshair, Flame, Layers3, MapPinned, Maximize2, Minimize2, Navigation, Sparkles, Waves, ZoomIn, ZoomOut } from 'lucide-react'
 import { DEMO_MAP_CENTER } from '../config/demoGeography'
 import { getUnitVisual } from './UnitTypeIcon'
+import { useTranslation } from 'react-i18next'
 
 const TILE = 256
 const DEFAULT_CENTER = DEMO_MAP_CENTER
@@ -38,14 +39,15 @@ function radiusPx(lat, meters, zoom){
 }
 
 export default function GeoMap({
-  incidents=[], units=[], alerts=[], riskZones=[], hospitals=[], historicalIncidents=[],
+  incidents=[], units=[], alerts=[], riskZones=[], hospitals=[], historicalIncidents=[], aiSuggestions=[],
   selectedId=null,
-  onSelectIncident, onSelectUnit, onSelectRiskZone, onSelectAlert, onSelectHospital,
+  onSelectIncident, onSelectUnit, onSelectRiskZone, onSelectAlert, onSelectHospital, onSelectAiSuggestion,
   onMapClick, onMoveRiskZone, onMoveAlert,
   draggableRiskId=null, draggableAlertId=null,
   initialCenter=DEFAULT_CENTER, initialZoom=14,
   compact=false, showControls=true, className='', focusLocations=[], focusKey='', userLocation=null
 }){
+  const {i18n}=useTranslation(); const english=i18n.language.startsWith('en')
   const wrapRef=useRef(null)
   const dragRef=useRef(null)
   const markerDragRef=useRef(null)
@@ -53,7 +55,7 @@ export default function GeoMap({
   const [center,setCenter]=useState(initialCenter)
   const [zoom,setZoom]=useState(initialZoom)
   const [theme,setTheme]=useState('street')
-  const [layers,setLayers]=useState({incidents:true,units:true,alerts:true,riskZones:true,routes:true,hospitals:true,history:false})
+  const [layers,setLayers]=useState({incidents:true,units:true,alerts:true,riskZones:true,routes:true,hospitals:true,history:false,aiSuggestions:true})
   const [layersOpen,setLayersOpen]=useState(false)
   const [expanded,setExpanded]=useState(false)
 
@@ -216,7 +218,7 @@ export default function GeoMap({
   const routeLines=units.filter(u=>u.mission?.route?.length && ['en_route','dispatched','transporting','returning'].includes(u.status)).map(u=>({id:u.id,points:u.mission.route.map(toScreen)}))
 
   return <div className={`geo-map ${compact?'compact':''} ${theme==='ops'?'ops-theme':''} ${expanded?'expanded':''} ${className}`} ref={wrapRef} onPointerDown={beginMapDrag} onPointerMove={moveMap} onPointerUp={endMapDrag} onWheelCapture={wheel}>
-    <img className="geo-offline-bg" src="/assets/stitch/satellite-city.webp" alt="" draggable="false"/>
+    <img className="geo-offline-bg" src="/assets/stitch/situational-hybrid.webp" alt="" draggable="false"/>
     <div className="geo-tiles">
       {tiles.map(t=><img key={`${zoom}-${t.tx}-${t.ty}`} src={`https://tile.openstreetmap.org/${zoom}/${t.wrapped}/${t.ty}.png`} alt="" draggable="false" onError={e=>{e.currentTarget.style.display='none'}} style={{left:t.left,top:t.top,width:TILE,height:TILE}}/>) }
     </div>
@@ -231,7 +233,7 @@ export default function GeoMap({
       const p=toScreen(loc); const r=radiusPx(loc.lat,zone.radiusM||180,zoom)
       return <div id={`pulse-drag-wrap-${zone.id}`} key={zone.id} className={`geo-risk-wrap ${zone.severity||'medium'}`} style={{left:p.x,top:p.y}}>
         <div className="geo-area" style={{width:r*2,height:r*2}}/>
-        <button id={`pulse-drag-${zone.id}`} className={`geo-marker risk ${selectedId===zone.id?'selected':''}`} style={{left:0,top:0}} onClick={e=>{e.stopPropagation();if(onSelectRiskZone)onSelectRiskZone(zone);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} onPointerDown={draggableRiskId===zone.id?(e)=>beginMarkerDrag(e,'risk',zone):(e)=>e.stopPropagation()} type="button"><AlertTriangle size={15}/><span>{zone.reports||'!'}</span></button>
+        <button id={`pulse-drag-${zone.id}`} className={`geo-marker risk ${selectedId===zone.id?'selected':''}`} style={{left:0,top:0}} onClick={e=>{e.stopPropagation();if(onSelectRiskZone)onSelectRiskZone(zone);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} onPointerDown={draggableRiskId===zone.id?(e)=>beginMarkerDrag(e,'risk',zone):(e)=>e.stopPropagation()} type="button" title={`${zone.name || zone.title || (english?'Precaution zone':'Zona de precaución')} · ${zone.severity || (english?'unspecified risk':'riesgo sin nivel')}`} aria-label={`${zone.name || zone.title || (english?'Precaution zone':'Zona de precaución')}, ${english?'level':'nivel'} ${zone.severity || (english?'not defined':'sin definir')}, ${zone.reports || 0} ${english?'reports':'reportes'}`}><AlertTriangle size={15}/><span>{zone.reports||'!'}</span></button>
       </div>
     })}
 
@@ -240,63 +242,70 @@ export default function GeoMap({
       const p=toScreen(loc); const r=radiusPx(loc.lat,alert.radiusM||350,zoom)
       return <div id={`pulse-drag-wrap-${alert.id}`} key={alert.id} className={`geo-alert-wrap ${alert.severity||'info'}`} style={{left:p.x,top:p.y}}>
         <div className="geo-area" style={{width:r*2,height:r*2}}/>
-        <button id={`pulse-drag-${alert.id}`} className={`geo-marker alert ${selectedId===alert.id?'selected':''}`} onClick={e=>{e.stopPropagation();if(onSelectAlert)onSelectAlert(alert);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} onPointerDown={draggableAlertId===alert.id?(e)=>beginMarkerDrag(e,'alert',alert):(e)=>e.stopPropagation()} type="button"><MapPinned size={15}/></button>
+        <button id={`pulse-drag-${alert.id}`} className={`geo-marker alert ${selectedId===alert.id?'selected':''}`} onClick={e=>{e.stopPropagation();if(onSelectAlert)onSelectAlert(alert);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} onPointerDown={draggableAlertId===alert.id?(e)=>beginMarkerDrag(e,'alert',alert):(e)=>e.stopPropagation()} type="button" title={`${alert.title || (english?'Alert':'Alerta')} · ${alert.severity || (english?'information':'información')}`} aria-label={`${english?'Alert':'Alerta'} ${alert.title || (english?'without title':'sin título')}, ${alert.severity || (english?'information':'información')}`}><MapPinned size={15}/></button>
       </div>
     })}
 
     {layers.history && historicalIncidents.map(point=>{
       const p=toScreen(point)
-      return <span key={point.id} className={`geo-history-dot ${point.severity||'medium'}`} style={{left:p.x,top:p.y}} title={`Histórico ${point.type||'incidente'} · ${point.date||''}`}/>
+      return <span key={point.id} className={`geo-history-dot ${point.severity||'medium'}`} style={{left:p.x,top:p.y}} title={`${english?'Historical':'Histórico'} ${point.type||(english?'incident':'incidente')} · ${point.date||''}`}/>
     })}
 
     {layers.hospitals && hospitals.map(hospital=>{
       const loc=locationOf(hospital); if(!loc) return null
       const p=toScreen(loc)
-      return <button key={hospital.id} type="button" className={`geo-marker hospital ${selectedId===hospital.id?'selected':''}`} style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();if(onSelectHospital)onSelectHospital(hospital);setCenter(loc);setZoom(z=>Math.max(z,15))}} title={`${hospital.name} · ${hospital.type||'Centro médico'} · capacidad simulada ${hospital.capacity||0}`} aria-label={`Centrar ${hospital.name}`}><Building2 size={14}/><span>{hospital.mapCode||'H'}</span></button>
+      return <button key={hospital.id} type="button" className={`geo-marker hospital ${selectedId===hospital.id?'selected':''}`} style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();if(onSelectHospital)onSelectHospital(hospital);setCenter(loc);setZoom(z=>Math.max(z,15))}} title={`${hospital.name} · ${hospital.type||(english?'Medical center':'Centro médico')} · ${english?'simulated capacity':'capacidad simulada'} ${hospital.capacity||0}`} aria-label={`${english?'Center':'Centrar'} ${hospital.name}`}><Building2 size={14}/><span>{hospital.mapCode||'H'}</span></button>
+    })}
+
+    {layers.aiSuggestions && aiSuggestions.filter(item=>item.reviewStatus!=='rejected').map(item=>{
+      const loc=locationOf(item); if(!loc) return null
+      const p=toScreen(loc)
+      const label=`${english?'Pending AI suggestion':'Sugerencia IA pendiente'}: ${item.title}. ${english?'Confidence':'Confianza'} ${item.confidence || 0} ${english?'percent':'por ciento'}. ${item.reason || ''}`
+      return <button key={item.id} type="button" className={`geo-marker ai-suggestion ${selectedId===item.id?'selected':''}`} style={{left:p.x,top:p.y}} onPointerDown={event=>event.stopPropagation()} onClick={event=>{event.stopPropagation();onSelectAiSuggestion?.(item);setCenter(loc);setZoom(value=>Math.max(value,15))}} title={label} aria-label={label}><Sparkles size={15}/><span>{item.confidence || 0}%</span></button>
     })}
 
     {layers.incidents && incidents.map(incident=>{
       const loc=locationOf(incident); if(!loc) return null
       const p=toScreen(loc); const Icon=categoryIcon(incident.category)
       const assigned=[...new Set([...(incident.assignedUnits||[]),incident.assignedUnit].filter(Boolean))].length
-      return <button key={incident.id} className={`geo-marker incident ${incident.priority?.toLowerCase()||'p2'} ${selectedId===incident.id?'selected':''} status-${incident.status}`} style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();if(onSelectIncident)onSelectIncident(incident);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} type="button" title={`${incident.code} · ${incident.title}`}><Icon size={16}/>{assigned>0&&<b>{assigned}</b>}</button>
+      return <button key={incident.id} className={`geo-marker incident ${incident.priority?.toLowerCase()||'p2'} ${selectedId===incident.id?'selected':''} status-${incident.status}`} style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();if(onSelectIncident)onSelectIncident(incident);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} type="button" title={`${incident.code} · ${incident.title}`} aria-label={`${incident.priority || (english?'Priority not defined':'Prioridad sin definir')}, ${incident.code || (english?'incident':'incidente')}, ${incident.title}, ${english?'status':'estado'} ${incident.status || (english?'no status':'sin estado')}`}><Icon size={16}/>{assigned>0&&<b>{assigned}</b>}</button>
     })}
 
     {layers.units && units.map(unit=>{
       const loc=locationOf(unit); if(!loc) return null
       const p=toScreen(loc); const {Icon,tone,label}=getUnitVisual(unit)
-      return <button key={unit.id} className={`geo-marker unit service-${tone} ${unit.status} ${selectedId===unit.id?'selected':''}`} style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();if(onSelectUnit)onSelectUnit(unit);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} type="button" title={`${unit.id} · ${label} · ${unit.type}`}><Icon size={15}/><span>{unit.id}</span></button>
+      return <button key={unit.id} className={`geo-marker unit service-${tone} ${unit.status} ${selectedId===unit.id?'selected':''}`} style={{left:p.x,top:p.y}} onPointerDown={e=>e.stopPropagation()} onClick={e=>{e.stopPropagation();if(onSelectUnit)onSelectUnit(unit);else{setCenter(loc);setZoom(z=>Math.max(z,15))}}} type="button" title={`${unit.id} · ${label} · ${unit.type}`} aria-label={`${label} ${unit.id}, ${unit.type}, ${english?'status':'estado'} ${unit.status}`}><Icon size={15}/><span>{unit.id}</span></button>
     })}
 
     {userLocation?.lat!=null&&userLocation?.lng!=null&&(()=>{
       const p=toScreen(userLocation)
       const r=radiusPx(userLocation.lat,Math.max(8,Math.min(userLocation.accuracy||20,180)),zoom)
-      return <div className="geo-user-location" style={{left:p.x,top:p.y}} title={`Tu ubicación · precisión aproximada ${Math.round(userLocation.accuracy||0)} m`}>
+      return <div className="geo-user-location" style={{left:p.x,top:p.y}} title={`${english?'Your location · approximate accuracy':'Tu ubicación · precisión aproximada'} ${Math.round(userLocation.accuracy||0)} m`}>
         <span className="geo-user-accuracy" style={{width:r*2,height:r*2}}/>
         <span className="geo-user-marker"><Navigation size={15}/></span>
-        <strong>Estás aquí</strong>
+        <strong>{english?'You are here':'Estás aquí'}</strong>
       </div>
     })()}
 
     {showControls&&!compact&&<>
       <div className="geo-map-tools left" onPointerDown={e=>e.stopPropagation()}>
-        <button type="button" aria-label="Acercar mapa" title="Acercar" onClick={()=>setZoom(z=>Math.min(18,z+1))}><ZoomIn size={17}/></button>
-        <button type="button" aria-label="Alejar mapa" title="Alejar" onClick={()=>setZoom(z=>Math.max(11,z-1))}><ZoomOut size={17}/></button>
-        <button type="button" aria-label="Centrar elementos importantes" title="Centrar respuesta" onClick={recenter}><Crosshair size={17}/></button>
-        {userLocation?.lat!=null&&<button type="button" aria-label="Centrar mi ubicación" title="Centrar mi ubicación" onClick={()=>{setCenter({lat:userLocation.lat,lng:userLocation.lng});setZoom(z=>Math.max(z,16))}}><Navigation size={17}/></button>}
-        <button type="button" aria-label={expanded?'Salir de mapa ampliado':'Ampliar mapa'} title={expanded?'Salir de vista ampliada':'Ampliar mapa'} onClick={()=>setExpanded(v=>!v)}>{expanded?<Minimize2 size={17}/>:<Maximize2 size={17}/>}</button>
+        <button type="button" aria-label={english?'Zoom in map':'Acercar mapa'} title={english?'Zoom in':'Acercar'} onClick={()=>setZoom(z=>Math.min(18,z+1))}><ZoomIn size={17}/></button>
+        <button type="button" aria-label={english?'Zoom out map':'Alejar mapa'} title={english?'Zoom out':'Alejar'} onClick={()=>setZoom(z=>Math.max(11,z-1))}><ZoomOut size={17}/></button>
+        <button type="button" aria-label={english?'Center important items':'Centrar elementos importantes'} title={english?'Center response':'Centrar respuesta'} onClick={recenter}><Crosshair size={17}/></button>
+        {userLocation?.lat!=null&&<button type="button" aria-label={english?'Center my location':'Centrar mi ubicación'} title={english?'Center my location':'Centrar mi ubicación'} onClick={()=>{setCenter({lat:userLocation.lat,lng:userLocation.lng});setZoom(z=>Math.max(z,16))}}><Navigation size={17}/></button>}
+        <button type="button" aria-label={expanded?(english?'Exit expanded map':'Salir de mapa ampliado'):(english?'Expand map':'Ampliar mapa')} title={expanded?(english?'Exit expanded view':'Salir de vista ampliada'):(english?'Expand map':'Ampliar mapa')} onClick={()=>setExpanded(v=>!v)}>{expanded?<Minimize2 size={17}/>:<Maximize2 size={17}/>}</button>
         <span className="geo-zoom-indicator">Z{zoom}</span>
       </div>
       <div className="geo-map-topbar" onPointerDown={e=>e.stopPropagation()}>
-        <div className="geo-theme-switch"><button className={theme==='street'?'active':''} type="button" aria-pressed={theme==='street'} onClick={()=>setTheme('street')}>Mapa</button><button className={theme==='ops'?'active':''} type="button" aria-pressed={theme==='ops'} onClick={()=>setTheme('ops')}>Operativo</button></div>
+        <div className="geo-theme-switch"><button className={theme==='street'?'active':''} type="button" aria-pressed={theme==='street'} onClick={()=>setTheme('street')}>{english?'Map':'Mapa'}</button><button className={theme==='ops'?'active':''} type="button" aria-pressed={theme==='ops'} onClick={()=>setTheme('ops')}>{english?'Operations':'Operativo'}</button></div>
         <div className="geo-layer-control">
-          <button className={`geo-layer-trigger ${layersOpen?'active':''}`} type="button" aria-expanded={layersOpen} aria-haspopup="menu" onClick={()=>setLayersOpen(v=>!v)}><Layers3 size={15}/>Capas</button>
-          {layersOpen&&<div className="geo-layer-menu">{Object.entries({incidents:'Incidentes',units:'Unidades',alerts:'Alertas',riskZones:'Zonas',routes:'Rutas',hospitals:'Hospitales',history:'Historial'}).map(([key,label])=><button key={key} className={layers[key]?'active':''} type="button" aria-pressed={layers[key]} onClick={()=>setLayers(v=>({...v,[key]:!v[key]}))}><span>{label}</span><i/></button>)}</div>}
+          <button className={`geo-layer-trigger ${layersOpen?'active':''}`} type="button" aria-expanded={layersOpen} aria-haspopup="menu" onClick={()=>setLayersOpen(v=>!v)}><Layers3 size={15}/>{english?'Layers':'Capas'}</button>
+          {layersOpen&&<div className="geo-layer-menu">{Object.entries(english?{incidents:'Active accidents',units:'Units',alerts:'Alerts',riskZones:'Precaution places',routes:'Routes',hospitals:'Hospitals',history:'History',aiSuggestions:'AI suggestions'}:{incidents:'Accidentes activos',units:'Unidades',alerts:'Alertas',riskZones:'Lugares peligrosos',routes:'Rutas',hospitals:'Hospitales',history:'Históricos',aiSuggestions:'Sugerencias IA'}).map(([key,label])=><button key={key} className={layers[key]?'active':''} type="button" aria-pressed={layers[key]} onClick={()=>setLayers(v=>({...v,[key]:!v[key]}))}><span>{label}</span><i/></button>)}</div>}
         </div>
       </div>
     </>}
 
-    {!compact&&<div className="geo-map-legend"><span><i className="incident"/>Incidente</span><span><i className="unit"/>Unidad</span><span><i className="risk"/>Riesgo</span><span><i className="alert"/>Alerta</span><span><i className="hospital"/>Hospital</span><b>SIMULACIÓN</b></div>}
+    {!compact&&<div className="geo-map-legend"><span><i className="incident"/>{english?'Incident':'Incidente'}</span><span><i className="unit"/>{english?'Unit':'Unidad'}</span><span><i className="risk"/>{english?'Caution':'Precaución'}</span><span><i className="alert"/>{english?'Official':'Oficial'}</span><span><i className="ai"/>{english?'AI pending':'IA pendiente'}</span><span><i className="hospital"/>{english?'Hospital':'Hospital'}</span><b>{english?'SIMULATION':'SIMULACIÓN'}</b></div>}
     <div className="geo-attribution">© OpenStreetMap contributors</div>
   </div>
 }

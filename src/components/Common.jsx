@@ -1,16 +1,19 @@
-import { AlertTriangle, CheckCircle2, Clock3, Info, MapPin, ShieldCheck, XCircle } from 'lucide-react'
-import { ThemeToggle } from './ThemeToggle'
+import { AlertTriangle, CheckCircle2, Clock3, Info, MapPin, MinusCircle, ShieldCheck, XCircle } from 'lucide-react'
+import { AccessibilityControls } from './accessibility/AccessibilityControls'
+import { useTranslation } from 'react-i18next'
 
 export const statusLabel = {
   received: 'Recibido', validating: 'Validando', validated: 'Validado', dispatched: 'Despachado', en_route: 'Unidades en ruta', on_scene: 'Unidades en sitio', transporting: 'Trasladando', at_hospital: 'En hospital', returning: 'Regresando a base', resolved: 'Resuelto', cancelled: 'Cancelado'
 }
 
 export function SimulationBanner({ dark = false }) {
-  return <div className={`simulation-banner ${dark ? 'dark' : ''}`}><ThemeToggle compact /></div>
+  return <div className={`simulation-banner ${dark ? 'dark' : ''}`}><div className="simulation-accessibility"><AccessibilityControls compact /></div></div>
 }
+const statusLabelEn = { received:'Received', validating:'Validating', validated:'Validated', dispatched:'Dispatched', en_route:'Units en route', on_scene:'Units on scene', transporting:'Transporting', at_hospital:'At hospital', returning:'Returning to base', resolved:'Resolved', cancelled:'Cancelled' }
 
 export function PageLoader() {
-  return <div className="page-loader" role="status" aria-live="polite"><span/><strong>Cargando PULSE 911…</strong></div>
+  const {i18n}=useTranslation()
+  return <div className="page-loader" role="status" aria-live="polite"><span/><strong>{i18n.language.startsWith('en')?'Loading PULSE 911…':'Cargando PULSE 911…'}</strong></div>
 }
 
 
@@ -20,12 +23,14 @@ export function InlineNotice({ children, tone = 'info' }) {
 }
 
 export function Badge({ children, tone = 'blue' }) {
-  return <span className={`badge badge-${tone}`}>{children}</span>
+  const Icon = tone === 'green' ? CheckCircle2 : tone === 'red' ? XCircle : tone === 'amber' ? AlertTriangle : tone === 'gray' ? MinusCircle : Info
+  return <span className={`badge badge-${tone}`}><Icon className="badge-symbol" size={12} aria-hidden="true"/><span>{children}</span></span>
 }
 
 export function StatusBadge({ status }) {
+  const {i18n}=useTranslation()
   const tone = ['resolved'].includes(status) ? 'green' : ['cancelled'].includes(status) ? 'gray' : ['dispatched','en_route','arrived','on_scene','transporting','at_hospital','returning'].includes(status) ? 'amber' : 'blue'
-  return <Badge tone={tone}>{statusLabel[status] || status}</Badge>
+  return <Badge tone={tone}>{(i18n.language.startsWith('en')?statusLabelEn:statusLabel)[status] || status}</Badge>
 }
 
 export function StatCard({ label, value, hint = '', icon: Icon = ShieldCheck, tone = 'blue' }) {
@@ -37,5 +42,6 @@ export function EmptyState({ title, text }) {
 }
 
 export function IncidentMeta({ incident }) {
-  return <div className="incident-meta"><span><MapPin size={14}/>{incident.location?.label}</span><span><Clock3 size={14}/>{new Date(incident.createdAt).toLocaleString('es-CR')}</span></div>
+  const {i18n}=useTranslation()
+  return <div className="incident-meta"><span><MapPin size={14}/>{incident.location?.label}</span><span><Clock3 size={14}/>{new Date(incident.createdAt).toLocaleString(i18n.language)}</span></div>
 }

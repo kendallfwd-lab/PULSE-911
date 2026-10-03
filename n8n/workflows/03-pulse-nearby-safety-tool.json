@@ -1,0 +1,23 @@
+{
+  "name": "PULSE — Nearby Safety Tool",
+  "nodes": [
+    {
+      "parameters": { "content": "## Nearby Safety Tool\n**Purpose:** geofilter structured PULSE records with Haversine; no LLM distance estimates.\n**Input:** POST /webhook/pulse/nearby with lat, lng, radiusKm and optional record arrays.\n**Output:** sorted incidents, riskZones, alerts, externalEvents and freshness.\n**Credentials:** none.\n**Dependencies:** Data Sync/Data Tables may inject arrays.\n**Failure path:** invalid coordinates return INVALID_LOCATION.", "height": 280, "width": 450 },
+      "id": "30000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-570, -260]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "pulse/nearby", "responseMode": "responseNode", "options": {} },
+      "id": "30000000-0000-4000-8000-000000000002", "name": "POST Nearby Query", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-340, 100], "webhookId": "pulse-nearby"
+    },
+    {
+      "parameters": { "jsCode": "const body = $json.body ?? $json;\nconst lat = Number(body.lat ?? body.location?.lat);\nconst lng = Number(body.lng ?? body.location?.lng);\nconst radiusKm = Math.min(50, Math.max(0.1, Number(body.radiusKm ?? 10)));\nif (!Number.isFinite(lat) || !Number.isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return [{ json: { ok: false, error: { code: 'INVALID_LOCATION', message: 'Coordenadas inválidas.' } } }];\nconst center = { lat, lng };\nconst haversine = (a, b) => { const r = 6371; const rad = (v) => v * Math.PI / 180; const dLat = rad(b.lat-a.lat); const dLng = rad(b.lng-a.lng); const h = Math.sin(dLat/2)**2 + Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLng/2)**2; return r*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h)); };\nconst filter = (items) => (Array.isArray(items) ? items : []).filter((item) => Number.isFinite(Number((item.location ?? item).lat)) && Number.isFinite(Number((item.location ?? item).lng))).map((item) => ({...item,distanceKm:haversine(center,{lat:Number((item.location??item).lat),lng:Number((item.location??item).lng)})})).filter((item) => item.distanceKm <= radiusKm).sort((a,b) => a.distanceKm-b.distanceKm).map((item) => ({...item,distanceKm:Number(item.distanceKm.toFixed(2))}));\nconst incidents = filter(body.incidents); const riskZones = filter(body.riskZones); const alerts = filter(body.alerts); const externalEvents = filter(body.externalEvents);\nreturn [{ json: { ok: true, incidents, riskZones, alerts, externalEvents, count: incidents.length+riskZones.length+alerts.length+externalEvents.length, radiusKm, generatedAt: new Date().toISOString() } }];" },
+      "id": "30000000-0000-4000-8000-000000000003", "name": "Calculate Verified Distances", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-60, 100]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": {} },
+      "id": "30000000-0000-4000-8000-000000000004", "name": "Return Nearby Results", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [220, 100]
+    }
+  ],
+  "connections": { "POST Nearby Query": { "main": [[{ "node": "Calculate Verified Distances", "type": "main", "index": 0 }]] }, "Calculate Verified Distances": { "main": [[{ "node": "Return Nearby Results", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "30000000-0000-4000-8000-000000000099"
+}

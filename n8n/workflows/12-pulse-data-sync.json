@@ -1,0 +1,23 @@
+{
+  "name": "PULSE — Data Sync",
+  "nodes": [
+    {
+      "parameters": { "content": "## Data Sync\n**Purpose:** provide bootstrap, pull and idempotent push semantics for the React app.\n**Input:** POST /webhook/pulse/sync.\n**Output:** allowed collections only.\n**Credentials:** production requires authentication.\n**Dependencies:** workflow static data is a demo fallback; replace with the documented n8n Data Tables for shared production-like storage.\n**Failure path:** rejects unknown actions/collections and caps collection sizes.", "height": 310, "width": 490 },
+      "id": "c0000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-600, -300]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "pulse/sync", "responseMode": "responseNode", "options": {} },
+      "id": "c0000000-0000-4000-8000-000000000002", "name": "POST Data Sync", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-360, 100], "webhookId": "pulse-sync"
+    },
+    {
+      "parameters": { "jsCode": "const body=$json.body??$json;const action=String(body.action??'pull');const allowed=['incidents','riskZones','alerts','publications','historicalIncidents','aiSuggestions','roadStatus','confirmations','externalEvents','audit'];const store=$getWorkflowStaticData('global');store.collections??={};for(const key of allowed)store.collections[key]??=[];const upsert=(key,record)=>{if(!record?.id)throw new Error('MISSING_EXTERNAL_ID');const list=store.collections[key];const index=list.findIndex((item)=>item.id===record.id);const normalized={...record,syncedAt:new Date().toISOString()};if(index>=0)list[index]={...list[index],...normalized};else list.unshift(normalized);store.collections[key]=list.slice(0,5000);return normalized;};try{if(action==='bootstrap'){const incoming=body.data??{};for(const key of allowed){if(Array.isArray(incoming[key]))for(const record of incoming[key].slice(0,5000))upsert(key,record);}return[{json:{ok:true,action,counts:Object.fromEntries(allowed.map((key)=>[key,store.collections[key].length])),generatedAt:new Date().toISOString()}}];}if(action==='pull'){const requested=(Array.isArray(body.collections)?body.collections:allowed).filter((key)=>allowed.includes(key));const since=body.since?Date.parse(body.since):0;const data=Object.fromEntries(requested.map((key)=>[key,store.collections[key].filter((item)=>!since||Date.parse(item.updatedAt??item.createdAt??item.syncedAt??0)>since)]));return[{json:{ok:true,action,data,generatedAt:new Date().toISOString()}}];}if(action==='push_report')return[{json:{ok:true,action,data:upsert('incidents',body.report),generatedAt:new Date().toISOString()}}];if(action==='push_confirmation')return[{json:{ok:true,action,data:upsert('confirmations',body.confirmation),generatedAt:new Date().toISOString()}}];if(action==='push'){const key=String(body.collection??'');if(!allowed.includes(key))throw new Error('COLLECTION_NOT_ALLOWED');return[{json:{ok:true,action,collection:key,data:upsert(key,body.record),generatedAt:new Date().toISOString()}}];}return[{json:{ok:false,error:{code:'INVALID_ACTION',message:'Acción de sincronización no permitida.'}}}];}catch(error){return[{json:{ok:false,error:{code:String(error.message??'SYNC_ERROR'),message:'No se pudo sincronizar el registro.'}}}];}" },
+      "id": "c0000000-0000-4000-8000-000000000003", "name": "Validate And Synchronize", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-40, 100]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": {} },
+      "id": "c0000000-0000-4000-8000-000000000004", "name": "Return Sync Result", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [280, 100]
+    }
+  ],
+  "connections": { "POST Data Sync": { "main": [[{ "node": "Validate And Synchronize", "type": "main", "index": 0 }]] }, "Validate And Synchronize": { "main": [[{ "node": "Return Sync Result", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1", "saveDataSuccessExecution": "none" }, "active": false, "versionId": "c0000000-0000-4000-8000-000000000099"
+}

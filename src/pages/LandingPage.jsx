@@ -1,18 +1,13 @@
 import { useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { ArrowDown, ArrowRight, CheckCircle2, HeartHandshake, LockKeyhole, ShieldCheck, Siren, UsersRound } from 'lucide-react'
 import { Brand } from '../components/Brand'
-import { ThemeToggle } from '../components/ThemeToggle'
+import { AccessibilityControls } from '../components/accessibility/AccessibilityControls'
 import './LandingPage.css'
 
 const ease = [0.22, 1, 0.36, 1]
-
-const courses = [
-  { image: '/assets/user-content/plan-familiar.webp', icon: ShieldCheck, tag: 'Preparación', title: 'Plan familiar', text: 'Contactos, rutas, puntos de reunión y suministros esenciales.' },
-  { image: '/assets/user-content/practica-rcp.webp', icon: Siren, tag: 'Respuesta inicial', title: 'RCP introductoria', text: 'Reconocer una emergencia y activar ayuda con información clara.' },
-  { image: '/assets/user-content/apoyo-emocional.webp', icon: HeartHandshake, tag: 'Recuperación', title: 'Apoyo emocional', text: 'Escuchar, acompañar y conectar con redes de apoyo después del evento.' },
-]
 
 function Reveal({ children, className = '', delay = 0, amount = 0.22 }) {
   const reducedMotion = useReducedMotion()
@@ -32,7 +27,7 @@ function BrowserFrame({ src, alt, label, className = '' }) {
   </div>
 }
 
-function PhoneScrollScene() {
+function PhoneScrollScene({t}) {
   const sceneRef = useRef(null)
   const reducedMotion = useReducedMotion()
   const { scrollYProgress } = useScroll({ target: sceneRef, offset: ['start end', 'end start'] })
@@ -46,20 +41,26 @@ function PhoneScrollScene() {
       <motion.div className="landing-phone" style={reducedMotion ? undefined : { y: phoneY, rotate: phoneRotate }}>
         <div className="landing-phone-speaker"/>
         <div className="landing-phone-status"><span>9:11</span><b>PULSE</b><i/></div>
-        <img src="/assets/presentation/tracking-preview.jpg" alt="Vista conceptual móvil del seguimiento ciudadano" loading="lazy" decoding="async"/>
-        <div className="landing-phone-card"><span><i/>Unidad en ruta</span><strong>Seguimiento activo</strong><small>ETA simulada · 3 minutos</small></div>
+        <img src="/assets/presentation/tracking-preview.jpg" alt={t('landing.mobileAlt')} loading="lazy" decoding="async"/>
+        <div className="landing-phone-card"><span><i/>{t('landing.unitEnRoute')}</span><strong>{t('landing.activeTracking')}</strong><small>{t('landing.simulatedEta')}</small></div>
       </motion.div>
     </div>
     <Reveal className="landing-phone-copy">
-      <h2>La respuesta también cabe en la mano.</h2>
-      <p>La escena móvil resume el concepto de seguimiento: estado del caso, ubicación y tiempo estimado sin perder el contexto del portal de escritorio.</p>
-      <div className="landing-check-list"><span><CheckCircle2/>Estado y línea de tiempo</span><span><CheckCircle2/>Unidad y ETA simulada</span><span><CheckCircle2/>Avisos importantes</span></div>
-      <Link className="landing-text-link" to="/login">Explorar el portal ciudadano<ArrowRight size={16}/></Link>
+      <h2>{t('landing.mobileTitle')}</h2>
+      <p>{t('landing.mobileText')}</p>
+      <div className="landing-check-list"><span><CheckCircle2/>{t('landing.mobileStatus')}</span><span><CheckCircle2/>{t('landing.mobileUnit')}</span><span><CheckCircle2/>{t('landing.mobileNotices')}</span></div>
+      <Link className="landing-text-link" to="/login">{t('landing.exploreCitizen')}<ArrowRight size={16}/></Link>
     </Reveal>
   </section>
 }
 
 export default function LandingPage(){
+  const {t}=useTranslation()
+  const courses = [
+    { image: '/assets/user-content/plan-familiar.webp', icon: ShieldCheck, tag: t('landing.course1Tag'), title: t('landing.course1Title'), text: t('landing.course1Text') },
+    { image: '/assets/user-content/practica-rcp.webp', icon: Siren, tag: t('landing.course2Tag'), title: t('landing.course2Title'), text: t('landing.course2Text') },
+    { image: '/assets/user-content/apoyo-emocional.webp', icon: HeartHandshake, tag: t('landing.course3Tag'), title: t('landing.course3Title'), text: t('landing.course3Text') },
+  ]
   const heroRef = useRef(null)
   const reducedMotion = useReducedMotion()
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ['start start', 'end start'] })
@@ -68,80 +69,80 @@ export default function LandingPage(){
 
   return <div className="pulse-landing-v7">
     <header className="landing-v7-header">
-      <Link to="/" className="landing-v7-brand" aria-label="PULSE 911, inicio"><i/><strong>PULSE 911</strong><span>Plataforma cívica de simulación</span></Link>
-      <nav aria-label="Navegación de la presentación"><a href="#recorrido">Recorrido</a><a href="#command">Command</a><a href="#preparacion">Preparación</a></nav>
-      <div className="landing-v7-actions"><ThemeToggle compact/><Link className="btn ghost" to="/login">Iniciar sesión</Link><Link className="btn emergency" to="/register">Crear cuenta</Link></div>
+      <Link to="/" className="landing-v7-brand" aria-label="PULSE 911"><i/><strong>PULSE 911</strong><span>{t('landing.platform')}</span></Link>
+      <nav aria-label={t('landing.presentationNav')}><a href="#recorrido">{t('landing.tour')}</a><a href="#command">Command</a><a href="#preparacion">{t('landing.preparedness')}</a></nav>
+      <div className="landing-v7-actions"><AccessibilityControls compact/><Link className="btn ghost" to="/login">{t('landing.login')}</Link><Link className="btn emergency" to="/register">{t('landing.createAccount')}</Link></div>
     </header>
 
     <main>
       <section ref={heroRef} className="landing-v7-hero">
         <motion.div className="landing-hero-copy" initial={reducedMotion ? false : { opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease }}>
-          <h1>Información clara y coordinación cuando <em>cada segundo importa.</em></h1>
-          <p>PULSE 911 conecta el reporte ciudadano, el mapa situacional y la coordinación operativa en una experiencia funcional de demostración.</p>
-          <div className="landing-hero-actions"><a className="btn emergency" href="#recorrido"><ArrowDown size={17}/>Explorar la presentación</a><Link className="btn secondary" to="/login">Entrar al sistema<ArrowRight size={17}/></Link></div>
-          <div className="landing-trust-row"><span><CheckCircle2/>Citizen + Command conectados</span><span><LockKeyhole/>Datos locales y ficticios</span></div>
+          <h1>{t('landing.heroTitle')}</h1>
+          <p>{t('landing.heroText')}</p>
+          <div className="landing-hero-actions"><a className="btn emergency" href="#recorrido"><ArrowDown size={17}/>{t('landing.explorePresentation')}</a><Link className="btn secondary" to="/login">{t('landing.enterSystem')}<ArrowRight size={17}/></Link></div>
+          <div className="landing-trust-row"><span><CheckCircle2/>{t('landing.connected')}</span><span><LockKeyhole/>{t('landing.localData')}</span></div>
         </motion.div>
         <motion.div className="landing-hero-stage" initial={reducedMotion ? false : { opacity: 0, scale: 0.94, y: 26 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ duration: 0.95, delay: 0.08, ease }} style={reducedMotion ? undefined : { y: heroImageY, scale: heroImageScale }}>
-          <BrowserFrame src="/assets/presentation/public-preview.jpg" alt="Vista de escritorio del portal público PULSE 911" label="pulse911.demo / inicio" className="landing-hero-browser"/>
-          <div className="landing-stage-chip landing-chip-live"><i/>Canal demo activo</div>
-          <div className="landing-stage-chip landing-chip-network"><UsersRound size={15}/><span><b>2 portales</b> sincronizados</span></div>
+          <BrowserFrame src="/assets/presentation/public-preview.jpg" alt={t('landing.publicPreview')} label="pulse911.demo" className="landing-hero-browser"/>
+          <div className="landing-stage-chip landing-chip-live"><i/>{t('landing.activeDemo')}</div>
+          <div className="landing-stage-chip landing-chip-network"><UsersRound size={15}/><span>{t('landing.syncedPortals')}</span></div>
         </motion.div>
       </section>
 
       <section id="recorrido" className="landing-story-section landing-story-light">
         <Reveal className="landing-story-copy">
-          <h2>Convertir una situación urgente en información accionable.</h2>
-          <p>El flujo guía a la persona por categoría, detalles, ubicación y evidencia. Cada paso reduce ambigüedad antes de enviar el caso al centro de mando.</p>
-          <ul><li>Formulario progresivo y comprensible</li><li>Ubicación visible antes de confirmar</li><li>Evidencia opcional con advertencias de seguridad</li></ul>
-          <Link className="landing-text-link" to="/register">Probar el reporte demo<ArrowRight size={16}/></Link>
+          <h2>{t('landing.urgentTitle')}</h2>
+          <p>{t('landing.urgentText')}</p>
+          <ul><li>{t('landing.progressiveForm')}</li><li>{t('landing.visibleLocation')}</li><li>{t('landing.optionalEvidence')}</li></ul>
+          <Link className="landing-text-link" to="/register">{t('landing.tryReport')}<ArrowRight size={16}/></Link>
         </Reveal>
         <Reveal className="landing-story-media" delay={0.08}><BrowserFrame src="/assets/presentation/report-preview.jpg" alt="Interfaz de reporte ciudadano de PULSE 911" label="pulse911.demo / reportar"/></Reveal>
       </section>
 
-      <PhoneScrollScene/>
+      <PhoneScrollScene t={t}/>
 
       <section id="command" className="landing-command-scene">
         <Reveal className="landing-command-frame"><BrowserFrame src="/assets/presentation/command-preview.jpg" alt="Centro de mando de PULSE 911 con incidentes, mapa y unidades" label="pulse911.demo / command"/></Reveal>
         <Reveal className="landing-command-copy" delay={0.08}>
-          <h2>De la alerta a una decisión operativa trazable.</h2>
-          <p>PULSE Command concentra la cola de incidentes, las unidades disponibles, el mapa y el historial del caso para que cada acción conserve contexto.</p>
-          <div className="landing-command-stats"><div><b>P1</b><span>Prioridad visible</span></div><div><b>ETA</b><span>Comparación de recursos</span></div><div><b>360°</b><span>Contexto del incidente</span></div></div>
-          <Link className="btn emergency" to="/login">Abrir PULSE Command<ArrowRight size={17}/></Link>
+          <h2>{t('landing.commandTitle')}</h2>
+          <p>{t('landing.commandText')}</p>
+          <div className="landing-command-stats"><div><b>P1</b><span>{t('landing.visiblePriority')}</span></div><div><b>ETA</b><span>{t('landing.resourceComparison')}</span></div><div><b>360°</b><span>{t('landing.incidentContext')}</span></div></div>
+          <Link className="btn emergency" to="/login">{t('landing.openCommand')}<ArrowRight size={17}/></Link>
         </Reveal>
       </section>
 
       <section id="preparacion" className="landing-learning-section">
-        <Reveal className="landing-section-heading"><h2>La respuesta empieza antes y continúa después.</h2><p>Capacitaciones breves, evaluaciones y recursos visuales acompañan a la comunidad en prevención, respuesta inicial y bienestar.</p></Reveal>
-        <div className="landing-learning-grid">{courses.map(({image,icon:Icon,tag,title,text},index)=><Reveal key={title} className="landing-learning-card" delay={index*0.07}><div className="landing-learning-image"><img src={image} alt={`Imagen de ${title}`} loading="lazy" decoding="async"/><span>{tag}</span></div><div><Icon/><h3>{title}</h3><p>{text}</p><span className="landing-card-meta"><CheckCircle2/>Incluye microcapacitación</span></div></Reveal>)}</div>
-        <Reveal className="landing-learning-cta"><Link className="btn primary" to="/login">Explorar cursos y recursos<ArrowRight size={17}/></Link></Reveal>
+        <Reveal className="landing-section-heading"><h2>{t('landing.learningTitle')}</h2><p>{t('landing.learningText')}</p></Reveal>
+        <div className="landing-learning-grid">{courses.map(({image,icon:Icon,tag,title,text},index)=><Reveal key={title} className="landing-learning-card" delay={index*0.07}><div className="landing-learning-image"><img src={image} alt={title} loading="lazy" decoding="async"/><span>{tag}</span></div><div><Icon/><h3>{title}</h3><p>{text}</p><span className="landing-card-meta"><CheckCircle2/>{t('landing.microTraining')}</span></div></Reveal>)}</div>
+        <Reveal className="landing-learning-cta"><Link className="btn primary" to="/login">{t('landing.exploreResources')}<ArrowRight size={17}/></Link></Reveal>
       </section>
 
       <section id="acceso" className="landing-final-cta">
-        <Reveal><h2>Dos perspectivas. Un mismo pulso.</h2><p>Entra como ciudadano o como operador y recorre la simulación completa desde el reporte hasta la coordinación.</p><div><Link className="btn emergency" to="/register">Crear cuenta ciudadana</Link><Link className="btn ghost" to="/login">Entrar con cuenta demo<ArrowRight size={17}/></Link></div><small><LockKeyhole size={14}/>Entorno académico local. No contacta servicios 911 reales.</small></Reveal>
+        <Reveal><h2>{t('landing.finalTitle')}</h2><p>{t('landing.finalText')}</p><div><Link className="btn emergency" to="/register">{t('landing.citizenAccount')}</Link><Link className="btn ghost" to="/login">{t('landing.demoAccount')}<ArrowRight size={17}/></Link></div><small><LockKeyhole size={14}/>{t('landing.academicNotice')}</small></Reveal>
       </section>
     </main>
 
     <footer className="landing-v7-footer">
       <div className="landing-footer-main">
         <Brand light/>
-        <span>Proyecto académico y demostrativo · PULSE 911</span>
-        <Link to="/login">Acceder al sistema<ArrowRight size={14}/></Link>
+        <span>{t('landing.project')}</span>
+        <Link to="/login">{t('landing.access')}<ArrowRight size={14}/></Link>
       </div>
       <div className="landing-footer-bottom">
-        <span>© 2026 PULSE 911 · Simulación académica</span>
-        <div className="landing-footer-legal" aria-label="Información legal">
+        <span>© 2026 PULSE 911 · {t('app.demo')}</span>
+        <div className="landing-footer-legal" aria-label={t('landing.terms')}>
           <details>
-            <summary>Términos y condiciones</summary>
+            <summary>{t('landing.terms')}</summary>
             <div className="landing-footer-legal-card">
-              <strong>Términos y condiciones</strong>
-              <p>PULSE 911 es una simulación académica. La información, los incidentes y los tiempos mostrados son ficticios y no sustituyen a los servicios oficiales de emergencia.</p>
+              <strong>{t('landing.terms')}</strong>
+              <p>{t('landing.termsText')}</p>
             </div>
           </details>
           <details>
-            <summary>Privacidad</summary>
+            <summary>{t('landing.privacy')}</summary>
             <div className="landing-footer-legal-card">
-              <strong>Privacidad</strong>
-              <p>Esta demostración utiliza datos locales y simulados. Evita ingresar información personal, médica o sensible durante las pruebas.</p>
+              <strong>{t('landing.privacy')}</strong>
+              <p>{t('landing.privacyText')}</p>
             </div>
           </details>
         </div>

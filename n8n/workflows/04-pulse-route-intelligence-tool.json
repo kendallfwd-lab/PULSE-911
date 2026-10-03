@@ -1,0 +1,31 @@
+{
+  "name": "PULSE — Route Intelligence Tool",
+  "nodes": [
+    {
+      "parameters": { "content": "## Route Intelligence Tool\n**Purpose:** obtain an OSRM route and calculate a deterministic exposure score from supplied PULSE records.\n**Input:** POST /webhook/pulse/route with origin, destination, locale and optional incidents/riskZones/alerts.\n**Output:** normalized routes with score and warnings.\n**Credentials:** none for OSRM; Google Routes is optional and should replace the provider node.\n**Failure path:** returns a direct approximate route if OSRM is unavailable.", "height": 300, "width": 470 },
+      "id": "40000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-760, -310]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "pulse/route", "responseMode": "responseNode", "options": {} },
+      "id": "40000000-0000-4000-8000-000000000002", "name": "POST Route Request", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-540, 100], "webhookId": "pulse-route"
+    },
+    {
+      "parameters": { "jsCode": "const body = $json.body ?? $json; const origin = body.origin; const destination = body.destination; const valid = (p) => Number.isFinite(Number(p?.lat)) && Number.isFinite(Number(p?.lng)) && Math.abs(Number(p.lat)) <= 90 && Math.abs(Number(p.lng)) <= 180; if (!valid(origin) || !valid(destination)) return [{json:{invalid:true,ok:false,error:{code:'INVALID_ROUTE_POINTS',message:'Origen o destino inválido.'}}}]; const url = `https://router.project-osrm.org/route/v1/driving/${Number(origin.lng)},${Number(origin.lat)};${Number(destination.lng)},${Number(destination.lat)}?overview=full&geometries=geojson&alternatives=true`; return [{json:{origin,destination,locale:body.locale??'es',incidents:Array.isArray(body.incidents)?body.incidents:[],riskZones:Array.isArray(body.riskZones)?body.riskZones:[],alerts:Array.isArray(body.alerts)?body.alerts:[],url}}];" },
+      "id": "40000000-0000-4000-8000-000000000003", "name": "Validate Route Request", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-300, 100]
+    },
+    {
+      "parameters": { "url": "={{ $json.url }}", "options": { "timeout": 9000 } },
+      "id": "40000000-0000-4000-8000-000000000004", "name": "Fetch OSRM Alternatives", "type": "n8n-nodes-base.httpRequest", "typeVersion": 4.2, "position": [-40, 100], "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": { "jsCode": "const request = $('Validate Route Request').first().json; if (request.invalid) return [{json:request}]; const response = $json; const toRad=(v)=>v*Math.PI/180; const distance=(a,b)=>{const r=6371,dLat=toRad(b.lat-a.lat),dLng=toRad(b.lng-a.lng),h=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;return r*2*Math.atan2(Math.sqrt(h),Math.sqrt(1-h));}; const records=[...request.incidents.map(x=>({...x,_weight:x.priority==='P1'?35:x.priority==='P2'?20:10})),...request.riskZones.map(x=>({...x,_weight:x.severity==='high'||x.severity==='critical'?20:10})),...request.alerts.map(x=>({...x,_weight:20}))]; let rawRoutes=Array.isArray(response.routes)?response.routes.slice(0,3):[]; if(!rawRoutes.length){const km=distance(request.origin,request.destination);rawRoutes=[{distance:km*1000,duration:(km/45)*3600,geometry:{coordinates:[[request.origin.lng,request.origin.lat],[request.destination.lng,request.destination.lat]]},fallback:true}];} const routes=rawRoutes.map((route,index)=>{const geometry=(route.geometry?.coordinates??[]).map(([lng,lat])=>({lat,lng}));const samples=geometry.filter((_,i)=>i===0||i===geometry.length-1||i%Math.max(1,Math.floor(geometry.length/20))===0);let score=0;for(const record of records){const point=record.location??record;if(Number.isFinite(Number(point.lat))&&Number.isFinite(Number(point.lng))&&samples.some(sample=>distance(sample,{lat:Number(point.lat),lng:Number(point.lng)})<=1))score+=record._weight;}score=Math.min(100,score);return{id:`route-${index+1}`,provider:route.fallback?'local':'osrm',geometry,distanceKm:Number((route.distance/1000).toFixed(1)),durationMin:Math.max(1,Math.round(route.duration/60)),riskScore:score,riskLevel:score>=50?'high':score>=20?'moderate':'low',warnings:route.fallback?['Ruta aproximada; confirma las condiciones antes de viajar.']:[]};});return [{json:{ok:true,routes,generatedAt:new Date().toISOString()}}];" },
+      "id": "40000000-0000-4000-8000-000000000005", "name": "Normalize And Score Routes", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [220, 100]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": {} },
+      "id": "40000000-0000-4000-8000-000000000006", "name": "Return Route Intelligence", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [500, 100]
+    }
+  ],
+  "connections": { "POST Route Request": { "main": [[{ "node": "Validate Route Request", "type": "main", "index": 0 }]] }, "Validate Route Request": { "main": [[{ "node": "Fetch OSRM Alternatives", "type": "main", "index": 0 }]] }, "Fetch OSRM Alternatives": { "main": [[{ "node": "Normalize And Score Routes", "type": "main", "index": 0 }]] }, "Normalize And Score Routes": { "main": [[{ "node": "Return Route Intelligence", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "40000000-0000-4000-8000-000000000099"
+}

@@ -1,6 +1,77 @@
 {
   "users": [
     {
+      "id": "usr-f35fbaee-2b45-4725-80da-d97d448cbedb",
+      "email": "salazarvargaskendall@gamil.com",
+      "passwordSalt": "0b67885de1b9d4fb8e409eac29f283fc",
+      "passwordHash": "7059b9b1043378658b59e27efcae0c31f043f229026fa0836817268b81da929f5bf78f00eaa46ecb94a83dbda39a8e21f1fe7d376970ddf956a6d1493860103f",
+      "role": "citizen",
+      "profileComplete": true,
+      "profile": {
+        "fullName": "FABIAN JOSEPH GONZALEZ PEREZ",
+        "document": "605120995",
+        "birthDate": "2008-07-17",
+        "phone": "352535",
+        "province": "Puntarenas",
+        "canton": "Quepos",
+        "district": "Quepos",
+        "address": "12414135",
+        "bloodType": "A-",
+        "allergies": "no",
+        "medications": "no",
+        "conditions": "no",
+        "mobility": "no",
+        "notes": "Datos ficticios para demostración.",
+        "consents": {
+          "location": true,
+          "medical": true,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": [
+          {
+            "id": "ct-1790979301459",
+            "name": "Kendall Salazar V",
+            "relation": "papa",
+            "phone": "83120950",
+            "email": "kendallfwd@gmail.com",
+            "priority": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "usr-3bdb2cf0-1ef1-4700-8281-785695af1f55",
+      "email": "kendallfwd@gmail.com",
+      "passwordSalt": "1004240a1577e138937b9cff14059869",
+      "passwordHash": "e1d24cbc2062355c3d8208c09185b349b2084b9b92d98f32969a9ced94331ca797e1de73340991dee788660a39be49d6595137d4ab6d77ffcc6a31e2248f0ba8",
+      "role": "citizen",
+      "profileComplete": false,
+      "profile": {
+        "fullName": "Kendall Salazar V",
+        "document": "",
+        "birthDate": "",
+        "phone": "",
+        "province": "",
+        "canton": "",
+        "district": "",
+        "address": "",
+        "bloodType": "",
+        "allergies": "",
+        "medications": "",
+        "conditions": "",
+        "mobility": "",
+        "notes": "Datos ficticios para demostración.",
+        "consents": {
+          "location": true,
+          "medical": false,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": []
+      }
+    },
+    {
       "id": "usr-citizen-demo-001",
       "email": "ciudadano-registro-1@pulse.demo",
       "password": "Pulse911!",
@@ -2058,6 +2129,27 @@
       "label": "Nueva cuenta ciudadana creada",
       "at": "2026-10-01T19:08:55.893Z",
       "userId": "usr-citizen-demo-001"
+    },
+    {
+      "id": "audit-bec7ee95-13b4-4deb-a85a-2465d4e04fd0",
+      "type": "audit",
+      "label": "Nueva cuenta ciudadana creada",
+      "at": "2026-10-01T20:53:49.013Z",
+      "userId": "usr-3bdb2cf0-1ef1-4700-8281-785695af1f55"
+    },
+    {
+      "id": "audit-e420dc69-8956-46e9-b87e-5365bd2a2c4f",
+      "type": "audit",
+      "label": "Nueva cuenta ciudadana creada",
+      "at": "2026-10-02T22:13:55.730Z",
+      "userId": "usr-f35fbaee-2b45-4725-80da-d97d448cbedb"
+    },
+    {
+      "id": "audit-d03224a5-b93a-4c53-8868-c3ee66c784da",
+      "type": "audit",
+      "label": "Perfil ciudadano actualizado",
+      "at": "2026-10-02T22:17:05.526Z",
+      "userId": "usr-f35fbaee-2b45-4725-80da-d97d448cbedb"
     }
   ],
   "scenarios": [
@@ -2090,6 +2182,129 @@
       "name": "Incidente masivo",
       "description": "Evento con múltiples reportes coincidentes y necesidad de coordinación multirecurso.",
       "type": "mass"
+    }
+  ],
+  "roadStatus": [
+    {
+      "id": "road-27",
+      "route": "Ruta 27",
+      "name": "San José - Caldera",
+      "province": "Puntarenas",
+      "status": "slow",
+      "type": "congestion",
+      "trafficImpact": "medium",
+      "incidentCount": 2,
+      "estimatedDelayMin": 18,
+      "direction": "Hacia Caldera",
+      "lastUpdatedAt": "2026-10-02T08:40:00-06:00",
+      "alternativeRoute": "Ruta 3 por Atenas",
+      "location": {
+        "lat": 9.934,
+        "lng": -84.399
+      }
+    },
+    {
+      "id": "road-23",
+      "route": "Ruta 23",
+      "name": "Caldera - Barranca",
+      "province": "Puntarenas",
+      "status": "precaution",
+      "type": "road_hazard",
+      "trafficImpact": "low",
+      "incidentCount": 1,
+      "estimatedDelayMin": 7,
+      "direction": "Ambos sentidos",
+      "lastUpdatedAt": "2026-10-02T08:34:00-06:00",
+      "location": {
+        "lat": 9.969,
+        "lng": -84.745
+      }
+    },
+    {
+      "id": "road-1",
+      "route": "Interamericana Norte",
+      "name": "Ruta Nacional 1",
+      "province": "Alajuela",
+      "status": "normal",
+      "type": "traffic",
+      "trafficImpact": "none",
+      "incidentCount": 0,
+      "estimatedDelayMin": 0,
+      "direction": "Ambos sentidos",
+      "lastUpdatedAt": "2026-10-02T08:30:00-06:00",
+      "location": {
+        "lat": 10.016,
+        "lng": -84.215
+      }
+    }
+  ],
+  "aiSuggestions": [
+    {
+      "id": "ai-zone-demo-1",
+      "type": "risk_zone",
+      "title": "Posible zona de riesgo vial",
+      "description": "Concentración reciente de reportes similares.",
+      "category": "road_hazard",
+      "location": {
+        "lat": 9.9798,
+        "lng": -84.7468,
+        "label": "Intersección central, Puntarenas"
+      },
+      "confidence": 82,
+      "reason": "5 reportes similares en 450 m durante las últimas 24 horas.",
+      "sourceIds": [
+        "pub-demo-1",
+        "pub-demo-2"
+      ],
+      "createdAt": "2026-10-02T07:55:00-06:00",
+      "expiresAt": "2026-10-03T07:55:00-06:00",
+      "reviewStatus": "pending"
+    },
+    {
+      "id": "ai-alert-demo-2",
+      "type": "alert",
+      "title": "Borrador: tránsito lento por lluvia",
+      "description": "Sugerencia automatizada pendiente de verificación humana.",
+      "category": "weather",
+      "location": {
+        "lat": 9.974,
+        "lng": -84.752,
+        "label": "Ruta 23, Puntarenas"
+      },
+      "confidence": 68,
+      "reason": "Coincidencia de reportes ciudadanos y condición meteorológica.",
+      "sourceIds": [
+        "pub-demo-2"
+      ],
+      "createdAt": "2026-10-02T08:05:00-06:00",
+      "expiresAt": "2026-10-02T14:05:00-06:00",
+      "reviewStatus": "pending"
+    }
+  ],
+  "trafficEvents": [
+    {
+      "id": "traffic-demo-1",
+      "route": "Ruta 27",
+      "status": "slow",
+      "description": "Tránsito lento reportado",
+      "location": {
+        "lat": 9.95,
+        "lng": -84.52
+      },
+      "updatedAt": "2026-10-02T08:40:00-06:00",
+      "source": "pulse"
+    }
+  ],
+  "translations": {},
+  "aiConversations": [],
+  "routeQueries": [],
+  "externalSources": [
+    {
+      "id": "pulse-local",
+      "name": "PULSE local",
+      "type": "local",
+      "enabled": true,
+      "lastSyncAt": "2026-10-02T08:40:00-06:00"
     }
   ]
 }

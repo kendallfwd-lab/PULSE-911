@@ -8,13 +8,18 @@
     "build": "vite build",
     "preview": "vite preview",
     "verify": "vite build",
+    "test:ai": "node scripts/test-local-pulse-ai.mjs",
+    "test:n8n": "node scripts/verify-n8n-workflows.mjs",
     "start:demo": "vite --host 127.0.0.1 --port 5175"
   },
   "dependencies": {
     "framer-motion": "^13.4.4",
+    "i18next": "^26.4.2",
+    "i18next-browser-languagedetector": "^8.2.1",
     "lucide-react": "0.468.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "react-i18next": "^17.0.15",
     "react-router-dom": "7.18.4"
   },
   "devDependencies": {

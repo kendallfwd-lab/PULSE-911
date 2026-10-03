@@ -1,0 +1,23 @@
+{
+  "name": "PULSE — Places & Tourism Tool",
+  "nodes": [
+    {
+      "parameters": { "content": "## Places & Tourism Tool\n**Purpose:** normalize verified place-provider results; never invent establishments.\n**Input:** POST /webhook/pulse/places with latitude, longitude, radius, includedTypes, languageCode and optional providerResults.\n**Output:** normalized place cards and attribution state.\n**Credentials:** `PULSE Google Places` credential is optional and must be added only inside n8n.\n**Dependencies:** Google Places API New provider node or verified cached results.\n**Failure path:** returns PROVIDER_NOT_CONFIGURED with an empty list.", "height": 310, "width": 470 },
+      "id": "50000000-0000-4000-8000-000000000001", "name": "Workflow Documentation", "type": "n8n-nodes-base.stickyNote", "typeVersion": 1, "position": [-590, -300]
+    },
+    {
+      "parameters": { "httpMethod": "POST", "path": "pulse/places", "responseMode": "responseNode", "options": {} },
+      "id": "50000000-0000-4000-8000-000000000002", "name": "POST Places Query", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-350, 100], "webhookId": "pulse-places"
+    },
+    {
+      "parameters": { "jsCode": "const body=$json.body??$json;const lat=Number(body.latitude??body.location?.lat),lng=Number(body.longitude??body.location?.lng);if(!Number.isFinite(lat)||!Number.isFinite(lng)||Math.abs(lat)>90||Math.abs(lng)>180)return[{json:{ok:false,error:{code:'INVALID_LOCATION',message:'Ubicación inválida.'},places:[]}}];const allowed=new Set(['beach','restaurant','cafe','park','museum','tourist_attraction','pharmacy','hospital','gas_station']);const types=(Array.isArray(body.includedTypes)?body.includedTypes:[]).filter((type)=>allowed.has(type)).slice(0,5);const raw=Array.isArray(body.providerResults)?body.providerResults:Array.isArray(body.places)?body.places:[];const places=raw.slice(0,20).map((place)=>({id:String(place.id??place.name??''),name:String(place.displayName?.text??place.name??'').slice(0,160),category:String(place.primaryType??place.category??types[0]??'place'),address:String(place.formattedAddress??place.address??'').slice(0,300),lat:Number(place.location?.latitude??place.location?.lat??place.lat),lng:Number(place.location?.longitude??place.location?.lng??place.lng),rating:Number.isFinite(Number(place.rating))?Number(place.rating):null,userRatingCount:Number.isFinite(Number(place.userRatingCount))?Number(place.userRatingCount):null,openNow:typeof place.currentOpeningHours?.openNow==='boolean'?place.currentOpeningHours.openNow:typeof place.openNow==='boolean'?place.openNow:null,photoRef:place.photos?.[0]?.name??place.photoRef??null,source:'google_places'})).filter((place)=>place.id&&place.name&&Number.isFinite(place.lat)&&Number.isFinite(place.lng));if(!places.length)return[{json:{ok:false,error:{code:'PROVIDER_NOT_CONFIGURED',message:'No hay un proveedor de lugares configurado o no devolvió resultados verificados.'},places:[],generatedAt:new Date().toISOString()}}];return[{json:{ok:true,places,attribution:'Google Places',generatedAt:new Date().toISOString()}}];" },
+      "id": "50000000-0000-4000-8000-000000000003", "name": "Validate And Normalize Places", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-50, 100]
+    },
+    {
+      "parameters": { "respondWith": "json", "responseBody": "={{ $json }}", "options": {} },
+      "id": "50000000-0000-4000-8000-000000000004", "name": "Return Verified Places", "type": "n8n-nodes-base.respondToWebhook", "typeVersion": 1.4, "position": [240, 100]
+    }
+  ],
+  "connections": { "POST Places Query": { "main": [[{ "node": "Validate And Normalize Places", "type": "main", "index": 0 }]] }, "Validate And Normalize Places": { "main": [[{ "node": "Return Verified Places", "type": "main", "index": 0 }]] } },
+  "settings": { "executionOrder": "v1" }, "active": false, "versionId": "50000000-0000-4000-8000-000000000099"
+}
