@@ -1,6 +1,80 @@
 {
   "users": [
     {
+      "id": "usr-99ede183-02e7-459c-990e-fbed35b829e3",
+      "email": "tom@gmail.com",
+      "passwordSalt": "81615a75c8fce795c9a6a279ec6e247a",
+      "passwordHash": "19e512cac812fd914cbeb866a65c2235e22b8fd42d1db72883bb2242e527845055f7c81668e41bd1ac3d5dd1cdfa7425c085e37d9ad22c6625bb3635b4eb7f54",
+      "role": "citizen",
+      "profileComplete": false,
+      "createdAt": "2026-10-05T20:07:45.457Z",
+      "createdBy": "usr-admin-demo",
+      "active": true,
+      "profile": {
+        "fullName": "Tom Cruise",
+        "document": "",
+        "birthDate": "",
+        "phone": "",
+        "province": "",
+        "canton": "",
+        "district": "",
+        "address": "",
+        "bloodType": "",
+        "allergies": "",
+        "medications": "",
+        "conditions": "",
+        "mobility": "",
+        "notes": "Datos ficticios para demostración.",
+        "consents": {
+          "location": true,
+          "medical": false,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": []
+      }
+    },
+    {
+      "id": "usr-a67bbe61-7d0b-4044-a46e-a0a4bc7c892d",
+      "email": "ejjasakdjk@gmail.com",
+      "passwordSalt": "96558cbfb954571b6a18e02ea86ed7ec",
+      "passwordHash": "505f4b522fcffef8c87d55bd59ae16ea2c646eb67a328b1f54db6b4cc63bf9a888b8fa4937308ebd90ba737ae485647fecdb7b474f4e0d079ac923420e7ddc3e",
+      "role": "citizen",
+      "profileComplete": true,
+      "profile": {
+        "fullName": "EDUARDO JOSUE ZAMORA VALVERDE",
+        "document": "604680123",
+        "birthDate": "2001-04-29",
+        "phone": "646781461",
+        "province": "Puntarenas",
+        "canton": "Esparza",
+        "district": "Espíritu Santo",
+        "address": "djhkJSD",
+        "bloodType": "",
+        "allergies": "no",
+        "medications": "no",
+        "conditions": "el pene",
+        "mobility": "jADdSJL",
+        "notes": "Datos ficticios para demostración.",
+        "consents": {
+          "location": true,
+          "medical": true,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": [
+          {
+            "id": "ct-1791224176096",
+            "name": "HHWLKmonick",
+            "relation": "la novia",
+            "phone": "16356536",
+            "email": "monick@gmail.com",
+            "priority": 1
+          }
+        ]
+      }
+    },
+    {
       "id": "usr-f35fbaee-2b45-4725-80da-d97d448cbedb",
       "email": "salazarvargaskendall@gamil.com",
       "passwordSalt": "0b67885de1b9d4fb8e409eac29f283fc",
@@ -2150,6 +2224,27 @@
       "label": "Perfil ciudadano actualizado",
       "at": "2026-10-02T22:17:05.526Z",
       "userId": "usr-f35fbaee-2b45-4725-80da-d97d448cbedb"
+    },
+    {
+      "id": "audit-48cac7c2-efd0-43e0-bbc9-f4702ebca784",
+      "type": "audit",
+      "label": "Nueva cuenta ciudadana creada",
+      "at": "2026-10-05T18:16:16.026Z",
+      "userId": "usr-a67bbe61-7d0b-4044-a46e-a0a4bc7c892d"
+    },
+    {
+      "id": "audit-dea53d67-6fca-47b2-9f7c-180598f12dd8",
+      "type": "audit",
+      "label": "Perfil ciudadano actualizado",
+      "at": "2026-10-05T18:18:32.037Z",
+      "userId": "usr-a67bbe61-7d0b-4044-a46e-a0a4bc7c892d"
+    },
+    {
+      "id": "audit-d7fa09de-7ce2-4455-9667-923f20a58188",
+      "type": "audit",
+      "label": "Usuario ciudadano creado por administración",
+      "at": "2026-10-05T20:07:45.457Z",
+      "userId": "usr-admin-demo"
     }
   ],
   "scenarios": [

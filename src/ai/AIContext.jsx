@@ -25,7 +25,10 @@ export function AIProvider({ children }) {
   const ask = useCallback(async (payload, signal) => {
     if (AI_ENABLED) {
       try {
-        return validResponse(await requestN8N(N8N_ENDPOINTS.chat, payload, { signal, timeoutMs: 18000 }))
+        const response = validResponse(await requestN8N(N8N_ENDPOINTS.chat, payload, { signal, timeoutMs: 18000 }))
+        setStatus('online')
+        setCheckedAt(new Date().toISOString())
+        return response
       } catch (error) {
         if (signal?.aborted) throw error
         setStatus('local')

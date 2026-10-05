@@ -2,7 +2,7 @@ const BASE_URL = (import.meta.env.VITE_N8N_BASE_URL || '').replace(/\/$/, '')
 export const AI_ENABLED = String(import.meta.env.VITE_PULSE_AI_ENABLED || 'false') === 'true'
 
 export const N8N_ENDPOINTS = Object.freeze({
-  chat: '/webhook/pulse/chat', translate: '/webhook/pulse/translate', route: '/webhook/pulse/route',
+  chat: '/webhook/pulse/chat', context: '/webhook/pulse/context', translate: '/webhook/pulse/translate', route: '/webhook/pulse/route',
   places: '/webhook/pulse/places', weather: '/webhook/pulse/weather', analyzeReport: '/webhook/pulse/admin/analyze-report',
   analyzeRisk: '/webhook/pulse/admin/analyze-risk', approveSuggestion: '/webhook/pulse/admin/approve-suggestion', sync: '/webhook/pulse/sync', status: '/webhook/pulse/status',
 })

@@ -1,0 +1,153 @@
+{
+  "id": "pulseContextCR01",
+  "name": "PULSE — Context Enrichment",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## PULSE Context Enrichment\n**Endpoint:** POST /webhook/pulse/context\n\nCollects current public context before the DeepSeek request:\n- Open-Meteo current weather\n- GDELT recent Costa Rica news\n- Google News RSS fallback when GDELT is rate-limited\n- Wikipedia geosearch for nearby notable places\n\nNo credentials are required. PULSE application data is supplied separately by the browser and remains clearly labelled as demonstration data.",
+        "height": 310,
+        "width": 470
+      },
+      "id": "f2000000-0000-4000-8000-000000000001",
+      "name": "README — Public Context",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-900, -260]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "pulse/context",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "f2000000-0000-4000-8000-000000000002",
+      "name": "POST PULSE Context",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-820, 120],
+      "webhookId": "pulse-context-enrichment"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\nconst message = String(body.message ?? '').replace(/[<>]/g, ' ').trim().slice(0, 500);\nconst locale = ['es','en','fr','pt','de'].includes(String(body.locale ?? 'es').split('-')[0]) ? String(body.locale).split('-')[0] : 'es';\nconst supplied = body.location;\nconst validLocation = Number.isFinite(Number(supplied?.lat)) && Number.isFinite(Number(supplied?.lng)) && Math.abs(Number(supplied.lat)) <= 90 && Math.abs(Number(supplied.lng)) <= 180;\nconst location = validLocation ? { lat: Number(supplied.lat), lng: Number(supplied.lng) } : { lat: 9.9281, lng: -84.0907 };\nconst newsTerms = /clima|lluvia|tormenta|inund/i.test(message) ? '(Costa Rica) (clima OR lluvia OR inundacion)' : /accidente|carretera|tr[aá]fico|vial/i.test(message) ? '(Costa Rica) (accidente OR carretera OR trafico)' : /turis|visitar|playa|parque|museo/i.test(message) ? '(Costa Rica) (turismo OR playa OR parque)' : '\"Costa Rica\"';\nconst weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${location.lat}&longitude=${location.lng}&current=temperature_2m,precipitation,rain,wind_speed_10m,weather_code&hourly=visibility&forecast_days=1&timezone=America%2FCosta_Rica`;\nconst newsUrl = `https://api.gdeltproject.org/api/v2/doc/doc?query=${encodeURIComponent(newsTerms)}&mode=artlist&maxrecords=8&timespan=3d&sort=datedesc&format=json`;\nconst googleNewsUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(newsTerms.replace(/[()]/g, ''))}&hl=es-419&gl=CR&ceid=CR:es-419`;\nconst imnAlertsUrl = 'https://cap-sources.s3.amazonaws.com/cr-imn-es/rss.xml';\nconst wikiLanguage = locale === 'de' ? 'de' : locale === 'en' ? 'en' : locale === 'fr' ? 'fr' : locale === 'pt' ? 'pt' : 'es';\nconst placesUrl = `https://${wikiLanguage}.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${location.lat}%7C${location.lng}&gsradius=10000&gslimit=10&format=json`;\nreturn [{ json: { message, locale, location, usedDefaultLocation: !validLocation, weatherUrl, newsUrl, googleNewsUrl, imnAlertsUrl, placesUrl } }];"
+      },
+      "id": "f2000000-0000-4000-8000-000000000003",
+      "name": "Prepare Public Queries",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-580, 120]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.weatherUrl }}",
+        "options": { "timeout": 7000 }
+      },
+      "id": "f2000000-0000-4000-8000-000000000004",
+      "name": "Fetch Current Weather",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-330, 120],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Prepare Public Queries').first().json.newsUrl }}",
+        "options": { "timeout": 9000 }
+      },
+      "id": "f2000000-0000-4000-8000-000000000005",
+      "name": "Fetch Costa Rica News",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-80, 120],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Prepare Public Queries').first().json.placesUrl }}",
+        "options": { "timeout": 7000 }
+      },
+      "id": "f2000000-0000-4000-8000-000000000006",
+      "name": "Fetch Nearby Places",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [170, 120],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Prepare Public Queries').first().json.googleNewsUrl }}",
+        "options": {}
+      },
+      "id": "f2000000-0000-4000-8000-000000000009",
+      "name": "Fetch Google News RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [420, 120],
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Prepare Public Queries').first().json.imnAlertsUrl }}",
+        "options": {}
+      },
+      "id": "f2000000-0000-4000-8000-000000000010",
+      "name": "Fetch IMN Alerts RSS",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.1,
+      "position": [420, -40],
+      "alwaysOutputData": true,
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "mode": "append"
+      },
+      "id": "f2000000-0000-4000-8000-000000000011",
+      "name": "Wait for Public Feeds",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [670, 120]
+    },
+    {
+      "parameters": {
+        "jsCode": "const request = $('Prepare Public Queries').first().json;\nconst weatherRaw = $('Fetch Current Weather').first().json ?? {};\nconst newsRaw = $('Fetch Costa Rica News').first().json ?? {};\nconst placesRaw = $('Fetch Nearby Places').first().json ?? {};\nconst rssItems = $('Fetch Google News RSS').all().map(item => item.json ?? {});\nconst imnItems = $('Fetch IMN Alerts RSS').all().map(item => item.json ?? {});\nconst current = weatherRaw.current ?? {};\nconst weather = current.time ? {\n  provider: 'open-meteo',\n  temperatureC: Number.isFinite(Number(current.temperature_2m)) ? Number(current.temperature_2m) : null,\n  precipitationMm: Number.isFinite(Number(current.precipitation)) ? Number(current.precipitation) : null,\n  rainMm: Number.isFinite(Number(current.rain)) ? Number(current.rain) : null,\n  windKmh: Number.isFinite(Number(current.wind_speed_10m)) ? Number(current.wind_speed_10m) : null,\n  weatherCode: current.weather_code ?? null,\n  visibilityM: Array.isArray(weatherRaw.hourly?.visibility) ? weatherRaw.hourly.visibility[0] : null,\n  observedAt: current.time,\n  sourceUrl: 'https://open-meteo.com/'\n} : null;\nconst imnAlerts = imnItems.slice(0, 3).map((alert, index) => {\n  const url = String(alert.link ?? alert.guid ?? '').slice(0, 800);\n  const description = String(alert.contentSnippet ?? alert.content ?? alert.description ?? '').replace(/<[^>]*>/g, ' ').replace(/\\s+/g, ' ').trim().slice(0, 900);\n  return {\n    id: `imn-${index}-${url.slice(-30)}`,\n    title: String(alert.title ?? '').replace(/[<>]/g, ' ').slice(0, 220),\n    description,\n    url,\n    publishedAt: alert.isoDate ?? alert.pubDate ?? null,\n    sourceType: 'official_weather_alert',\n    provider: 'imn-costa-rica'\n  };\n}).filter(item => item.title && item.url);\nconst gdeltNews = (Array.isArray(newsRaw.articles) ? newsRaw.articles : []).slice(0, 8).map((article, index) => ({\n  id: `gdelt-${index}-${String(article.url ?? '').slice(-30)}`,\n  title: String(article.title ?? '').replace(/[<>]/g, ' ').slice(0, 220),\n  url: String(article.url ?? '').slice(0, 800),\n  domain: String(article.domain ?? '').slice(0, 180),\n  language: String(article.language ?? '').slice(0, 40),\n  publishedAt: article.seendate ?? null,\n  sourceType: 'external_news',\n  provider: 'gdelt'\n})).filter(item => item.title && item.url);\nconst rssNews = rssItems.slice(0, 8).map((article, index) => {\n  const url = String(article.link ?? article.guid ?? '').slice(0, 800);\n  let domain = '';\n  try { domain = new URL(url).hostname; } catch {}\n  return {\n    id: `google-news-${index}-${url.slice(-30)}`,\n    title: String(article.title ?? '').replace(/[<>]/g, ' ').slice(0, 220),\n    url,\n    domain,\n    language: 'es',\n    publishedAt: article.isoDate ?? article.pubDate ?? null,\n    sourceType: 'external_news',\n    provider: 'google-news-rss'\n  };\n}).filter(item => item.title && item.url);\nconst news = gdeltNews.length ? gdeltNews : rssNews;\nconst geo = Array.isArray(placesRaw.query?.geosearch) ? placesRaw.query.geosearch : [];\nconst places = geo.slice(0, 10).map(item => ({\n  id: `wikipedia-${item.pageid}`,\n  name: String(item.title ?? '').replace(/[<>]/g, ' ').slice(0, 180),\n  lat: Number(item.lat),\n  lng: Number(item.lon),\n  distanceM: Number(item.dist ?? 0),\n  url: `https://${request.locale === 'de' ? 'de' : request.locale === 'en' ? 'en' : request.locale === 'fr' ? 'fr' : request.locale === 'pt' ? 'pt' : 'es'}.wikipedia.org/?curid=${item.pageid}`,\n  sourceType: 'external_place',\n  provider: 'wikipedia'\n})).filter(item => item.name && Number.isFinite(item.lat) && Number.isFinite(item.lng));\nreturn [{ json: {\n  ok: true,\n  location: request.location,\n  usedDefaultLocation: request.usedDefaultLocation,\n  weather,\n  imnAlerts,\n  news,\n  places,\n  sources: [\n    { provider: 'imn-costa-rica', available: imnAlerts.length > 0, updatedAt: imnAlerts[0]?.publishedAt ?? null },\n    { provider: 'open-meteo', available: Boolean(weather), updatedAt: weather?.observedAt ?? null },\n    { provider: 'gdelt', available: gdeltNews.length > 0, updatedAt: new Date().toISOString() },\n    { provider: 'google-news-rss', available: rssNews.length > 0, updatedAt: new Date().toISOString() },\n    { provider: 'wikipedia', available: places.length > 0, updatedAt: new Date().toISOString() }\n  ],\n  generatedAt: new Date().toISOString()\n} }];"
+      },
+      "id": "f2000000-0000-4000-8000-000000000007",
+      "name": "Normalize Public Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [920, 120]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ $json }}",
+        "options": {}
+      },
+      "id": "f2000000-0000-4000-8000-000000000008",
+      "name": "Return Public Context",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [1170, 120]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "POST PULSE Context": { "main": [[{ "node": "Prepare Public Queries", "type": "main", "index": 0 }]] },
+    "Prepare Public Queries": { "main": [[{ "node": "Fetch Current Weather", "type": "main", "index": 0 }]] },
+    "Fetch Current Weather": { "main": [[{ "node": "Fetch Costa Rica News", "type": "main", "index": 0 }]] },
+    "Fetch Costa Rica News": { "main": [[{ "node": "Fetch Nearby Places", "type": "main", "index": 0 }]] },
+    "Fetch Nearby Places": { "main": [[{ "node": "Fetch Google News RSS", "type": "main", "index": 0 }, { "node": "Fetch IMN Alerts RSS", "type": "main", "index": 0 }]] },
+    "Fetch Google News RSS": { "main": [[{ "node": "Wait for Public Feeds", "type": "main", "index": 0 }]] },
+    "Fetch IMN Alerts RSS": { "main": [[{ "node": "Wait for Public Feeds", "type": "main", "index": 1 }]] },
+    "Wait for Public Feeds": { "main": [[{ "node": "Normalize Public Context", "type": "main", "index": 0 }]] },
+    "Normalize Public Context": { "main": [[{ "node": "Return Public Context", "type": "main", "index": 0 }]] }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "versionId": "",
+  "meta": { "templateCredsSetupCompleted": false },
+  "tags": []
+}

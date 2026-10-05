@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Activity, Ambulance as AmbulanceIcon, BarChart3, Bell, BellRing, BookOpen, Bookmark, Bot, Building2 as HospitalIcon, CircleUserRound, ClipboardList, Compass, FileText as FileAuditIcon, Gauge, HeartHandshake, HeartPulse, Home, LogOut, MapPinned, Menu, Navigation, PanelLeftClose, PanelLeftOpen, Play as PlayIcon, Radio, Radar, Route as RouteIcon, Search, Settings, Shield, ShieldAlert, ShieldCheck, Siren, Sparkles, UsersRound, X } from 'lucide-react'
+import { Activity, Ambulance as AmbulanceIcon, BarChart3, Bell, BellRing, BookOpen, Bookmark, Bot, Building2 as HospitalIcon, CircleUserRound, ClipboardList, Compass, FileText as FileAuditIcon, Gauge, HeartHandshake, HeartPulse, Home, LogOut, MapPinned, Menu, Navigation, PanelLeftClose, PanelLeftOpen, Play as PlayIcon, Radio, Radar, Route as RouteIcon, Search, Settings, Shield, ShieldAlert, ShieldCheck, Siren, Sparkles, UserPlus, UsersRound, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AccessibilityControls } from './accessibility/AccessibilityControls'
 import { usePulse } from '../context/PulseContext'
@@ -12,7 +12,7 @@ const citizenLinks = [
   ['/app/community', UsersRound, 'nav.community'], ['/app/resources', BookOpen, 'nav.resources'], ['/app/incidents', Bookmark, 'nav.incidents'], ['/app/profile', Settings, 'nav.profile']
 ]
 const adminLinks = [
-  ['/command', Gauge, 'Centro de mando'], ['/command/incidents', ClipboardList, 'Incidentes'], ['/command/dispatch', Radio, 'Despacho'], ['/command/units', AmbulanceIcon, 'Unidades'], ['/command/hospitals', HospitalIcon, 'Hospitales'], ['/command/risk-zones', ShieldAlert, 'Zonas de riesgo'], ['/command/alerts', BellRing, 'Alertas públicas'], ['/command/publications', UsersRound, 'Publicaciones'], ['/command/analytics', BarChart3, 'Analítica'], ['/command/audit', FileAuditIcon, 'Auditoría'], ['/command/scenarios', PlayIcon, 'Escenarios'], ['/command/ai', Bot, 'Centro IA'], ['/command/ai-review', Sparkles, 'Revisión IA'], ['/command/traffic', RouteIcon, 'Monitoreo vial']
+  ['/command', Gauge, 'Centro de mando'], ['/command/incidents', ClipboardList, 'Incidentes'], ['/command/dispatch', Radio, 'Despacho'], ['/command/units', AmbulanceIcon, 'Unidades'], ['/command/hospitals', HospitalIcon, 'Hospitales'], ['/command/risk-zones', ShieldAlert, 'Zonas de riesgo'], ['/command/alerts', BellRing, 'Alertas públicas'], ['/command/publications', UsersRound, 'Publicaciones'], ['/command/analytics', BarChart3, 'Analítica'], ['/command/users', UserPlus, 'Usuarios'], ['/command/audit', FileAuditIcon, 'Auditoría'], ['/command/scenarios', PlayIcon, 'Escenarios'], ['/command/ai', Bot, 'Centro IA'], ['/command/ai-review', Sparkles, 'Revisión IA'], ['/command/traffic', RouteIcon, 'Monitoreo vial']
 ]
 
 function Initials({ name = 'PULSE' }) {

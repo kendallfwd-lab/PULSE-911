@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import { stop } from './speechService'
 
 const STORAGE_KEY = 'pulse911-accessibility-v2'
-const defaults = { reducedMotion: false, highlightFocus: false, readingMode: false }
+const defaults = { reducedMotion: false, highlightFocus: false, readingMode: false, voiceURI: '' }
 const AccessibilityContext = createContext(null)
 
 function initialPreferences() {
@@ -23,6 +23,7 @@ export function AccessibilityProvider({ children }) {
   const value = useMemo(() => ({
     preferences,
     toggle: key => setPreferences(current => ({ ...current, [key]: !current[key] })),
+    setPreference: (key, value) => setPreferences(current => ({ ...current, [key]: value })),
     reset: () => { stop(); setPreferences(defaults) },
   }), [preferences])
 

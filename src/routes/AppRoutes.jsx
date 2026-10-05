@@ -38,6 +38,7 @@ const ScenariosPage = lazy(() => import('../pages/admin/OperationsPages').then(m
 const AdminAIPage = lazy(() => import('../pages/admin/AdminAIPage'))
 const AIReviewPage = lazy(() => import('../pages/admin/AIReviewPage'))
 const TrafficMonitorPage = lazy(() => import('../pages/admin/TrafficMonitorPage'))
+const UserManagementPage = lazy(() => import('../pages/admin/UserManagementPage'))
 
 const routeTitleKeys = [
   [/^\/$/, 'landing.platform'],
@@ -64,6 +65,7 @@ const routeTitleKeys = [
   [/^\/command\/risk-zones$/, 'legacy.riskZones'],
   [/^\/command\/alerts$/, 'legacy.publicAlerts'],
   [/^\/command\/analytics$/, 'legacy.analytics'],
+  [/^\/command\/users$/, 'legacy.users'],
   [/^\/command\/units$/, 'legacy.units'],
   [/^\/command\/hospitals$/, 'legacy.hospitals'],
   [/^\/command\/publications$/, 'legacy.publications'],
@@ -120,6 +122,7 @@ export default function AppRoutes() {
           <Route path="/command/risk-zones" element={<RiskZonesPage />} />
           <Route path="/command/alerts" element={<PublicAlertsAdmin />} />
           <Route path="/command/analytics" element={<AnalyticsPage />} />
+          <Route path="/command/users" element={<UserManagementPage />} />
           <Route path="/command/units" element={<UnitsPage />} />
           <Route path="/command/hospitals" element={<HospitalsPage />} />
           <Route path="/command/publications" element={<PublicationsAdminPage />} />

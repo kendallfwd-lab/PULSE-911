@@ -13,13 +13,14 @@ import { AssistantPlaceCard } from './AssistantPlaceCard'
 import { AssistantDataCard } from './AssistantDataCard'
 import { AssistantEmergencyNotice } from './AssistantEmergencyNotice'
 import { AIStatusIndicator } from './AIStatusIndicator'
+import { getAssistantPublicContext, publicContextRecords } from '../../services/assistantContextService'
 
 function toAIContextCard(item, type) {
   return {
     id: item.id,
     type,
-    title: item.title || item.name || item.code,
-    description: item.description || item.area || '',
+    title: item.title || item.name || item.route || item.code,
+    description: item.description || item.area || item.condition || item.address || '',
     status: item.status || item.severity || item.priority,
     updatedAt: item.updatedAt || item.lastUpdatedAt || item.issuedAt || item.createdAt || null,
     sourceType: item.sourceType || (item.citizenId || item.authorId ? 'citizen' : 'pulse_verified'),
@@ -27,6 +28,34 @@ function toAIContextCard(item, type) {
       ? { lat: item.location.lat, lng: item.location.lng }
       : null,
   }
+}
+
+function uniqueContextRecords(records) {
+  const seen = new Set()
+  return records.filter(item => {
+    const key = item?.id || `${item?.title}-${item?.sourceType}`
+    if (!key || seen.has(key)) return false
+    seen.add(key)
+    return true
+  }).slice(0, 12)
+}
+
+function prioritizeContextRecords(message, records) {
+  const text = String(message || '').toLowerCase()
+  const bySource = source => records.filter(item => item.sourceType === source)
+  const weather = bySource('open_meteo')
+  const imnAlerts = bySource('imn_alert')
+  const news = records.filter(item => ['gdelt_news', 'google_news'].includes(item.sourceType))
+  const places = bySource('wikipedia_place')
+  const roads = records.filter(item => ['pulse_road', 'pulse_traffic'].includes(item.sourceType))
+  const hospitals = bySource('pulse_hospital')
+  const community = bySource('pulse_community')
+  if (/noticia|actualidad|news|hoy|reciente/.test(text)) return uniqueContextRecords([...imnAlerts, ...news, ...weather, ...roads, ...places])
+  if (/clima|tiempo|lluvia|tormenta|viento|weather/.test(text)) return uniqueContextRecords([...imnAlerts, ...weather, ...news, ...roads])
+  if (/turis|visitar|playa|parque|museo|restaurante|caf[eé]|lugar/.test(text)) return uniqueContextRecords([...places, ...news, ...hospitals])
+  if (/hospital|cl[ií]nica|farmacia/.test(text)) return uniqueContextRecords([...hospitals, ...places, ...roads])
+  if (/accidente|carretera|ruta|tr[aá]fico|choque|cierre|mapa/.test(text)) return uniqueContextRecords([...imnAlerts, ...roads, ...community, ...news, ...weather])
+  return uniqueContextRecords([...imnAlerts, ...weather, ...roads, ...news.slice(0, 4), ...places.slice(0, 4), ...hospitals])
 }
 
 export function PulseAssistant() {
@@ -39,7 +68,9 @@ export function PulseAssistant() {
   const [loading, setLoading] = useState(false)
   const abortRef = useRef(null)
   const nearby = useMemo(() => location ? matchNearbyIncidents(location, db.incidents, 10) : [], [db.incidents, location])
-  const quickQuestions = useMemo(() => Array.from({ length: 8 }, (_, index) => t(`assistant.q${index + 1}`)), [t, i18n.language])
+  const defaultQuestions = useMemo(() => Array.from({ length: 8 }, (_, index) => t(`assistant.q${index + 1}`)), [t, i18n.language])
+  const responseQuestions = messages.at(-1)?.suggestedQuestions
+  const quickQuestions = responseQuestions?.length ? responseQuestions : defaultQuestions
 
   useEffect(() => {
     setMessages(current => current.map(message => message.id === 'welcome' ? { ...message, text: t('assistant.welcome') } : message))
@@ -55,19 +86,32 @@ export function PulseAssistant() {
     abortRef.current?.abort()
     abortRef.current = new AbortController()
     try {
+      const locale = i18n.language.split('-')[0]
+      const publicContext = await getAssistantPublicContext({ message: question, location, locale, signal: abortRef.current.signal })
+      const activeIncidents = db.incidents.filter(item => !['resolved', 'cancelled'].includes(item.status)).slice(0, 12)
+      const pageRecords = [
+        ...(db.roadStatus || []).filter(item => item.status !== 'normal').slice(0, 8).map(item => ({ ...toAIContextCard(item, 'road'), sourceType: 'pulse_road' })),
+        ...(db.trafficEvents || []).slice(0, 8).map(item => ({ ...toAIContextCard(item, 'traffic'), sourceType: 'pulse_traffic' })),
+        ...(db.hospitals || []).slice(0, 8).map(item => ({ ...toAIContextCard(item, 'hospital'), sourceType: 'pulse_hospital' })),
+        ...(db.publications || []).filter(item => ['verified', 'published'].includes(item.status)).slice(0, 6).map(item => ({ ...toAIContextCard(item, 'community'), sourceType: 'pulse_community' })),
+        ...publicContextRecords(publicContext),
+      ]
       const response = await ask({
         message: question.slice(0, 1000),
         sessionId: currentUser?.id || 'anonymous',
-        locale: i18n.language.split('-')[0],
+        locale,
         mode: 'citizen',
         location: location ? { lat: location.lat, lng: location.lng, accuracy: location.accuracy, timestamp: location.updatedAt } : null,
         context: {
           nearbyIncidentIds: nearby.slice(0, 12).map(item => item.id),
           nearbyRiskZoneIds: (db.riskZones || []).slice(0, 12).map(item => item.id),
           activeAlertIds: db.alerts.filter(item => item.active !== false).slice(0, 12).map(item => item.id),
-          nearbyIncidents: nearby.slice(0, 12).map(item => toAIContextCard(item, 'incident')),
+          nearbyIncidents: (nearby.length ? nearby : activeIncidents).slice(0, 12).map(item => toAIContextCard(item, 'incident')),
           nearbyRiskZones: (db.riskZones || []).slice(0, 12).map(item => toAIContextCard(item, 'risk_zone')),
           activeAlerts: db.alerts.filter(item => item.active !== false).slice(0, 12).map(item => toAIContextCard(item, 'alert')),
+          externalEvents: prioritizeContextRecords(question, pageRecords),
+          contextGeneratedAt: publicContext?.generatedAt || new Date().toISOString(),
+          contextLocationIsDefault: Boolean(publicContext?.usedDefaultLocation),
         },
       }, abortRef.current.signal)
       setMessages(current => [...current, {
@@ -77,6 +121,9 @@ export function PulseAssistant() {
         spokenAnswer: response.spokenAnswer,
         cards: response.cards,
         engine: response.engine,
+        suggestedQuestions: Array.isArray(response.suggestedQuestions)
+          ? response.suggestedQuestions.filter(question => typeof question === 'string' && question.trim()).slice(0, 8)
+          : [],
       }])
     } catch {
       setMessages(current => [...current, { id: `error-${Date.now()}`, role: 'assistant', text: t('assistant.requestError') }])
@@ -106,7 +153,7 @@ export function PulseAssistant() {
       </div>
       <AssistantSuggestions questions={quickQuestions} onSelect={submit}/>
       <form onSubmit={submit}>
-        <label><span className="sr-only">{t('assistant.placeholder')}</span><textarea rows="2" maxLength="1000" value={input} onChange={event => setInput(event.target.value)} placeholder={t('assistant.placeholder')}/></label>
+        <label><textarea aria-label={t('assistant.placeholder')} rows="1" maxLength="1000" value={input} onChange={event => setInput(event.target.value)} placeholder={t('assistant.placeholder')}/></label>
         <button className="btn primary" type="submit" disabled={!input.trim() || loading}><Send size={17}/>{t('assistant.send')}</button>
       </form>
     </section>

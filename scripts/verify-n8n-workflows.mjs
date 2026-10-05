@@ -3,7 +3,7 @@ import path from 'node:path'
 
 const directory = path.resolve('n8n/workflows')
 const files = fs.readdirSync(directory).filter(file => file.endsWith('.json')).sort()
-const expected = 14
+const expected = 16
 if (files.length !== expected) throw new Error(`Expected ${expected} workflows, found ${files.length}`)
 
 const names = new Set()

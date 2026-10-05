@@ -2,4 +2,9 @@ node_modules/
 dist/
 .vite/
 *.log
+.env.local
 .DS_Store
+/n8n-*.png
+/pulse-ai-*.png
+/pulse-ia-*.png
+/voice-selector.png

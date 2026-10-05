@@ -119,10 +119,11 @@ export function demoDatabasePlugin() {
       server.middlewares.use(async (request, response, next) => {
         const pathname = new URL(request.url || '/', 'http://localhost').pathname
         const isRegister = request.method === 'POST' && pathname === '/api/register'
+        const isAdminCreateUser = request.method === 'POST' && pathname === '/api/admin/users'
         const isLogin = request.method === 'POST' && pathname === '/api/login'
         const isSync = request.method === 'POST' && pathname === '/api/users/sync'
         const profileMatch = request.method === 'PUT' && pathname.match(/^\/api\/users\/([^/]+)\/profile$/)
-        if (!isRegister && !isLogin && !isSync && !profileMatch) return next()
+        if (!isRegister && !isAdminCreateUser && !isLogin && !isSync && !profileMatch) return next()
 
         try {
           const body = await readJson(request)
@@ -152,6 +153,44 @@ export function demoDatabasePlugin() {
               }
               database.users.unshift(user)
               addAuditEntry(database, 'Nueva cuenta ciudadana creada', user.id)
+              return { status: 201, body: { user: publicUser(user) }, persist: true }
+            }
+
+            if (isAdminCreateUser) {
+              const actorId = typeof body.actorId === 'string' ? body.actorId : ''
+              const actor = database.users.find(user => user.id === actorId)
+              if (!actor || actor.role !== 'admin') {
+                return { status: 403, body: { message: 'Solo una cuenta administradora puede crear usuarios.' } }
+              }
+              const fullName = typeof body.fullName === 'string' ? body.fullName.trim() : ''
+              const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : ''
+              const password = typeof body.password === 'string' ? body.password : ''
+              const role = typeof body.role === 'string' ? body.role : 'citizen'
+              if (!fullName || fullName.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 8 || !['citizen', 'admin'].includes(role)) {
+                return { status: 400, body: { message: 'Revisa el nombre, correo, rol y la contraseña de al menos 8 caracteres.' } }
+              }
+              if (database.users.some(user => user.email?.toLowerCase() === email)) {
+                return { status: 409, body: { message: 'Ya existe una cuenta con ese correo.' } }
+              }
+              const passwordSalt = randomBytes(16).toString('hex')
+              const passwordHash = scryptSync(password, passwordSalt, 64).toString('hex')
+              const userId = `usr-${randomUUID()}`
+              const user = {
+                id: userId,
+                email,
+                passwordSalt,
+                passwordHash,
+                role,
+                profileComplete: role === 'admin',
+                createdAt: new Date().toISOString(),
+                createdBy: actor.id,
+                active: true,
+                profile: role === 'admin'
+                  ? { fullName, operatorCode: `OP-${userId.slice(-6).toUpperCase()}` }
+                  : defaultProfile(fullName),
+              }
+              database.users.unshift(user)
+              addAuditEntry(database, `Usuario ${role === 'admin' ? 'administrador' : 'ciudadano'} creado por administración`, actor.id)
               return { status: 201, body: { user: publicUser(user) }, persist: true }
             }
 

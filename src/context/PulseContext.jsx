@@ -212,6 +212,21 @@ export function PulseProvider({ children }) {
       return {ok:false,message:'No se pudo guardar la cuenta en db.json. Verifica que el servidor local esté activo.'}
     }
   }
+  const createUserByAdmin = async ({ fullName, email, password, role }) => {
+    if(currentUser?.role!=='admin')return {ok:false,message:'Solo una cuenta administradora puede crear usuarios.'}
+    const normalizedEmail=email.trim().toLowerCase()
+    if(db.users.some(user=>user.email.toLowerCase()===normalizedEmail))return {ok:false,message:'Ya existe una cuenta con ese correo.'}
+    try{
+      const response=await fetch('/api/admin/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({actorId:currentUser.id,fullName,email:normalizedEmail,password,role})})
+      const result=await response.json()
+      if(!response.ok)return {ok:false,message:result.message||'No se pudo crear el usuario.'}
+      const user=result.user
+      commit(prev=>appendAudit({...prev,users:[user,...prev.users.filter(existing=>existing.email.toLowerCase()!==user.email.toLowerCase())]},'Usuario creado desde administración',{userId:user.id,role:user.role,createdBy:currentUser.id}))
+      return {ok:true,user}
+    }catch{
+      return {ok:false,message:'No se pudo guardar el usuario en db.json. Verifica que el servidor local esté activo.'}
+    }
+  }
   const updateProfile = async profile => {
     if(!currentUser)return {ok:false,message:'No hay una sesión ciudadana activa.'}
     try{
@@ -456,7 +471,7 @@ export function PulseProvider({ children }) {
   const resetDemo = () => { const next = normalizeDb(seed); clearStored(); saveStored(next); setDb(next); setSessionId(null) }
 
   const value = useMemo(() => ({
-    db, currentUser, login, logout, register, updateProfile, addIncident, updateIncident, dispatchUnit, startTransport, returnUnit, closeIncident,
+    db, currentUser, login, logout, register, createUserByAdmin, updateProfile, addIncident, updateIncident, dispatchUnit, startTransport, returnUnit, closeIncident,
     addAlert, updateAlert, deleteAlert, createAlertFromIncident, addRiskZone, updateRiskZone, deleteRiskZone, addPublication, updatePublication, convertPublication,
     mergeReports, markNotificationRead, markAllNotificationsRead, setCourseProgress, loadScenario, resetDemo, confirmSituation, updateAiSuggestion,
     simulationSpeed, setSimulationSpeed, simulationPaused, setSimulationPaused: changeSimulationPaused,
