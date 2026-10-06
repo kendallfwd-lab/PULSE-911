@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { Activity, Ambulance as AmbulanceIcon, BarChart3, Bell, BellRing, BookOpen, Bookmark, Bot, Building2 as HospitalIcon, CircleUserRound, ClipboardList, Compass, FileText as FileAuditIcon, Gauge, HeartHandshake, HeartPulse, Home, LogOut, MapPinned, Menu, Navigation, PanelLeftClose, PanelLeftOpen, Play as PlayIcon, Radio, Radar, Route as RouteIcon, Search, Settings, Shield, ShieldAlert, ShieldCheck, Siren, Sparkles, UserPlus, UsersRound, X } from 'lucide-react'
+import { Activity, Ambulance as AmbulanceIcon, BarChart3, Bell, BellRing, BookOpen, Bookmark, Bot, BrainCircuit, Building2 as HospitalIcon, CircleUserRound, ClipboardList, Compass, FileText as FileAuditIcon, Gauge, HeartHandshake, HeartPulse, Home, LogOut, MapPinned, Menu, Navigation, PanelLeftClose, PanelLeftOpen, Play as PlayIcon, Radio, Radar, Route as RouteIcon, Search, Settings, Shield, ShieldAlert, ShieldCheck, Siren, Sparkles, UserPlus, UsersRound, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AccessibilityControls } from './accessibility/AccessibilityControls'
 import { usePulse } from '../context/PulseContext'
 import { useLiveLocation } from '../context/LiveLocationContext'
 
 const citizenLinks = [
-  ['/app', Home, 'nav.home'], ['/app/map', MapPinned, 'nav.map'], ['/app/roads', RouteIcon, 'nav.roads'], ['/app/nearby', Navigation, 'nav.nearby'],
+  ['/app', Home, 'nav.home'], ['/app/map', MapPinned, 'nav.map'], ['/app/roads', RouteIcon, 'nav.roads'], ['/app/insights', BrainCircuit, 'nav.insights'], ['/app/nearby', Navigation, 'nav.nearby'],
   ['/app/assistant', Bot, 'nav.assistant'], ['/app/travel', Compass, 'nav.travel'], ['/app/wellbeing', HeartHandshake, 'nav.wellbeing'],
   ['/app/community', UsersRound, 'nav.community'], ['/app/resources', BookOpen, 'nav.resources'], ['/app/incidents', Bookmark, 'nav.incidents'], ['/app/profile', Settings, 'nav.profile']
 ]
@@ -64,7 +64,7 @@ export function CitizenLayout() {
       </div><div className="left-rail-footer"><div className="verified-user"><div className="avatar-mini large"><Initials name={currentUser?.profile?.fullName}/></div><span><strong>{currentUser?.profile?.fullName}</strong><small>{t('layout.verifiedCitizen')}</small></span><i/></div><button onClick={()=>{logout();navigate('/')}}><LogOut size={14}/>{t('layout.logout')}</button></div></aside>
       <main className="civic-main"><Outlet/></main>
     </div>
-    <nav className="mobile-bottom civic-mobile-bottom">{[['/app',Home,t('nav.home')],['/app/map',MapPinned,t('nav.map')],['/app/report',Siren,'SOS'],['/app/incidents',ClipboardList,t('layout.reports')],['/app/profile',CircleUserRound,t('nav.profile')]].map(([to,Icon,label]) => <NavLink key={to} end={to==='/app'} to={to}><Icon size={20}/><span>{label}</span></NavLink>)}</nav>
+    <nav className="mobile-bottom civic-mobile-bottom">{[['/app',Home,t('nav.home')],['/app/map',MapPinned,t('nav.map')],['/app/insights',BrainCircuit,t('nav.insights')],['/app/report',Siren,'SOS'],['/app/incidents',ClipboardList,t('layout.reports')],['/app/profile',CircleUserRound,t('nav.profile')]].map(([to,Icon,label]) => <NavLink key={to} end={to==='/app'} to={to}><Icon size={20}/><span>{label}</span></NavLink>)}</nav>
     {reportMenu&&<div className="report-choice-backdrop" role="presentation" onMouseDown={event=>{if(event.target===event.currentTarget)setReportMenu(false)}}><section className="report-choice-dialog" role="dialog" aria-modal="true" aria-labelledby="report-choice-title"><button className="report-choice-close" type="button" aria-label={t('layout.close')} onClick={()=>setReportMenu(false)}><X size={18}/></button><span>{t('layout.reportLabel')}</span><h2 id="report-choice-title">{t('layout.reportQuestion')}</h2><p>{t('layout.reportHelp')}</p><div><NavLink className="report-choice emergency" to="/app/report" onClick={()=>setReportMenu(false)}><Siren/><span><strong>{t('layout.emergency')}</strong><small>{t('layout.emergencyHelp')}</small></span></NavLink><NavLink className="report-choice road" to="/app/community?compose=road" onClick={()=>setReportMenu(false)}><RouteIcon/><span><strong>{t('layout.roadSituation')}</strong><small>{t('layout.roadHelp')}</small></span></NavLink></div><small>{t('layout.reportDisclaimer')}</small></section></div>}
   </div>
 }

@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import { createLocalPulseResponse } from '../src/ai/localPulseAI.js'
 import { detectLocalRiskClusters } from '../src/services/adminAIService.js'
 import { searchNearbyPlaces } from '../src/services/placesService.js'
+import { buildMobilityInsights } from '../src/ai/mobilityInsights.js'
 
 const db = JSON.parse(fs.readFileSync(new URL('../db.json', import.meta.url), 'utf8'))
 const location = { lat: 9.976, lng: -84.748 }
@@ -38,3 +39,25 @@ if (!placeFallback.places.length || placeFallback.provider !== 'pulse_reference'
   throw new Error('places fallback: expected verified local references')
 }
 console.log(`PASS places fallback (${placeFallback.places.length} place(s))`)
+
+const mobility = buildMobilityInsights({
+  roads: db.roadStatus,
+  weather: { precipitation: 2, wind: 18, forecast: [{ date: '2026-10-05', precipitationProbability: 70, precipitation: 5, maxWind: 24 }, { date: '2026-10-06', precipitationProbability: 20, precipitation: 1, maxWind: 12 }] },
+})
+if (
+  !mobility.hardest
+  || mobility.routes.length !== db.roadStatus.length
+  || mobility.routes[0].score < mobility.routes.at(-1).score
+  || !mobility.wettestDay
+  || !mobility.bestDay
+  || mobility.totalRain !== 6
+  || mobility.rainyDays !== 1
+  || mobility.totalIncidents !== 3
+  || mobility.next72Hours.length !== 2
+  || !mobility.actions.length
+  || mobility.mobilityScore < 0
+  || mobility.mobilityScore > 100
+) {
+  throw new Error('mobility insights: expected ranked routes, forecast statistics, and suggested actions')
+}
+console.log(`PASS mobility insights (${mobility.hardest.route} ${mobility.hardest.score}/100)`)

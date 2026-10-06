@@ -101,3 +101,4 @@ html[data-theme='dark'] .ai-review-detail dl>div{background:var(--surface-subtle
   .pulse-ai-chat>form .btn{width:100%;min-height:48px}
 }
 @media(max-width:480px){.pulse-ai-suggestions{grid-template-columns:1fr}}
+@media(max-width:760px){.civic-mobile-bottom{display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important}.civic-mobile-bottom a{min-width:0}.civic-mobile-bottom a span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}

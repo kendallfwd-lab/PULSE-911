@@ -4,6 +4,10 @@ import { demoDatabasePlugin } from './scripts/demoDatabasePlugin.js'
 
 export default defineConfig({
   plugins: [react(), demoDatabasePlugin()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.js',
+  },
   server: {
     host: '127.0.0.1',
     port: 5175,

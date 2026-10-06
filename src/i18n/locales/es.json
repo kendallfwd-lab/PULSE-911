@@ -2,7 +2,7 @@
   "app": { "name": "PULSE 911", "demo": "Simulación académica" },
   "layout": { "activeChannel": "CANAL METROPOLITANO ACTIVO", "search": "Buscar incidentes, códigos o ubicaciones…", "stopLive": "Detener ubicación en tiempo real", "startLive": "Activar ubicación en tiempo real", "searching": "Buscando…", "locationActive": "Ubicación activa", "myLocation": "Mi ubicación", "myProfile": "Mi perfil", "logout": "Cerrar sesión", "verifiedCitizen": "Ciudadano verificado demo", "demoSector": "Sector demo · En red", "reportLabel": "REPORTE PULSE", "reportQuestion": "¿QUÉ DESEAS REPORTAR?", "reportHelp": "Selecciona el flujo adecuado para que la información llegue al canal correspondiente.", "emergency": "EMERGENCIA", "emergencyHelp": "Heridos, incendios, riesgos inmediatos o situaciones que requieren asistencia.", "roadSituation": "SITUACIÓN VIAL", "roadHelp": "Accidentes observados, huecos, derrumbes, inundación, obstáculos o congestión.", "reportDisclaimer": "Esta es una simulación académica. No contacta servicios 9-1-1 reales.", "close": "Cerrar", "reports": "Reportes" },
   "nav": {
-    "home": "Publicaciones", "map": "Mapa situacional", "roads": "Carreteras", "nearby": "Cerca de mí",
+    "home": "Publicaciones", "map": "Mapa situacional", "roads": "Carreteras", "insights": "Pronóstico IA", "nearby": "Cerca de mí",
     "assistant": "PULSE IA", "travel": "Explorar Costa Rica", "wellbeing": "Apoyo post-accidente",
     "community": "Reportes ciudadanos", "resources": "Cursos y apoyo", "incidents": "Mis incidentes", "profile": "Ajustes y protocolos"
   },

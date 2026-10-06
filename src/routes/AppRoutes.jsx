@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { PageLoader } from '../components/Common'
 import { ProtectedRoute } from '../components/Guards'
+import { NotFoundPage } from '../pages/StatusPages'
 
 const LandingPage = lazy(() => import('../pages/LandingPage'))
 const LoginPage = lazy(() => import('../pages/AuthPages').then(module => ({ default: module.LoginPage })))
@@ -39,6 +40,7 @@ const AdminAIPage = lazy(() => import('../pages/admin/AdminAIPage'))
 const AIReviewPage = lazy(() => import('../pages/admin/AIReviewPage'))
 const TrafficMonitorPage = lazy(() => import('../pages/admin/TrafficMonitorPage'))
 const UserManagementPage = lazy(() => import('../pages/admin/UserManagementPage'))
+const MobilityInsightsPage = lazy(() => import('../pages/citizen/MobilityInsightsPage'))
 
 const routeTitleKeys = [
   [/^\/$/, 'landing.platform'],
@@ -54,6 +56,7 @@ const routeTitleKeys = [
   [/^\/app\/profile$/, 'nav.profile'],
   [/^\/app\/community$/, 'nav.community'],
   [/^\/app\/roads$/, 'nav.roads'],
+  [/^\/app\/insights$/, 'nav.insights'],
   [/^\/app\/nearby$/, 'nav.nearby'],
   [/^\/app\/assistant$/, 'nav.assistant'],
   [/^\/app\/travel$/, 'nav.travel'],
@@ -108,6 +111,7 @@ export default function AppRoutes() {
           <Route path="/app/profile" element={<ProfilePage />} />
           <Route path="/app/community" element={<CommunityPage />} />
           <Route path="/app/roads" element={<RoadStatusPage />} />
+          <Route path="/app/insights" element={<MobilityInsightsPage />} />
           <Route path="/app/nearby" element={<NearbyPage />} />
           <Route path="/app/assistant" element={<PulseAssistantPage />} />
           <Route path="/app/travel" element={<TravelPage />} />
@@ -132,7 +136,7 @@ export default function AppRoutes() {
           <Route path="/command/ai-review" element={<AIReviewPage />} />
           <Route path="/command/traffic" element={<TrafficMonitorPage />} />
         </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   </>
