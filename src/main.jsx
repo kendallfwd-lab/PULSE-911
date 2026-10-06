@@ -10,6 +10,7 @@ import { TextSizeProvider } from './context/TextSizeContext'
 import { ColorVisionProvider } from './context/ColorVisionContext'
 import { AccessibilityProvider } from './accessibility/AccessibilityProvider'
 import { AIProvider } from './ai/AIContext'
+import { UISoundProvider } from './context/UISoundContext'
 import { InterfaceTranslationBridge } from './i18n/InterfaceTranslationBridge'
 import './i18n'
 import './styles.css'
@@ -20,9 +21,10 @@ import './features.css'
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ThemeProvider>
-      <ColorVisionProvider>
-        <TextSizeProvider>
-          <AccessibilityProvider>
+      <UISoundProvider>
+        <ColorVisionProvider>
+          <TextSizeProvider>
+            <AccessibilityProvider>
             <BrowserRouter>
               <ErrorBoundary>
                 <PulseProvider>
@@ -35,9 +37,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 </PulseProvider>
               </ErrorBoundary>
             </BrowserRouter>
-          </AccessibilityProvider>
-        </TextSizeProvider>
-      </ColorVisionProvider>
+            </AccessibilityProvider>
+          </TextSizeProvider>
+        </ColorVisionProvider>
+      </UISoundProvider>
     </ThemeProvider>
   </React.StrictMode>
 )

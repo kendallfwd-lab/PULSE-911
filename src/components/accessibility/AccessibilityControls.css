@@ -15,6 +15,8 @@
 
 .a11y-control-anchor { position: relative; }
 
+.a11y-sound-menu { width: min(250px, calc(100vw - 24px)); }
+
 .a11y-control-button {
   position: relative;
   min-width: 34px;

@@ -1,7 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import { MemoryRouter } from 'react-router-dom'
+import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { ProtectedRoute } from './Guards'
+import { LOGOUT_REDIRECT_KEY } from '../services/storageService'
 
 const pulseState = vi.hoisted(() => ({ currentUser: null }))
 
@@ -12,6 +13,7 @@ vi.mock('../context/PulseContext', () => ({
 describe('ProtectedRoute', () => {
   beforeEach(() => {
     pulseState.currentUser = null
+    sessionStorage.clear()
   })
 
   it('presenta el error 403 cuando una persona no ha iniciado sesión', () => {
@@ -37,6 +39,22 @@ describe('ProtectedRoute', () => {
     )
 
     expect(screen.getByText('Contenido privado')).toBeInTheDocument()
+    expect(screen.queryByRole('heading', { name: '403' })).not.toBeInTheDocument()
+  })
+
+  it('redirige al inicio sin mostrar 403 durante un cierre de sesión', () => {
+    sessionStorage.setItem(LOGOUT_REDIRECT_KEY, String(Date.now()))
+
+    render(
+      <MemoryRouter initialEntries={['/app']}>
+        <Routes>
+          <Route path="/" element={<p>Inicio público</p>} />
+          <Route path="/app" element={<ProtectedRoute role="citizen"><p>Contenido privado</p></ProtectedRoute>} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('Inicio público')).toBeInTheDocument()
     expect(screen.queryByRole('heading', { name: '403' })).not.toBeInTheDocument()
   })
 })

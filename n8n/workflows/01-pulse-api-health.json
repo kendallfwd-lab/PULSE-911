@@ -1,4 +1,5 @@
 {
+  "id": "pulseStatusCR01",
   "name": "PULSE — API Gateway / Health",
   "nodes": [
     {
@@ -10,7 +11,7 @@
       "id": "10000000-0000-4000-8000-000000000002", "name": "GET Pulse Status", "type": "n8n-nodes-base.webhook", "typeVersion": 2, "position": [-280, 100], "webhookId": "pulse-status"
     },
     {
-      "parameters": { "jsCode": "const now = new Date().toISOString();\nreturn [{ json: { ok: true, service: 'pulse-ai', version: '1.0', mode: 'demo', ai: false, routes: true, places: false, weather: true, translation: false, timestamp: now } }];" },
+      "parameters": { "jsCode": "const now = new Date().toISOString();\nreturn [{ json: { ok: true, service: 'pulse-ai', version: '1.0', mode: 'demo', ai: true, routes: true, places: false, weather: true, translation: false, timestamp: now } }];" },
       "id": "10000000-0000-4000-8000-000000000003", "name": "Build Safe Capability Status", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [-40, 100]
     },
     {

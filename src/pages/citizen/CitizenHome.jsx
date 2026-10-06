@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Ambulance, Bookmark, CheckCircle2, Clock3, Heart, HeartHandshake, MapPin, MessageCircle, Navigation, Share2, ShieldCheck, Siren, Volume2 } from 'lucide-react'
+import { Ambulance, ArrowRight, Bookmark, CheckCircle2, Clock3, Heart, HeartHandshake, MapPin, MessageCircle, Navigation, Newspaper, Share2, ShieldCheck, Siren, Volume2 } from 'lucide-react'
 import { usePulse } from '../../context/PulseContext'
 import { Badge, StatusBadge } from '../../components/Common'
 import GeoMap from '../../components/GeoMap'
@@ -77,6 +77,10 @@ export default function CitizenHome(){
   const {db,currentUser}=usePulse(); const [saved,setSaved]=useState([]); const [useful,setUseful]=useState([]); const [safe,setSafe]=useState(false); const [copied,setCopied]=useState(false)
   const mine=db.incidents.filter(i=>i.citizenId===currentUser.id); const active=mine.find(i=>!['resolved','cancelled'].includes(i.status))
   const feed=useMemo(()=>db.incidents.filter(i=>i.publicVisibility || i.citizenId===currentUser.id).slice(0,8),[db.incidents,currentUser.id])
+  const publications=useMemo(()=>(db.publications||[])
+    .filter(publication=>['verified','published'].includes(publication.status)||publication.authorId===currentUser.id||publication.citizenId===currentUser.id)
+    .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0))
+    .slice(0,6),[db.publications,currentUser.id])
   const toggleSave=id=>setSaved(value=>value.includes(id)?value.filter(item=>item!==id):[...value,id])
   const toggleUseful=id=>setUseful(value=>value.includes(id)?value.filter(item=>item!==id):[...value,id])
   const copyCode=async code=>{try{await navigator.clipboard?.writeText(code);setCopied(true);setTimeout(()=>setCopied(false),1400)}catch{setCopied(false)}}
@@ -84,12 +88,24 @@ export default function CitizenHome(){
   return <div className="operations-publication-feed">
     <TrafficSummary incidents={db.incidents} roads={db.roadStatus || []} riskZones={db.riskZones || []}/>
     <BreakingTicker incidents={db.incidents} roads={db.roadStatus || []}/>
+    <CitizenPublicationStrip publications={publications}/>
     {active&&<IncidentPublication incident={active} units={db.units} primary isMine saved={saved.includes(active.id)} safe={safe} copied={copied} onSave={()=>toggleSave(active.id)} onSafe={()=>setSafe(value=>!value)} onShare={()=>copyCode(active.code)}/>}
 
     {feed.filter(incident=>incident.id!==active?.id).map(incident=><IncidentPublication key={incident.id} incident={incident} units={db.units} isMine={incident.citizenId===currentUser.id} saved={saved.includes(incident.id)} useful={useful.includes(incident.id)} onSave={()=>toggleSave(incident.id)} onUseful={()=>toggleUseful(incident.id)}/>)}
 
     <SupportPublication/>
   </div>
+}
+
+function CitizenPublicationStrip({publications}){
+  const {i18n}=useTranslation(); const english=i18n.language.startsWith('en')
+  return <section className="citizen-publication-strip" aria-labelledby="citizen-publications-title">
+    <div className="citizen-publication-strip-head"><div><Newspaper size={20}/><span><strong id="citizen-publications-title">{english?'Citizen publications':'Publicaciones ciudadanas'}</strong><small>{english?'Verified reports and your submissions':'Reportes verificados y tus publicaciones'}</small></span></div><Link to="/app/community">{english?'View all':'Ver todas'}<ArrowRight size={16}/></Link></div>
+    {publications.length?<div className="citizen-publication-cards">{publications.map(publication=><article key={publication.id} className="citizen-publication-card">
+      {publication.image?<img src={publication.image} alt=""/>:<div className="citizen-publication-placeholder"><Newspaper size={26}/></div>}
+      <div><span className={`citizen-publication-status ${publication.status}`}>{publication.status==='verified'||publication.status==='published'?(english?'Verified':'Verificada'):(english?'Under review':'En revisión')}</span><time>{new Date(publication.createdAt).toLocaleDateString(i18n.language,{day:'2-digit',month:'short'})}</time><h3 className="citizen-publication-title">{publication.title}</h3><p><MapPin size={13}/>{publication.location?.label|| (english?'Location pending':'Ubicación pendiente')}</p></div>
+    </article>)}</div>:<div className="citizen-publication-empty"><Newspaper size={24}/><span><strong>{english?'No visible publications yet':'Aún no hay publicaciones visibles'}</strong><small>{english?'Your new reports will appear here.':'Tus nuevos reportes aparecerán aquí.'}</small></span><Link to="/app/report">{english?'Create report':'Crear reporte'}</Link></div>}
+  </section>
 }
 
 function IncidentPublication({incident,units,primary=false,isMine=false,saved=false,useful=false,safe=false,copied=false,onSave,onUseful,onSafe,onShare}){

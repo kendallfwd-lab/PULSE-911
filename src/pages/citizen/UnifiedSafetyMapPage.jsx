@@ -5,6 +5,12 @@ import { usePulse } from '../../context/PulseContext'
 import { useLiveLocation } from '../../context/LiveLocationContext'
 import { AccessibleMapList } from '../../components/AccessibleMapList'
 import { useTranslation } from 'react-i18next'
+import {
+  COSTA_RICA_CENTER,
+  COSTA_RICA_OVERVIEW_ZOOM,
+  NATIONAL_DEMO_INCIDENTS,
+  NATIONAL_DEMO_RISK_ZONES
+} from '../../data/costaRicaDemoMap'
 
 const STORAGE_KEY = 'pulse911-citizen-map-points'
 
@@ -18,7 +24,8 @@ function readStoredPoints(){
 }
 
 export default function UnifiedSafetyMapPage(){
-  const {t}=useTranslation()
+  const {t,i18n}=useTranslation()
+  const english=i18n.language.startsWith('en')
   const {db}=usePulse()
   const {location,status:locationStatus,error:locationError,start:startLocation,stop:stopLocation,isActive:locationActive}=useLiveLocation()
   const [pointType,setPointType]=useState(null)
@@ -53,6 +60,9 @@ export default function UnifiedSafetyMapPage(){
     radiusM:130,
     location:p.location
   })),[t,userPoints])
+  const mapIncidents=useMemo(()=>[...publicIncidents,...NATIONAL_DEMO_INCIDENTS,...placedIncidents],[publicIncidents,placedIncidents])
+  const mapRiskZones=useMemo(()=>[...(db.riskZones||[]),...NATIONAL_DEMO_RISK_ZONES,...placedRisks],[db.riskZones,placedRisks])
+  const simulatedCount=NATIONAL_DEMO_INCIDENTS.length+NATIONAL_DEMO_RISK_ZONES.length
 
   const chooseType=type=>{
     setPointType(type)
@@ -74,7 +84,7 @@ export default function UnifiedSafetyMapPage(){
   return <div className="unified-map-page">
     <header className="unified-map-heading">
       <div><h1>{t('map.title')}</h1><p>{t('map.subtitle')}</p></div>
-      <div className="unified-map-counts"><span><i className="red"/>{publicIncidents.length} {t('map.accidents')}</span><span><i className="yellow"/>{(db.riskZones||[]).length} {t('map.dangerPlaces')}</span><span><i className="blue"/>{activeAlerts.length} {t('map.officialAlerts')}</span></div>
+      <div className="unified-map-counts"><span><i className="red"/>{mapIncidents.length} {t('map.accidents')}</span><span><i className="red"/>{mapRiskZones.length} {t('map.dangerPlaces')}</span><span><i className="blue"/>{activeAlerts.length} {t('map.officialAlerts')}</span><span className="demo-count">{simulatedCount} {english?'simulated points':'puntos simulados'}</span></div>
     </header>
 
     <div className="unified-map-workspace">
@@ -85,6 +95,7 @@ export default function UnifiedSafetyMapPage(){
           {locationError&&<p role="alert">{locationError}</p>}
         </div>
         <div className="map-point-tools-title"><MapPin size={20}/><div><strong>{t('map.placePoint')}</strong><span>{t('map.selectType')}</span></div></div>
+        <div className="national-demo-note" role="note"><strong>{english?'National demo':'Demostración nacional'}</strong><span>{english?'Red points are fictional scenarios, not real emergencies.':'Los puntos rojos son escenarios ficticios, no emergencias reales.'}</span></div>
         <button type="button" className={`point-type-button accident ${pointType==='accident'?'active':''}`} aria-pressed={pointType==='accident'} onClick={()=>chooseType('accident')}><Siren size={22}/><span><strong>{t('map.accident')}</strong><small>{t('map.pointRed')}</small></span></button>
         <button type="button" className={`point-type-button danger ${pointType==='danger'?'active':''}`} aria-pressed={pointType==='danger'} onClick={()=>chooseType('danger')}><AlertTriangle size={22}/><span><strong>{t('map.danger')}</strong><small>{t('map.pointYellow')}</small></span></button>
         <div className={`map-placement-notice ${pointType?'active':''}`} role="status">{notice}</div>
@@ -93,12 +104,13 @@ export default function UnifiedSafetyMapPage(){
       </aside>
 
       <section className={`unified-citizen-map ${pointType?'placing-point':''}`} aria-label={t('map.interactive')}>
+        <div className="national-demo-badge" role="status"><strong>{english?'NATIONAL SIMULATION':'SIMULACIÓN NACIONAL'}</strong><span>{simulatedCount} {english?'fictional points':'puntos ficticios'}</span></div>
         {pointType&&<div className={`map-placement-banner ${pointType}`}><span>{pointType==='accident'?t('map.accident'):t('map.danger')}</span> {t('map.clickAnywhere')}</div>}
         <GeoMap
-          incidents={[...publicIncidents,...placedIncidents]}
+          incidents={mapIncidents}
           units={db.units}
           alerts={activeAlerts}
-          riskZones={[...(db.riskZones||[]),...placedRisks]}
+          riskZones={mapRiskZones}
           hospitals={db.hospitals||[]}
           historicalIncidents={db.historicalIncidents||[]}
           aiSuggestions={db.aiSuggestions||[]}
@@ -112,10 +124,11 @@ export default function UnifiedSafetyMapPage(){
           onSelectHospital={setSelectedPoint}
           onSelectAiSuggestion={setSelectedPoint}
           onMapClick={placePoint}
-          initialZoom={14}
+          initialCenter={COSTA_RICA_CENTER}
+          initialZoom={COSTA_RICA_OVERVIEW_ZOOM}
         />
       </section>
     </div>
-    <AccessibleMapList incidents={[...publicIncidents,...placedIncidents]} alerts={activeAlerts} riskZones={[...(db.riskZones||[]),...placedRisks]} hospitals={db.hospitals||[]} aiSuggestions={db.aiSuggestions||[]} referenceLocation={location} onSelect={setSelectedPoint}/>
+    <AccessibleMapList incidents={mapIncidents} alerts={activeAlerts} riskZones={mapRiskZones} hospitals={db.hospitals||[]} aiSuggestions={db.aiSuggestions||[]} referenceLocation={location} onSelect={setSelectedPoint}/>
   </div>
 }

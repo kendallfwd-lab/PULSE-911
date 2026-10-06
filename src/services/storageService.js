@@ -1,5 +1,6 @@
 export const STORAGE_KEY = 'pulse911-demo-db-v6'
 export const SESSION_KEY = 'pulse911-demo-session-v2'
+export const LOGOUT_REDIRECT_KEY = 'pulse911-logout-redirect'
 
 // Replace only the original demo assets in previously saved browser data.
 // User-supplied incident photos remain untouched.
@@ -61,7 +62,20 @@ export const loadSession = () => {
 }
 
 export const saveSession = userId => {
-  try { localStorage.setItem(SESSION_KEY, userId); return true } catch { return false }
+  try { localStorage.setItem(SESSION_KEY, userId) } catch { return false }
+  try { sessionStorage.removeItem(LOGOUT_REDIRECT_KEY) } catch {}
+  return true
+}
+
+export const markLogoutRedirect = () => {
+  try { sessionStorage.setItem(LOGOUT_REDIRECT_KEY, String(Date.now())) } catch {}
+}
+
+export const hasRecentLogoutRedirect = () => {
+  try {
+    const markedAt = Number(sessionStorage.getItem(LOGOUT_REDIRECT_KEY))
+    return Number.isFinite(markedAt) && Date.now() - markedAt < 5000
+  } catch { return false }
 }
 
 export const clearSession = () => {

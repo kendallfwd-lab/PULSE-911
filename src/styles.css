@@ -1774,6 +1774,28 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 .map-point-tools .official-alert-note strong{font-size:calc(9px * var(--text-scale, 1))}.map-point-tools .official-alert-note small{font-size:calc(8px * var(--text-scale, 1))}
 .map-point-tools .clear-map-points{min-height:38px;border-radius:10px}
 
+/* National demo points remain visually distinct from live/user reports. */
+.geo-risk-wrap.simulated-demo .geo-area{
+  background:rgba(220,38,38,.10)!important;
+  border:2px dashed rgba(220,38,38,.62)!important;
+}
+.geo-marker.risk.simulated-demo,
+.geo-marker.incident.simulated-demo{
+  background:#d92735!important;
+  color:#fff!important;
+  border-color:#fff!important;
+  box-shadow:0 0 0 2px rgba(217,39,53,.30),0 5px 15px rgba(105,13,22,.28)!important;
+}
+.geo-marker.risk.simulated-demo{border-radius:50%!important}
+.geo-marker.risk.simulated-demo span{background:#75121b!important}
+.unified-map-counts .demo-count{border-color:#f3c1c6;background:#fff4f5;color:#aa2432}
+.national-demo-note{padding:10px 11px;display:grid;gap:3px;border:1px solid #f2c4c9;border-radius:10px;background:#fff5f6;color:#9d1f2c}
+.national-demo-note strong{font-size:calc(9px * var(--text-scale, 1));letter-spacing:.02em}
+.national-demo-note span{font-size:calc(8px * var(--text-scale, 1));line-height:1.4;color:#7e4a50}
+.national-demo-badge{position:absolute;z-index:35;top:52px;right:11px;padding:7px 9px;display:grid;gap:1px;border:1px solid rgba(255,255,255,.7);border-radius:9px;background:rgba(123,15,27,.91);color:#fff;box-shadow:0 7px 18px rgba(65,9,15,.25);pointer-events:none;backdrop-filter:blur(8px)}
+.national-demo-badge strong{font-size:calc(8px * var(--text-scale, 1));letter-spacing:.08em}
+.national-demo-badge span{font-size:calc(7px * var(--text-scale, 1));color:#ffdce0}
+
 @media (max-width:1100px){
   .unified-map-workspace{grid-template-columns:1fr!important}
   .map-point-tools{order:1;position:relative;top:auto;display:grid;grid-template-columns:minmax(150px,.8fr) repeat(2,minmax(180px,1fr));padding:14px!important}
@@ -1781,11 +1803,13 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
   .map-point-tools-title{height:100%;padding:4px 14px 4px 2px!important;border-bottom:0;border-right:1px solid #e3ebf0}
   .map-point-tools .point-type-button{min-height:70px}
   .map-point-tools .map-placement-notice,.map-point-tools .clear-map-points{grid-column:1/-1}
+  .map-point-tools .national-demo-note{grid-column:1/-1}
 }
 
 @media (max-width:700px){
   .map-point-tools{grid-template-columns:1fr 1fr;padding:12px!important}
   .map-point-tools-title{grid-column:1/-1;height:auto;padding:4px 2px 11px!important;border-right:0;border-bottom:1px solid #e3ebf0}
+  .national-demo-badge{top:49px;right:8px;padding:6px 8px}
   .map-point-tools .point-type-button{min-height:68px;padding:10px!important}
   .map-point-tools .point-type-button>svg{width:34px;height:34px;flex-basis:34px;padding:8px}
 }
@@ -2971,3 +2995,21 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 
 /* Final chart contrast overrides for the dark command workspace. */
 .command-workspace-v2 .analytics-carousel .analytics-slide-title h3{color:#102a43!important}.command-workspace-v2 .analytics-carousel .analytics-slide-title p{color:#657985!important}.command-workspace-v2 .analytics-carousel .analytics-slide-title small{color:#1976d2!important}.command-workspace-v2 .analytics-carousel .analytics-slide .chart-row strong,.command-workspace-v2 .analytics-carousel .column-item>strong,.command-workspace-v2 .analytics-carousel .donut-legend strong,.command-workspace-v2 .analytics-carousel .donut strong,.command-workspace-v2 .analytics-carousel .analytics-hotspots strong{color:#173247!important}.command-workspace-v2 .analytics-carousel .column-item.highlight>strong{color:#a22222!important}
+
+/* Citizen publications stay visible in the main feed and incident media fills its row. */
+.citizen-publication-strip{padding:14px;border:1px solid #cfe2ec;border-radius:14px;background:linear-gradient(135deg,#f8fcfe,#edf7fb);box-shadow:0 8px 24px rgba(37,91,122,.07)}
+.citizen-publication-strip-head,.citizen-publication-strip-head>div,.citizen-publication-strip-head>div>span,.citizen-publication-strip-head>a{display:flex;align-items:center}
+.citizen-publication-strip-head{justify-content:space-between;gap:14px;margin-bottom:11px}.citizen-publication-strip-head>div{gap:9px;color:#1276b2}.citizen-publication-strip-head>div>span{align-items:flex-start;flex-direction:column;gap:2px}.citizen-publication-strip-head strong{color:#173b56;font-size:calc(13px * var(--text-scale,1))}.citizen-publication-strip-head small{color:#708592;font-size:calc(8px * var(--text-scale,1))}.citizen-publication-strip-head>a{gap:5px;color:#126fa8;font-size:calc(9px * var(--text-scale,1));font-weight:850;white-space:nowrap}
+.citizen-publication-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.citizen-publication-card{min-width:0;display:grid;grid-template-columns:104px minmax(0,1fr);overflow:hidden;border:1px solid #d7e6ed;border-radius:11px;background:#fff}.citizen-publication-card>img,.citizen-publication-placeholder{width:104px;height:100%;min-height:105px;object-fit:cover}.citizen-publication-placeholder{display:grid;place-items:center;background:#deedf4;color:#5f8ca4}.citizen-publication-card>div:last-child{min-width:0;padding:9px}.citizen-publication-card>div:last-child>span,.citizen-publication-card time{display:inline-block;font-size:calc(7px * var(--text-scale,1));font-weight:800}.citizen-publication-status{margin-right:6px;padding:3px 6px;border-radius:999px;background:#fff2d8;color:#94640b}.citizen-publication-status.verified,.citizen-publication-status.published{background:#e2f6eb;color:#18754a}.citizen-publication-card time{color:#8a99a2}.citizen-publication-card h3{margin:7px 0 6px;overflow:hidden;color:#193a53;font-size:calc(10px * var(--text-scale,1));line-height:1.25;text-overflow:ellipsis;white-space:nowrap}.citizen-publication-card p{margin:0;display:flex;align-items:center;gap:4px;overflow:hidden;color:#728591;font-size:calc(8px * var(--text-scale,1));text-overflow:ellipsis;white-space:nowrap}.citizen-publication-card p svg{flex:0 0 auto;color:#1681bf}
+.citizen-publication-empty{min-height:80px;padding:12px;display:flex;align-items:center;gap:10px;border:1px dashed #b9d5e4;border-radius:10px;color:#5d8296}.citizen-publication-empty>span{flex:1;display:grid;gap:2px}.citizen-publication-empty strong{color:#315267;font-size:calc(10px * var(--text-scale,1))}.citizen-publication-empty small{font-size:calc(8px * var(--text-scale,1))}.citizen-publication-empty>a{padding:8px 10px;border-radius:8px;background:#147fbd;color:#fff;font-size:calc(8px * var(--text-scale,1));font-weight:850}
+.civic-shell .citizen-publication-strip-head strong,.civic-shell .citizen-publication-card h3{color:#173b56!important;opacity:1!important}.civic-shell .citizen-publication-strip-head small{color:#617987!important;opacity:1!important}.civic-shell .citizen-publication-card p,.civic-shell .citizen-publication-card time{color:#667e8d!important;opacity:1!important}.civic-shell .citizen-publication-status{color:#94640b!important;opacity:1!important}.civic-shell .citizen-publication-status.verified,.civic-shell .citizen-publication-status.published{color:#18754a!important}
+html[data-theme="dark"] .civic-main #citizen-publications-title,html[data-theme="dark"] .civic-main .citizen-publication-card .citizen-publication-title{color:#173b56!important}html[data-theme="dark"] .civic-main .citizen-publication-strip-head small{color:#617987!important}html[data-theme="dark"] .civic-main .citizen-publication-card :is(p,time){color:#667e8d!important}
+
+@media (min-width:761px){
+  .operations-publication-feed .incident-publication-main{align-items:stretch}
+  .operations-publication-feed .publication-hero-media{height:100%!important;min-height:238px}
+  .operations-publication-feed .publication-detail-grid{align-items:stretch}
+  .operations-publication-feed .publication-detail-card{align-self:stretch;height:100%}
+}
+@media (max-width:1050px){.citizen-publication-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:760px){.citizen-publication-strip{padding:11px}.citizen-publication-cards{grid-template-columns:1fr}.citizen-publication-card{grid-template-columns:92px minmax(0,1fr)}.citizen-publication-card>img,.citizen-publication-placeholder{width:92px}.citizen-publication-strip-head small{display:none}}

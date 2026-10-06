@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import seed from '../../db.json'
 import { INCIDENT_MEDIA } from '../utils/incidentMedia'
-import { clearSession, clearStored, loadSession, loadStored, saveSession, saveStored, STORAGE_KEY, SESSION_KEY } from '../services/storageService'
+import { clearSession, clearStored, loadSession, loadStored, markLogoutRedirect, saveSession, saveStored, STORAGE_KEY, SESSION_KEY } from '../services/storageService'
 import { makeNotification } from '../services/notificationService'
 import { calculateRiskScore, findDuplicateCandidates, mergeIncidents, distanceKm } from '../utils/incidentEngine'
 import { DEMO_MAP_CENTER, migrateDemoGeography } from '../config/demoGeography'
@@ -11,6 +11,22 @@ const PulseContext = createContext(null)
 const nowIso = () => new Date().toISOString()
 const clone = value => JSON.parse(JSON.stringify(value))
 const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('pulse911-demo-v6') : null
+
+export function mergeRemoteCollections(localDb, remoteDb, allowedKeys) {
+  return allowedKeys.reduce((next, key) => {
+    const incoming = remoteDb?.[key]
+    if (!Array.isArray(incoming) || incoming.length === 0) return next
+
+    const local = Array.isArray(next[key]) ? next[key] : []
+    const incomingById = new Map(incoming.filter(item => item?.id).map(item => [item.id, item]))
+    const merged = local
+      .filter(item => !incomingById.get(item?.id)?._deleted)
+      .map(item => incomingById.has(item?.id) ? { ...item, ...incomingById.get(item.id) } : item)
+    const additions = incoming.filter(item => !item?._deleted && (!item?.id || !local.some(current => current?.id === item.id)))
+
+    return { ...next, [key]: [...additions, ...merged] }
+  }, localDb)
+}
 
 function routeBetween(start, end) {
   const steps = 24
@@ -104,7 +120,9 @@ export function PulseProvider({ children }) {
       const remote = response?.data || response
       if (remote && typeof remote === 'object') {
         const allowed = ['incidents', 'alerts', 'riskZones', 'publications', 'roadStatus', 'aiSuggestions', 'trafficEvents', 'externalSources']
-        commit(prev => allowed.reduce((next, key) => Array.isArray(remote[key]) ? { ...next, [key]: remote[key] } : next, prev))
+        // n8n returns deltas and may start with empty collections. Merge records by id so
+        // an empty or partial response never erases the local demo/publication catalogue.
+        commit(prev => mergeRemoteCollections(prev, remote, allowed))
       }
       const syncedAt = nowIso(); setLastSyncAt(syncedAt); return { ok: true, syncedAt }
     } catch (error) { return { ok: false, message: error.message } }
@@ -197,7 +215,7 @@ export function PulseProvider({ children }) {
       return {ok:false,message:'No se pudo conectar con la base local de cuentas.'}
     }
   }
-  const logout = () => { clearSession(); setSessionId(null) }
+  const logout = () => { markLogoutRedirect(); clearSession(); setSessionId(null) }
   const register = async ({ fullName, email, password }) => {
     const normalizedEmail=email.trim().toLowerCase()
     if(db.users.some(user=>user.email.toLowerCase()===normalizedEmail))return {ok:false,message:'Ya existe una cuenta con ese correo.'}

@@ -1,11 +1,14 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { usePulse } from '../context/PulseContext'
 import { AccessDeniedPage } from '../pages/StatusPages'
+import { hasRecentLogoutRedirect } from '../services/storageService'
 
 export function ProtectedRoute({ children, role }) {
   const { currentUser } = usePulse()
   const loc = useLocation()
-  if (!currentUser) return <AccessDeniedPage authenticationRequired />
+  if (!currentUser) return hasRecentLogoutRedirect()
+    ? <Navigate to="/" replace />
+    : <AccessDeniedPage authenticationRequired />
 
   const isCommandUser = ['admin', 'dispatcher'].includes(currentUser.role)
   if (role === 'admin' && !isCommandUser) return <AccessDeniedPage />
