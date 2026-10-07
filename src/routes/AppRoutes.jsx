@@ -28,6 +28,7 @@ const AdminDashboard = lazy(() => import('../pages/admin/AdminDashboard'))
 const AdminIncidentDetail = lazy(() => import('../pages/admin/AdminIncidents').then(module => ({ default: module.AdminIncidentDetail })))
 const AdminIncidents = lazy(() => import('../pages/admin/AdminIncidents').then(module => ({ default: module.AdminIncidents })))
 const AnalyticsPage = lazy(() => import('../pages/admin/DispatchAlertsAnalytics').then(module => ({ default: module.AnalyticsPage })))
+const AIPredictionPage = lazy(() => import('../pages/admin/AIPredictionPage'))
 const DispatchPage = lazy(() => import('../pages/admin/DispatchAlertsAnalytics').then(module => ({ default: module.DispatchPage })))
 const PublicAlertsAdmin = lazy(() => import('../pages/admin/DispatchAlertsAnalytics').then(module => ({ default: module.PublicAlertsAdmin })))
 const RiskZonesPage = lazy(() => import('../pages/admin/RiskZonesPage'))
@@ -68,6 +69,7 @@ const routeTitleKeys = [
   [/^\/command\/risk-zones$/, 'legacy.riskZones'],
   [/^\/command\/alerts$/, 'legacy.publicAlerts'],
   [/^\/command\/analytics$/, 'legacy.analytics'],
+  [/^\/command\/predictions$/, 'legacy.aiPrediction'],
   [/^\/command\/users$/, 'legacy.users'],
   [/^\/command\/units$/, 'legacy.units'],
   [/^\/command\/hospitals$/, 'legacy.hospitals'],
@@ -126,6 +128,7 @@ export default function AppRoutes() {
           <Route path="/command/risk-zones" element={<RiskZonesPage />} />
           <Route path="/command/alerts" element={<PublicAlertsAdmin />} />
           <Route path="/command/analytics" element={<AnalyticsPage />} />
+          <Route path="/command/predictions" element={<AIPredictionPage />} />
           <Route path="/command/users" element={<UserManagementPage />} />
           <Route path="/command/units" element={<UnitsPage />} />
           <Route path="/command/hospitals" element={<HospitalsPage />} />

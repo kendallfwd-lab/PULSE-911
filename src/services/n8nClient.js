@@ -4,7 +4,7 @@ export const AI_ENABLED = String(import.meta.env.VITE_PULSE_AI_ENABLED || 'false
 export const N8N_ENDPOINTS = Object.freeze({
   chat: '/webhook/pulse/chat', context: '/webhook/pulse/context', translate: '/webhook/pulse/translate', route: '/webhook/pulse/route',
   places: '/webhook/pulse/places', weather: '/webhook/pulse/weather', analyzeReport: '/webhook/pulse/admin/analyze-report',
-  analyzeRisk: '/webhook/pulse/admin/analyze-risk', approveSuggestion: '/webhook/pulse/admin/approve-suggestion', sync: '/webhook/pulse/sync', status: '/webhook/pulse/status',
+  analyzeRisk: '/webhook/pulse/admin/analyze-risk', prediction: '/webhook/pulse/admin/prediction', approveSuggestion: '/webhook/pulse/admin/approve-suggestion', sync: '/webhook/pulse/sync', status: '/webhook/pulse/status',
 })
 
 export async function requestN8N(path, payload, { method = 'POST', timeoutMs = 12000, signal } = {}) {

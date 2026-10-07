@@ -187,7 +187,7 @@ export function AccessibilityControls({ compact = false }) {
           data-tooltip={`${soundCopy.title}: ${soundCopy[sound]}`}
           onClick={() => toggleMenu('sound')}
         >
-          {sound === 'off' ? <VolumeX size={17} aria-hidden="true" /> : <Volume2 size={17} aria-hidden="true" />}
+          {sound === 'off' ? <VolumeX size={22} aria-hidden="true" /> : <Volume2 size={22} aria-hidden="true" />}
         </button>
 
         {openMenu === 'sound' ? (
@@ -208,11 +208,11 @@ export function AccessibilityControls({ compact = false }) {
         ) : null}
       </div>
 
-      <div className="a11y-control-anchor">
+      <div className="a11y-control-anchor a11y-vision-anchor">
         <button
           ref={visionTriggerRef}
           type="button"
-          className={`a11y-control-button${openMenu === 'vision' ? ' active' : ''}${colorVisionMode !== 'standard' ? ' mode-enabled' : ''}`}
+          className={`a11y-control-button a11y-vision-button${openMenu === 'vision' ? ' active' : ''}${colorVisionMode !== 'standard' ? ' mode-enabled' : ''}`}
           aria-label={`${t('accessibility.visualMode')}: ${t(`accessibility.${colorVisionMode==='high-contrast'?'highContrast':colorVisionMode}`)}`}
           aria-haspopup="menu"
           aria-expanded={openMenu === 'vision'}
@@ -220,7 +220,7 @@ export function AccessibilityControls({ compact = false }) {
           data-tooltip={`${t('accessibility.visualMode')}: ${t(`accessibility.${colorVisionMode==='high-contrast'?'highContrast':colorVisionMode}`)}`}
           onClick={() => toggleMenu('vision')}
         >
-          <Eye size={17} aria-hidden="true" />
+          <Eye size={21} aria-hidden="true" />
           <span className="a11y-mode-indicator" aria-hidden="true" />
         </button>
 
@@ -242,7 +242,7 @@ export function AccessibilityControls({ compact = false }) {
         ) : null}
       </div>
 
-      <div className="a11y-control-anchor">
+      <div className="a11y-control-anchor a11y-theme-anchor">
         <button
           type="button"
           className="a11y-control-button a11y-theme-button"
@@ -255,7 +255,7 @@ export function AccessibilityControls({ compact = false }) {
           }}
         >
           <span className="a11y-theme-icon" aria-hidden="true">
-            {isDark ? <Sun size={17} /> : <Moon size={17} />}
+            {isDark ? <Sun size={20} /> : <Moon size={20} />}
           </span>
         </button>
       </div>

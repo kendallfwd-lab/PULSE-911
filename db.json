@@ -1,6 +1,86 @@
 {
   "users": [
     {
+      "id": "usr-255ec162-78ae-4e1b-b348-8c6dc97bb8f0",
+      "email": "karlasv@gmail.com",
+      "passwordSalt": "f8b24e32ec64e9d2dc8623a83cfb5568",
+      "passwordHash": "55880d2805b51521d1f47fc8ee2c28ebbefcc22b3076725cf651bbe279337eb24ad1f553116e4949d77046788a21acb46b0f6e69f47d8e9c10078b2e90133b06",
+      "role": "citizen",
+      "profileComplete": true,
+      "profile": {
+        "fullName": "KARLA MARIA VARGAS MADRIGAL",
+        "document": "603550782",
+        "birthDate": "1986-04-06",
+        "phone": "12345678",
+        "province": "San José",
+        "canton": "Santa Ana",
+        "district": "Uruca",
+        "address": "esdgfghjj",
+        "bloodType": "",
+        "allergies": "no",
+        "medications": "todos",
+        "conditions": "todas",
+        "mobility": "algunos",
+        "notes": "Datos ficticios para demostración.",
+        "consents": {
+          "location": true,
+          "medical": false,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": [
+          {
+            "id": "ct-1791343693883",
+            "name": "Kendall Salazar V",
+            "relation": "hijo",
+            "phone": "12345678",
+            "email": "kendallfwd@gmail.com",
+            "priority": 1
+          }
+        ]
+      }
+    },
+    {
+      "id": "usr-01bfb749-f0ef-44ee-a837-6ba9900dc237",
+      "email": "oscar101ft@gmail.com",
+      "passwordSalt": "3387fb6cbdb2e49450b8c42f68f633b7",
+      "passwordHash": "a874038be8a3b37a49548e7ae18d534d0042c5e4888c2a84d30a807cc66944b28a724558a661d6da0874df77c2cc9d107a9ea10968b522c09bfffa140997d072",
+      "role": "citizen",
+      "profileComplete": true,
+      "profile": {
+        "fullName": "OSCAR YAVETH GUIDO ROSALES",
+        "document": "605060287",
+        "birthDate": "2007-07-12",
+        "phone": "60586593",
+        "province": "Puntarenas",
+        "canton": "Osa",
+        "district": "Palmar",
+        "address": "Oscar 21 metros",
+        "bloodType": "O+",
+        "allergies": "nothing",
+        "medications": "no",
+        "conditions": "good",
+        "mobility": "Mi ojo duele",
+        "notes": "Datos ficticios para demostración.",
+        "consents": {
+          "location": true,
+          "medical": false,
+          "notifyContact": true,
+          "unitTracking": true
+        },
+        "contacts": [
+          {
+            "id": "ct-1791297678735",
+            "name": "Kendall Salazar V",
+            "relation": "Yasimair",
+            "phone": "3983883923",
+            "email": "kendallfwd@gmail.com",
+            "priority": 1
+          }
+        ]
+      }
+    },
+    {
       "id": "usr-99ede183-02e7-459c-990e-fbed35b829e3",
       "email": "tom@gmail.com",
       "passwordSalt": "81615a75c8fce795c9a6a279ec6e247a",
@@ -2245,6 +2325,41 @@
       "label": "Usuario ciudadano creado por administración",
       "at": "2026-10-05T20:07:45.457Z",
       "userId": "usr-admin-demo"
+    },
+    {
+      "id": "audit-51250201-fd5f-4f94-8783-8c293d9de99f",
+      "type": "audit",
+      "label": "Nueva cuenta ciudadana creada",
+      "at": "2026-10-06T14:41:18.625Z",
+      "userId": "usr-01bfb749-f0ef-44ee-a837-6ba9900dc237"
+    },
+    {
+      "id": "audit-19936826-fc3a-4b0c-968f-e2518912358b",
+      "type": "audit",
+      "label": "Perfil ciudadano actualizado",
+      "at": "2026-10-06T14:43:38.565Z",
+      "userId": "usr-01bfb749-f0ef-44ee-a837-6ba9900dc237"
+    },
+    {
+      "id": "audit-929d1799-ff94-4c57-bd51-ff64f8a20179",
+      "type": "audit",
+      "label": "Perfil ciudadano actualizado",
+      "at": "2026-10-06T16:12:41.197Z",
+      "userId": "usr-01bfb749-f0ef-44ee-a837-6ba9900dc237"
+    },
+    {
+      "id": "audit-fed7c8fe-caf6-4cce-b50c-1f4d203688c3",
+      "type": "audit",
+      "label": "Nueva cuenta ciudadana creada",
+      "at": "2026-10-07T03:28:13.783Z",
+      "userId": "usr-255ec162-78ae-4e1b-b348-8c6dc97bb8f0"
+    },
+    {
+      "id": "audit-418aa2b0-836a-4520-9bdd-64cacd4fa1f6",
+      "type": "audit",
+      "label": "Perfil ciudadano actualizado",
+      "at": "2026-10-07T03:31:33.881Z",
+      "userId": "usr-255ec162-78ae-4e1b-b348-8c6dc97bb8f0"
     }
   ],
   "scenarios": [

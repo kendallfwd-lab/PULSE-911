@@ -4,6 +4,8 @@ dist/
 *.log
 .env.local
 .DS_Store
+.tmp-cdp-*.mjs
+.tmp-*-chrome/
 /n8n-*.png
 /pulse-ai-*.png
 /pulse-ia-*.png

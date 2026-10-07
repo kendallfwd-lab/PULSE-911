@@ -54,29 +54,76 @@
 .a11y-control-button small { font-size:calc(8px * var(--text-scale, 1)); font-weight: 900; }
 .a11y-control-button.mode-enabled { color: var(--a11y-accent-text, #075482); }
 
-.a11y-theme-button { padding: 3px; }
+.accessibility-controls-compact {
+  gap: 14px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.accessibility-controls-compact .a11y-control-button {
+  min-width: 30px;
+  min-height: 34px;
+  padding: 4px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #063ee8;
+}
+
+.accessibility-controls-compact .a11y-control-button:hover,
+.accessibility-controls-compact .a11y-control-button.active {
+  border: 0;
+  background: #eef2ff;
+  color: #063ee8;
+  transform: none;
+}
+
+.a11y-vision-button { gap: 6px; }
+.a11y-theme-anchor { margin-left: 2px; }
+
+.a11y-theme-button,
+.a11y-theme-button:hover,
+.a11y-theme-button.active {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #e8edff;
+  color: #063ee8;
+  box-shadow: none;
+  transform: none;
+}
 
 .a11y-theme-icon {
-  width: 24px;
-  height: 24px;
+  width: 100%;
+  height: 100%;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--a11y-accent-soft, #e8f3fb);
-  color: var(--a11y-accent-text, #075482);
+  background: transparent;
+  color: inherit;
 }
 
-html[data-theme='dark'] .a11y-theme-icon {
-  background: var(--a11y-warning-soft, #3d3117);
-  color: var(--a11y-warning, #f4cf72);
+html[data-theme='dark'] .a11y-theme-button,
+html[data-theme='dark'] .a11y-theme-button:hover {
+  border: 0;
+  background: #283654;
+  color: #f4cf72;
 }
 
 .a11y-mode-indicator {
-  width: 5px;
-  height: 5px;
-  border: 1px solid currentColor;
+  width: 7px;
+  height: 7px;
+  flex: 0 0 7px;
+  border: 0;
   border-radius: 50%;
-  background: var(--a11y-accent, #146cb5);
+  background: #063ee8;
 }
 
 .a11y-control-button::after {
@@ -241,6 +288,7 @@ html[data-theme='dark'] .accessibility-controls {
   .a11y-control-button { width: 26px; min-width: 26px; min-height: 27px; padding: 2px; }
   .a11y-theme-button { padding: 2px; }
   .a11y-theme-icon { width: 22px; height: 22px; }
+  .a11y-theme-anchor { margin-left: 1px; }
   .a11y-control-button small,
   .a11y-button-aa,
   .a11y-mode-indicator { display: none; }

@@ -105,6 +105,7 @@ const rows = [
   ['publicAlerts','Alertas públicas','Public alerts','Alertes publiques','Alertas públicos','Öffentliche Warnungen'],
   ['publications','Publicaciones','Publications','Publications','Publicações','Veröffentlichungen'],
   ['analytics','Analítica','Analytics','Analytique','Análises','Analysen'],
+  ['aiPrediction','Predicción con IA','AI prediction','Prédiction par IA','Previsão com IA','KI-Prognose'],
   ['users','Usuarios','Users','Utilisateurs','Usuários','Benutzer'],
   ['audit','Auditoría','Audit','Audit','Auditoria','Prüfprotokoll'],
   ['scenarios','Escenarios','Scenarios','Scénarios','Cenários','Szenarien'],

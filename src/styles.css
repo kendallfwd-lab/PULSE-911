@@ -1788,6 +1788,10 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,te
 }
 .geo-marker.risk.simulated-demo{border-radius:50%!important}
 .geo-marker.risk.simulated-demo span{background:#75121b!important}
+.geo-marker.place{width:34px;height:34px;border-radius:50%;background:#0b78bd;color:#fff;border:3px solid #fff}
+.geo-marker.place.category-hospitals,.geo-marker.place.category-pharmacies{background:#c52d45}
+.geo-marker.place.category-parks,.geo-marker.place.category-beaches{background:#16865b}
+.geo-marker.place.category-restaurants,.geo-marker.place.category-cafes{background:#b56b08}
 .unified-map-counts .demo-count{border-color:#f3c1c6;background:#fff4f5;color:#aa2432}
 .national-demo-note{padding:10px 11px;display:grid;gap:3px;border:1px solid #f2c4c9;border-radius:10px;background:#fff5f6;color:#9d1f2c}
 .national-demo-note strong{font-size:calc(9px * var(--text-scale, 1));letter-spacing:.02em}

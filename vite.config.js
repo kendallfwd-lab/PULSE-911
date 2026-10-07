@@ -7,13 +7,14 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     setupFiles: './src/test/setup.js',
+    testTimeout: 10000,
   },
   server: {
     host: '127.0.0.1',
     port: 5175,
     strictPort: true,
     watch: {
-      ignored: ['**/db.json'],
+      ignored: ['**/db.json', '**/.tmp-*-chrome/**'],
     },
   },
   preview: {
