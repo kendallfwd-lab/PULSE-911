@@ -11,6 +11,18 @@ const PulseContext = createContext(null)
 const nowIso = () => new Date().toISOString()
 const clone = value => JSON.parse(JSON.stringify(value))
 const channel = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('pulse911-demo-v6') : null
+const useBrowserAccountStore = import.meta.env.PROD && DATA_MODE === 'local'
+
+function demoProfile(fullName) {
+  return {
+    fullName,
+    document: '', birthDate: '', phone: '', province: '', canton: '', district: '', address: '',
+    bloodType: '', allergies: '', medications: '', conditions: '', mobility: '',
+    notes: 'Datos ficticios para demostración.',
+    consents: { location: true, medical: false, notifyContact: true, unitTracking: true },
+    contacts: [],
+  }
+}
 
 export function mergeRemoteCollections(localDb, remoteDb, allowedKeys) {
   return allowedKeys.reduce((next, key) => {
@@ -193,6 +205,9 @@ export function PulseProvider({ children }) {
     const normalizedEmail=email.trim().toLowerCase()
     const localUser=db.users.find(user=>user.email.toLowerCase()===normalizedEmail&&user.password===password)
     if(localUser){
+      if(useBrowserAccountStore){
+        saveSession(localUser.id);setSessionId(localUser.id);return {ok:true,user:localUser}
+      }
       try{
         const response=await fetch('/api/users/sync',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:localUser.id,email:localUser.email,password:localUser.password,role:localUser.role,profile:localUser.profile,profileComplete:localUser.profileComplete})})
         const result=await response.json()
@@ -219,6 +234,11 @@ export function PulseProvider({ children }) {
   const register = async ({ fullName, email, password }) => {
     const normalizedEmail=email.trim().toLowerCase()
     if(db.users.some(user=>user.email.toLowerCase()===normalizedEmail))return {ok:false,message:'Ya existe una cuenta con ese correo.'}
+    if(useBrowserAccountStore){
+      const user={id:`usr-${Date.now()}`,email:normalizedEmail,password,role:'citizen',profileComplete:false,profile:demoProfile(fullName.trim())}
+      commit(prev=>appendAudit({...prev,users:[user,...prev.users]},'Nueva cuenta ciudadana creada',{userId:user.id}))
+      saveSession(user.id);setSessionId(user.id);return {ok:true,user}
+    }
     try{
       const response=await fetch('/api/register',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fullName,email:normalizedEmail,password})})
       const result=await response.json()
@@ -234,6 +254,11 @@ export function PulseProvider({ children }) {
     if(currentUser?.role!=='admin')return {ok:false,message:'Solo una cuenta administradora puede crear usuarios.'}
     const normalizedEmail=email.trim().toLowerCase()
     if(db.users.some(user=>user.email.toLowerCase()===normalizedEmail))return {ok:false,message:'Ya existe una cuenta con ese correo.'}
+    if(useBrowserAccountStore){
+      const user={id:`usr-${Date.now()}`,email:normalizedEmail,password,role,profileComplete:role==='admin',createdAt:nowIso(),createdBy:currentUser.id,active:true,profile:role==='admin'?{fullName:fullName.trim(),operatorCode:`OP-${String(Date.now()).slice(-6)}`}:demoProfile(fullName.trim())}
+      commit(prev=>appendAudit({...prev,users:[user,...prev.users]},'Usuario creado desde administración',{userId:user.id,role:user.role,createdBy:currentUser.id}))
+      return {ok:true,user}
+    }
     try{
       const response=await fetch('/api/admin/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({actorId:currentUser.id,fullName,email:normalizedEmail,password,role})})
       const result=await response.json()
@@ -247,6 +272,11 @@ export function PulseProvider({ children }) {
   }
   const updateProfile = async profile => {
     if(!currentUser)return {ok:false,message:'No hay una sesión ciudadana activa.'}
+    if(useBrowserAccountStore){
+      const user={...currentUser,profile:{...(currentUser.profile||{}),...profile},profileComplete:true}
+      commit(prev=>appendAudit({...prev,users:prev.users.map(existing=>existing.id===user.id?user:existing)},'Perfil ciudadano actualizado',{userId:user.id}))
+      return {ok:true,user}
+    }
     try{
       const response=await fetch(`/api/users/${encodeURIComponent(currentUser.id)}/profile`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({profile})})
       const result=await response.json()

@@ -10,3 +10,5 @@ dist/
 /pulse-ai-*.png
 /pulse-ia-*.png
 /voice-selector.png
+
+.vercel/
